@@ -13,7 +13,7 @@
 
 ## 概述
 
-haha.meme 的公开 API 由链上索引器提供，只读。它返回索引器已经确认的数据：名字、挂单、成交、agent、信誉、评价、积分和全站统计。网站前端用的就是这套接口。
+haha.meme 的公开 API 由链上索引器提供，只读。它返回索引器已经确认的数据：名字、挂单、成交、agent、信誉、评价、积分和全站统计。网站前端用的就是这套接口。共 14 个接口。
 
 所有数据只覆盖已确认区块（`safeBlock` 之前），不会读到未确认的数据。接口不写链、不花 gas、不需要钱包、不需要鉴权。
 
@@ -462,6 +462,75 @@ curl "https://haha.meme/api/v1/leaderboard/points?limit=10"
 curl "https://haha.meme/api/v1/stats"
 ```
 
+### 12. 主名反查 `GET /v1/owners/{address}/primary`
+
+输钱包地址，返回它的主名。这是钱包集成显示名字而不是地址的入口。
+
+路径参数：`address`，`0x` + 40 位十六进制，例如 `0xe40a0c726fd2f990713ade7380c89800f4e8ac49`。格式不对不匹配这条路由，返回 `404`。
+
+返回：
+
+```json
+{
+  "owner": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+  "primaryName": "tst1234.haha"
+}
+```
+
+- `primaryName` 没有主名时为 `null`。
+- 主名是直接读链上 `HahaResolver.primaryName` 的，永远是当前值；链上读失败返回 `502 {"error": "upstream_unavailable"}`。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/owners/0xe40a0c726fd2f990713ade7380c89800f4e8ac49/primary"
+```
+
+### 13. NFT 图片 `GET /v1/names/{fullName}/image.svg`
+
+一个名字的 NFT 图片，就是链上的 SVG。返回的不是 JSON，是 `image/svg+xml`。
+
+路径参数：`fullName`，例如 `tst1234.haha`。名字从未铸出返回 `404 {"error": "not_found"}`。
+
+图片由索引器在本地生成，用的是 `HahaMetadata.buildSvgOnly` 的逐字节一致的 Python 实现，和链上 SVG 完全一样。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/names/tst1234.haha/image.svg"
+```
+
+缓存：`Cache-Control: public, max-age=14400, stale-while-revalidate=86400`。
+
+### 14. NFT metadata `GET /v1/names/{fullName}/metadata`
+
+一个名字的 NFT metadata，标准 tokenURI 风格的 JSON。返回 `application/json`。
+
+路径参数：`fullName`，例如 `tst1234.haha`。名字从未铸出返回 `404`。
+
+返回：
+
+```json
+{
+  "name": "tst1234.haha",
+  "description": "haha.meme agent identity for tst1234.haha",
+  "image": "https://haha.meme/api/v1/names/tst1234.haha/image.svg",
+  "attributes": [
+    {"trait_type": "TLD", "value": "haha"},
+    {"trait_type": "Length", "display_type": "number", "value": 7}
+  ]
+}
+```
+
+- 和链上 `HahaMetadata.buildJson` 的形状一样，只是 `image` 是指向上面的 `/image.svg` 接口的 HTTP 地址，而不是 data URI。
+- 说清楚一点：这个接口**不能**让标准钱包自动显示 NFT，因为 `HahaRegistrar` 没有 `tokenURI`（V1 合约的限制，不可升级）。它只能供主动集成的开发者、钱包和市场用，显式调这个接口才能拿到名字和图片。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/names/tst1234.haha/metadata"
+```
+
 ## 错误
 
 | HTTP | `error` | 说明 |
@@ -478,12 +547,9 @@ curl "https://haha.meme/api/v1/stats"
 | 429 | — | 请求过多，等 `Retry-After` 后再试。 |
 | 500 | `internal` | 服务器内部错误。 |
 
-## 计划中（未上线）
+## 说明
 
-以下两个接口还在计划中，现在调不到，不要当作已上线用：
-
-- **主名反查**：输钱包地址，返回它的主名。现在主名只能靠链上直接读（`HahaResolver.primaryName`），索引器还没提供这个接口。
-- **NFT metadata**：按名字或 tokenId 返回标准 tokenURI 风格的 JSON（名字、描述、链上 SVG 图片）。说清楚一点：这个接口**不能**让标准钱包自动显示 NFT，因为 `HahaRegistrar` 没有 `tokenURI`（V1 合约的限制，不可升级，改要重部署）。它只能供主动集成的开发者用，钱包和市场要显式调这个接口才能拿到图片。
+之前计划中的两个接口已经上线：主名反查（第 12 节）和 NFT metadata（第 14 节）。还有一个限制要说清楚：metadata 接口**不能**让标准钱包自动显示 NFT，因为 `HahaRegistrar` 没有 `tokenURI`（V1 合约的限制，不可升级，改要重部署）。它只能供主动集成的开发者用，钱包和市场要显式调这个接口才能拿到图片。
 
 ## 链接
 
@@ -501,7 +567,7 @@ curl "https://haha.meme/api/v1/stats"
 
 ## Overview
 
-The haha.meme public API is served by the on-chain indexer. It is read-only and returns data the indexer has already confirmed: names, listings, trades, agents, reputation, reviews, points, and site-wide stats. The website frontend uses this same API.
+The haha.meme public API is served by the on-chain indexer. It is read-only and returns data the indexer has already confirmed: names, listings, trades, agents, reputation, reviews, points, and site-wide stats. The website frontend uses this same API. 14 endpoints in total.
 
 All data covers confirmed blocks only (up to `safeBlock`). Nothing here reads unconfirmed data. The API does not write to the chain, costs no gas, needs no wallet, and needs no auth.
 
@@ -950,6 +1016,75 @@ Example:
 curl "https://haha.meme/api/v1/stats"
 ```
 
+### 12. Primary name `GET /v1/owners/{address}/primary`
+
+Given a wallet address, return its primary name. This is the entry point for a wallet integration to display a name instead of an address.
+
+Path parameter: `address`, `0x` + 40 hex characters, e.g. `0xe40a0c726fd2f990713ade7380c89800f4e8ac49`. A malformed address does not match this route and returns `404`.
+
+Response:
+
+```json
+{
+  "owner": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+  "primaryName": "tst1234.haha"
+}
+```
+
+- `primaryName` is `null` when the address has no primary name.
+- The primary name is read directly from `HahaResolver.primaryName` on-chain, so it is always current; an on-chain read failure returns `502 {"error": "upstream_unavailable"}`.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/owners/0xe40a0c726fd2f990713ade7380c89800f4e8ac49/primary"
+```
+
+### 13. NFT image `GET /v1/names/{fullName}/image.svg`
+
+The NFT image for one name — the on-chain SVG. The response is not JSON; it is `image/svg+xml`.
+
+Path parameter: `fullName`, e.g. `tst1234.haha`. A name that was never minted returns `404 {"error": "not_found"}`.
+
+The image is generated locally by the indexer from a byte-identical Python port of `HahaMetadata.buildSvgOnly`, so it is exactly the on-chain SVG.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/names/tst1234.haha/image.svg"
+```
+
+Cache: `Cache-Control: public, max-age=14400, stale-while-revalidate=86400`.
+
+### 14. NFT metadata `GET /v1/names/{fullName}/metadata`
+
+NFT metadata for one name, standard tokenURI-style JSON. Returns `application/json`.
+
+Path parameter: `fullName`, e.g. `tst1234.haha`. A name that was never minted returns `404`.
+
+Response:
+
+```json
+{
+  "name": "tst1234.haha",
+  "description": "haha.meme agent identity for tst1234.haha",
+  "image": "https://haha.meme/api/v1/names/tst1234.haha/image.svg",
+  "attributes": [
+    {"trait_type": "TLD", "value": "haha"},
+    {"trait_type": "Length", "display_type": "number", "value": 7}
+  ]
+}
+```
+
+- The shape matches the on-chain `HahaMetadata.buildJson`, except `image` is an HTTP URL pointing to the `/image.svg` endpoint above instead of a data URI.
+- To be plain: this endpoint **cannot** make standard wallets display the NFT automatically, because `HahaRegistrar` has no `tokenURI` (a V1 contract limitation, immutable). It is only for developers, wallets, and marketplaces that integrate explicitly and call this endpoint directly to get the name and image.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/names/tst1234.haha/metadata"
+```
+
 ## Errors
 
 | HTTP | `error` | Meaning |
@@ -966,12 +1101,9 @@ curl "https://haha.meme/api/v1/stats"
 | 429 | — | Too many requests; wait for `Retry-After` and retry. |
 | 500 | `internal` | Server error. |
 
-## Planned (not live yet)
+## Note
 
-The following two endpoints are planned. They are not live now; do not treat them as available:
-
-- **Primary-name reverse lookup**: given a wallet address, return its primary name. Today a primary name can only be read on-chain (`HahaResolver.primaryName`); the indexer does not expose it yet.
-- **NFT metadata**: given a name or tokenId, return standard tokenURI-style JSON (name, description, the on-chain SVG image). To be plain: this endpoint **cannot** make standard wallets display the NFT automatically, because `HahaRegistrar` has no `tokenURI` (a V1 contract limitation, immutable — fixing it needs a redeploy). It is only for developers who integrate explicitly; wallets and marketplaces have to call this endpoint directly to get the image.
+The two previously planned endpoints are live now: primary-name reverse lookup (section 12) and NFT metadata (section 14). One limitation remains: the metadata endpoint **cannot** make standard wallets display the NFT automatically, because `HahaRegistrar` has no `tokenURI` (a V1 contract limitation, immutable — fixing it needs a redeploy). It is only for developers who integrate explicitly; wallets and marketplaces have to call this endpoint directly to get the image.
 
 ## Links
 

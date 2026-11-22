@@ -1,0 +1,36 @@
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.28"
+optimizer = true
+optimizer_runs = 200
+# via-ir 是**必需**的，不是可选项。理由（已实测）：
+#   solc 的非 via-ir 代码生成器在处理「父合约内嵌子工厂 initcode + 子工厂返回多值」时会
+#   stack too deep，与业务逻辑无关。关掉 via-ir 会让 HahaDeployer 直接编译失败。
+#   via-ir 会改变字节码与 gas 分布，因此所有体积/gas 断言都基于 via-ir 的产物。
+#   部署前必须在 docs/AUDIT.md 里记录这一点，审计方需按 via-ir 产物复核。
+via_ir = true
+evm_version = "cancun"
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "forge-std/=lib/forge-std/src/",
+]
+fs_permissions = [{ access = "read", path = "./" }]
+
+[profile.ci]
+fuzz = { runs = 5000 }
+invariant = { runs = 256, depth = 64 }
+
+[fuzz]
+runs = 1000
+
+[invariant]
+runs = 128
+depth = 48
+fail_on_revert = false
+
+[rpc_endpoints]
+bsc = "${BSC_RPC_URL}"

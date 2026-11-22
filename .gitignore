@@ -1,0 +1,15 @@
+# Foundry build outputs
+out/
+cache/
+broadcast/
+
+# Foundry dependencies (install with `forge install`)
+lib/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

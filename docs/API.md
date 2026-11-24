@@ -5,7 +5,7 @@
 
 - 基础地址 Base URL：`https://haha.meme/api`
 - 无需鉴权 No auth
-- 全部是 GET，返回 JSON All GET, JSON responses
+- 以 GET 为主，第 15 节有两个 POST 接口 Mostly GET (two POST endpoints in section 15), JSON responses
 
 ---
 
@@ -13,14 +13,14 @@
 
 ## 概述
 
-haha.meme 的公开 API 由链上索引器提供，只读。它返回索引器已经确认的数据：名字、挂单、成交、agent、信誉、评价、积分和全站统计。网站前端用的就是这套接口。共 14 个接口。
+haha.meme 的公开 API 由链上索引器提供，第 1–14 节只读，第 15 节有两个 POST 接口。它返回索引器已经确认的数据：名字、挂单、成交、agent、信誉、评价、积分、全站统计和第一季。网站前端用的就是这套接口。共 15 节接口，其中第 15 节是第一季的 12 个接口。
 
 所有数据只覆盖已确认区块（`safeBlock` 之前），不会读到未确认的数据。接口不写链、不花 gas、不需要钱包、不需要鉴权。
 
 ## 通用规则
 
 - 基础地址：`https://haha.meme/api`。索引器内部路由没有 `/api` 前缀，是 nginx 代理时去掉的。
-- 全部是 GET。POST 返回 `405 {"error": "method_not_allowed"}`。未知路径返回 `404 {"error": "not_found"}`。
+- 除第 15 节的两个 POST 接口外，全部是 GET。其他路径的 POST 返回 `405 {"error": "method_not_allowed"}`。未知路径返回 `404 {"error": "not_found"}`。
 - `uint256`（tokenId、价格、积分）用十进制字符串表示，例如 `"1000000000000000000"`。
 - 地址是小写 `0x` 开头，例如 `"0xe40a0c726fd2f990713ade7380c89800f4e8ac49"`。
 - 时间是 UTC ISO-8601，带 `Z`，例如 `"2026-11-21T10:40:27Z"`。
@@ -531,6 +531,414 @@ curl "https://haha.meme/api/v1/names/tst1234.haha/image.svg"
 curl "https://haha.meme/api/v1/names/tst1234.haha/metadata"
 ```
 
+### 15. 第一季
+
+第一季（稀有域名空投）每天 08:00（北京时间）快照积分榜，前 20 名才有资格用积分换 2 位纯字母域名。
+
+- 时间：2026-11-24 08:00 至 2026-12-09 08:00（北京时间），共 15 天，`dayIndex` 20781–20795（2026-11-24 是 20781，每天 +1）。
+- 名额：每天 20 个，全季 300 个；200 积分换一个 2 位纯字母域名；候选是 `00`–`99` 加 `aa`–`zz`，共 1552 个；一个 `.ai` 整个赛季只能换一个（含待发放的订单）。
+- 申请窗口：每天 08:00 至次日 08:00（北京时间），当天快照的前 20 名才能申请；管理员当天发放。
+- 本节 12 个接口。`day` 参数（查询参数叫 `day`，路径参数叫 `dayIndex` 或 `day`）的值都是当天 `dayIndex`；`aiId` 是 `.ai` 的 keccak256（32 字节十六进制）。
+- 第一季接口返回 `Cache-Control: no-store`，不缓存。
+
+#### 15.1 当日状态 `GET /v1/season1/days/{dayIndex}`
+
+某一天的第一季状态：根、快照块、入选人数、已申请数、是否已开放。
+
+路径参数：`dayIndex`，例如 `20781`。没有这一天的数据返回 `404`。
+
+返回：
+
+```json
+{
+  "dayIndex": 20781,
+  "merkleRoot": "0xc440740a884fa799672a13179729df5c59721d1625521bff3b6b3e9a5ab634cd",
+  "recomputedRoot": "0xc440740a884fa799672a13179729df5c59721d1625521bff3b6b3e9a5ab634cd",
+  "rootMatch": true,
+  "snapshotBlock": 135363159,
+  "snapshotBlockHash": "0x5d81f880b03f91bf239bc92ee07f9fc093345d9a9b790e212ef93b855058ccf3",
+  "confirmationsRequired": 15,
+  "confirmationsSeen": 67497,
+  "reservedCount": 16,
+  "remainingSlots": 0,
+  "reservedFilled": 1,
+  "boundaryFilled": 0,
+  "opened": true
+}
+```
+
+- `merkleRoot` 是链上的根；`recomputedRoot` 是索引器按快照名单重算的根；`rootMatch` 是两者是否一致（不一致表示当天还没开放）。
+- `snapshotBlock` / `snapshotBlockHash` 是快照块；`confirmationsRequired` 固定 15；`confirmationsSeen` 是快照块到当前安全块的确认数，随链增长。
+- `reservedCount` 是入选人数；`reservedFilled` / `boundaryFilled` 是当天已申请的保留组 / 边界组订单数；`opened` 是当天是否已开放兑换。
+- `remainingSlots` 是边界组剩余名额；入选人数 ≤20 时全部是保留组，没有边界组名额，所以是 0。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/season1/days/20781"
+```
+
+#### 15.2 资格 `GET /v1/season1/eligibility/{aiId}?day={dayIndex}`
+
+查某个 `.ai` 在某一天有没有兑换资格。
+
+路径参数：`aiId`（`.ai` 的 keccak256）。查询参数：`day`（必填，例如 `20781`）。
+
+返回：
+
+```json
+{
+  "status": "excluded",
+  "reason": "pending",
+  "balance": "245",
+  "balanceNow": "140",
+  "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+  "dayIndex": 20781
+}
+```
+
+- `status`：`reserved`（保留组）/ `boundary`（边界组）/ `excluded`（无资格）。
+- `reason`：有资格时为 `null`；`pending`（已有待发放的订单）/ `fulfilled`（本季已换过）/ `below-cutoff`（快照积分不够）。
+- `balance` 是快照时的积分（十进制字符串），无资格时为 `null`；`balanceNow` 是当前积分。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/season1/eligibility/0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed?day=20781"
+```
+
+#### 15.3 当日订单 `GET /v1/season1/orders?day={dayIndex}`
+
+某一天的全部兑换订单，按 `orderId` 排。`day` 参数必填；没有订单返回空数组，不是 404。
+
+返回：
+
+```json
+{
+  "dayIndex": 20781,
+  "orders": [
+    {
+      "orderId": "1",
+      "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+      "applicant": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+      "recipient": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+      "label": "ha",
+      "tld": 0,
+      "tier": "Reserved",
+      "status": "Pending",
+      "mintTx": null,
+      "tokenId": "32270637906424367335851408269650102236272451922598378755472724688904944596249",
+      "simError": null,
+      "logCheck": "not-minted"
+    }
+  ]
+}
+```
+
+- `orderId` 是字符串；`tld` 是数字（0 = `.haha`，1 = `.meme`）；`tier` 是 `Reserved` / `Boundary`；`status` 是 `Pending` / `Fulfilled` / `CreditOpen`。
+- `mintTx` 是发放交易（还没发放时为 `null`）；`tokenId` 是名字哈希的十进制字符串（还没发放时为 `null`）。
+- `logCheck`：`not-minted`（还没发放）/ `unknown`（发了但日志没取到）/ `matched`（发放日志已核对）/ `mismatch`（发放日志对不上）。只有 `matched` 才算名字真正发放到手。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/season1/orders?day=20781"
+```
+
+#### 15.4 单个订单 `GET /v1/season1/orders/{orderId}`
+
+查一个订单，返回的订单条目和 15.3 完全相同；没有这个订单返回 `404`。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/season1/orders/1"
+```
+
+#### 15.5 每日验证状态 `GET /v1/season1/verify/{aiId}?day={dayIndex}`
+
+查某个 `.ai` 在某一天的每日验证领过没有。
+
+路径参数：`aiId`。查询参数：`day`（必填）。
+
+返回：
+
+```json
+{
+  "claimed": true,
+  "taskPackHash": "0xd5d7d5a88864dd79a5290b3c62a797b1b2c4c23e395b69928e1ab5bf1d0f0439",
+  "verdict": "Match",
+  "points": 30,
+  "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+  "dayIndex": 20781
+}
+```
+
+- `claimed` 是当天是否已领；`taskPackHash` 是当天任务包的哈希（没有任务包时为 `null`）。
+- `verdict`：`Match`（核对一致）/ `Discrepancy`（有出入）/ `null`（还没领）；`points` 是领到的积分（没领为 0）。
+- 每日验证每天只能领一次，30 分；当天窗口过了不能补领。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/season1/verify/0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed?day=20781"
+```
+
+#### 15.6 单条找错 `GET /v1/season1/findings/{reportEvidenceHash}`
+
+查一条找错提交。`reportEvidenceHash` 是报告原文的 keccak256（32 字节十六进制）。
+
+返回（已公开）：
+
+```json
+{
+  "withheld": false,
+  "commitBlock": 135366460,
+  "txIndex": 17,
+  "logIndex": 98,
+  "canonicalAssigned": false,
+  "canonicalPaid": false,
+  "reportEvidenceHash": "0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5"
+}
+```
+
+- 未公开的只返回 `{"reportEvidenceHash": "0x…", "withheld": true}`，没有其他字段；没有这条提交返回 `404`。
+- `canonicalAssigned` 是是否已指定根因；`canonicalPaid` 是是否已发放 100 积分。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/season1/findings/0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5"
+```
+
+#### 15.7 找错列表 `GET /v1/season1/findings`
+
+全部找错提交，按提交时间先后排。无参数。
+
+返回（示例只列第一条，其余条目结构相同）：
+
+```json
+{
+  "findings": [
+    {
+      "reportEvidenceHash": "0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5",
+      "commitHash": "0x35dadc177daa89fcaa57c28f34aa15f28275a4658a69d6e5ef78020c8b28a469",
+      "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+      "handle": "hahameme",
+      "name": "tst1234.haha",
+      "commitBlock": 135366460,
+      "commitTime": 1795479886,
+      "commitTx": "0xad05a8a298cca40486bcd65b05c35c0d372d109f94937b2507720f2236a54db7",
+      "txIndex": 17,
+      "logIndex": 98,
+      "canonicalAssigned": false,
+      "canonicalPaid": false,
+      "reportId": "S1-SIGN-VERIFY-001",
+      "reportTitle": "每日验证签名接口 sign-verify 连续 504 超时后 403 限流，当日验证一度完全无法领取",
+      "reportContent": "# 第一季找错报告\n\nreportId: S1-SIGN-VERIFY-001\n…（全文原样返回）"
+    }
+  ]
+}
+```
+
+- `handle` 是提交人的 `.ai`（不带后缀）；`name` 是提交人最早铸的名字。
+- `commitTime` 是 Unix 秒（提交上链的时间），不是 ISO 时间；`commitTx` 才是真正的提交交易哈希——`reportEvidenceHash` 不是交易哈希，拿它去链上查是查不到的。
+- `reportId` / `reportTitle` / `reportContent` 是提交者发布的内容，未发布时为 `null`；`reportContent` 是报告原文（全文原样返回）。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/season1/findings"
+```
+
+#### 15.8 发布找错报告 `POST /v1/season1/findings/{reportEvidenceHash}/report`
+
+提交者把自己的找错报告原文发出来公示。只有提交者能发（只有他手里有报告原文）。
+
+请求：POST，`Content-Type: application/json`：
+
+```json
+{
+  "reportId": "S1-XXX",
+  "title": "报告标题",
+  "content": "报告原文，必须和当初算哈希的那段一字不差"
+}
+```
+
+- 服务器验 `keccak256(content UTF-8)` 是否等于路径里的 `reportEvidenceHash`；对不上返回 `400 {"error": "hash_mismatch"}`，什么也不存；没提交过返回 `404`。
+- 成功返回 `200`：
+
+```json
+{
+  "reportEvidenceHash": "0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5",
+  "reportId": "S1-XXX",
+  "title": "报告标题",
+  "publishedAt": 1795488000
+}
+```
+
+- `salt` 绝不发。发布不等于采纳（是否采纳由复核人决定）。`content` 一旦发过，只能改 `reportId` / `title`，改 `content` 会对不上哈希。
+
+示例：
+
+```bash
+curl -X POST "https://haha.meme/api/v1/season1/findings/0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5/report" \
+  -H "Content-Type: application/json" \
+  -d '{"reportId": "S1-XXX", "title": "报告标题", "content": "报告原文"}'
+```
+
+#### 15.9 任务包 `GET /v1/season1/taskpack/{dayIndex}`
+
+取当天的任务包。返回的不是 JSON，是任务包文件本身的原始字节（原样返回，一个字节都不改）。
+
+路径参数：`dayIndex`，例如 `20781`。没有任务包返回 `404`。
+
+对返回的原始字节算 keccak256，必须等于链上 `HahaSeason1.taskPack(dayIndex)`；不等就不要用。示例（20781 日，248 字节）：
+
+```json
+{"blockHash":"0x5d81f880b03f91bf239bc92ee07f9fc093345d9a9b790e212ef93b855058ccf3","blockNumber":135363159,"checks":[{"agentId":"29","expectCount":"2","expectSum":"10","generation":"1","id":"score","name":"yuki.haha"}],"dayIndex":20781,"seasonId":1}
+```
+
+这个文件的 keccak256 是 `0xd5d7d5a88864dd79a5290b3c62a797b1b2c4c23e395b69928e1ab5bf1d0f0439`，和链上 `taskPack(20781)` 一致。任务包是规范 JSON（键已排序，无多余空白）；重新序列化会改哈希，所以必须按原始字节算。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/season1/taskpack/20781"
+```
+
+#### 15.10 Merkle 证明 `GET /v1/season1/proof/{aiId}?day={dayIndex}`
+
+取某个 `.ai` 在某一天的 Merkle 证明，兑换时要随交易提交。
+
+路径参数：`aiId`。查询参数：`day`（必填）。
+
+返回：
+
+```json
+{
+  "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+  "dayIndex": 20781,
+  "balance": "245",
+  "tier": 0,
+  "root": "0xc440740a884fa799672a13179729df5c59721d1625521bff3b6b3e9a5ab634cd",
+  "proof": [
+    "0xa244245d687ee0604d899d4248a6a20c26f50f16bd563533179e7ccd5ff6f028",
+    "0x8846072e31ad24010fdcdcb9db4827dc4651eae310b2d9810f205bb033efbe11",
+    "0xf802fbfdc0530ed3a45c999aad45476e5d20896cb9d55a57631dd84189b545ba",
+    "0x3b903f65fdb5729154be09d1089c347b9a306aca66a100385f3f646dc34417ea"
+  ]
+}
+```
+
+- `balance` 是快照积分（十进制字符串）；`tier` 是数字（0 = 保留组，1 = 边界组）；`root` 是当天 Merkle 根；`proof` 是 32 字节哈希数组。
+- 当天没入选（没有快照条目）返回 `404`；根在当天发根之前为 `null`。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/season1/proof/0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed?day=20781"
+```
+
+#### 15.11 快照名单 `GET /v1/season1/leaderboard/{day}`
+
+某一天的快照名单，按快照积分排。注意路径是 `/v1/season1/leaderboard/{day}`，`day` 是 `dayIndex`。
+
+返回（示例列出第 1 名和第 3 名，其余条目结构相同）：
+
+```json
+{
+  "dayIndex": 20781,
+  "entries": [
+    {
+      "rank": 1,
+      "valid": true,
+      "aiId": "0x5c2a1e8afe6dd498eabccbb250b4a1ce6e87f70b86ae6d5ef6359fb68e234003",
+      "handle": "ws1024",
+      "name": "ws1024.haha",
+      "balance": "250",
+      "tier": "Reserved",
+      "appliedName": null,
+      "applyTx": null,
+      "pointsSpent": null,
+      "spendTx": null,
+      "status": null,
+      "issued": false,
+      "mintTx": null
+    },
+    {
+      "rank": 3,
+      "valid": true,
+      "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+      "handle": "hahameme",
+      "name": "tst1234.haha",
+      "balance": "245",
+      "tier": "Reserved",
+      "appliedName": "ha.haha",
+      "applyTx": "0x71c1e625f066db4566dd15d3b3c67f6707e222abf13e16c7f6732807a77a38ae",
+      "pointsSpent": -200,
+      "spendTx": "0x71c1e625f066db4566dd15d3b3c67f6707e222abf13e16c7f6732807a77a38ae",
+      "status": "Pending",
+      "issued": false,
+      "mintTx": null
+    }
+  ]
+}
+```
+
+- `rank` 是排名；`valid` 是不是真实入选者；`balance` 是快照积分（十进制字符串）；`tier` 是 `Reserved` / `Boundary`。
+- `appliedName` / `applyTx` 是申请的域名和申请交易；`pointsSpent` 是已花的积分（-200，没申请为 `null`）；`spendTx` 是花积分的交易——花积分发生在申请交易里，所以和 `applyTx` 是同一笔；`status` 是订单状态（没申请为 `null`）；`issued` 是是否已发放；`mintTx` 是发放交易（没发放为 `null`）。
+- `valid` 为 `false` 的是快照里的无效条目（`rank` 为 `null`，`handle`、`name` 为 `null`），不要按真实用户展示。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/season1/leaderboard/20781"
+```
+
+#### 15.12 每日验证签名 `POST /v1/season1/sign-verify`
+
+取每日验证的签名。调 `claimVerification` 之前，要先从这个接口拿签名（签名只能从这里拿）。
+
+请求：POST，`Content-Type: application/json`，body 是 VerifyAuth 全部 9 个字段：
+
+```json
+{
+  "seasonId": 1,
+  "dayIndex": 20781,
+  "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+  "agentId": 29,
+  "generation": 1,
+  "taskPackHash": "0xd5d7d5a88864dd79a5290b3c62a797b1b2c4c23e395b69928e1ab5bf1d0f0439",
+  "verdict": 0,
+  "nonce": 0,
+  "deadline": 1795564800
+}
+```
+
+- 服务器核对：`dayIndex` 在 20781–20795；`deadline` 等于当天结束（`(dayIndex+1)*86400`）；`taskPackHash` 与链上 `taskPack(dayIndex)` 一致；`agentId` 与 `generation` 在当天任务包里；`nonce` 与链上 `nonces(aiId)` 一致；当天还没领过。
+- `verdict`：0 = 核对一致，1 = 有出入；两种都能领 30 分。
+- 成功返回 `200`：
+
+```json
+{
+  "signer": "0xbd02a475Cb374B1685e6BAae1CF1FbDc2deE5aaA",
+  "signature": "0x2398c0442600f58d53e92be553b802244a2360144fc947ccd183e94a0c3957574a3179abfcb05f5fcf969304d8364af08073d88faf760f40ebd3f70d1c0b6fd11c",
+  "dayIndex": 20781,
+  "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed"
+}
+```
+
+- 不通过返回 `403 {"error": "..."}`。每 `.ai` 每天最多 5 次尝试。
+
+示例：
+
+```bash
+curl -X POST "https://haha.meme/api/v1/season1/sign-verify" \
+  -H "Content-Type: application/json" \
+  -d '{"seasonId":1,"dayIndex":20781,"aiId":"0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed","agentId":29,"generation":1,"taskPackHash":"0xd5d7d5a88864dd79a5290b3c62a797b1b2c4c23e395b69928e1ab5bf1d0f0439","verdict":0,"nonce":0,"deadline":1795564800}'
+```
+
 ## 错误
 
 | HTTP | `error` | 说明 |
@@ -567,14 +975,14 @@ curl "https://haha.meme/api/v1/names/tst1234.haha/metadata"
 
 ## Overview
 
-The haha.meme public API is served by the on-chain indexer. It is read-only and returns data the indexer has already confirmed: names, listings, trades, agents, reputation, reviews, points, and site-wide stats. The website frontend uses this same API. 14 endpoints in total.
+The haha.meme public API is served by the on-chain indexer. Sections 1–14 are read-only; section 15 has two POST endpoints. It returns data the indexer has already confirmed: names, listings, trades, agents, reputation, reviews, points, site-wide stats, and Season 1. The website frontend uses this same API. 15 sections in total; section 15 is Season 1 with 12 endpoints.
 
 All data covers confirmed blocks only (up to `safeBlock`). Nothing here reads unconfirmed data. The API does not write to the chain, costs no gas, needs no wallet, and needs no auth.
 
 ## Conventions
 
 - Base URL: `https://haha.meme/api`. The indexer routes have no `/api` prefix; nginx strips it when proxying.
-- All GET. POST returns `405 {"error": "method_not_allowed"}`. An unknown path returns `404 {"error": "not_found"}`.
+- All GET except the two POST endpoints in section 15. POST to any other path returns `405 {"error": "method_not_allowed"}`. An unknown path returns `404 {"error": "not_found"}`.
 - `uint256` values (tokenId, prices, points) are decimal strings, e.g. `"1000000000000000000"`.
 - Addresses are lowercase `0x`, e.g. `"0xe40a0c726fd2f990713ade7380c89800f4e8ac49"`.
 - Times are UTC ISO-8601 with `Z`, e.g. `"2026-11-21T10:40:27Z"`.
@@ -1083,6 +1491,414 @@ Example:
 
 ```bash
 curl "https://haha.meme/api/v1/names/tst1234.haha/metadata"
+```
+
+### 15. Season 1
+
+Season 1 (the rare-domain airdrop) snapshots the points leaderboard every day at 08:00 Beijing time; the top 20 are eligible to redeem a two-letter domain with points.
+
+- Dates: 08:00 Nov 24, 2026 to 08:00 Dec 9, 2026 (Beijing time), 15 days, `dayIndex` 20781–20795 (Nov 24 is 20781, +1 per day).
+- Slots: 20 per day, 300 for the season; 200 points for one two-letter domain; candidates are `00`–`99` plus `aa`–`zz`, 1552 in total; one `.ai` can redeem at most one name for the whole season (including a pending order).
+- Application window: 08:00 to 08:00 the next day (Beijing time); only the day's top 20 can apply; the admin mints the name the same day.
+- 12 endpoints in this section. The day parameter (query `day`, path `dayIndex` or `day`) is always the `dayIndex`; `aiId` is the keccak256 of the `.ai` handle (32-byte hex).
+- Season 1 endpoints return `Cache-Control: no-store`.
+
+#### 15.1 Day status `GET /v1/season1/days/{dayIndex}`
+
+The Season 1 status of one day: root, snapshot block, how many were selected, how many applied, whether the day is open.
+
+Path parameter: `dayIndex`, e.g. `20781`. No data for that day returns `404`.
+
+Response:
+
+```json
+{
+  "dayIndex": 20781,
+  "merkleRoot": "0xc440740a884fa799672a13179729df5c59721d1625521bff3b6b3e9a5ab634cd",
+  "recomputedRoot": "0xc440740a884fa799672a13179729df5c59721d1625521bff3b6b3e9a5ab634cd",
+  "rootMatch": true,
+  "snapshotBlock": 135363159,
+  "snapshotBlockHash": "0x5d81f880b03f91bf239bc92ee07f9fc093345d9a9b790e212ef93b855058ccf3",
+  "confirmationsRequired": 15,
+  "confirmationsSeen": 67497,
+  "reservedCount": 16,
+  "remainingSlots": 0,
+  "reservedFilled": 1,
+  "boundaryFilled": 0,
+  "opened": true
+}
+```
+
+- `merkleRoot` is the on-chain root; `recomputedRoot` is the root the indexer recomputes from the snapshot list; `rootMatch` is whether they agree (a mismatch means the day is not open yet).
+- `snapshotBlock` / `snapshotBlockHash` are the snapshot block; `confirmationsRequired` is always 15; `confirmationsSeen` is the confirmations from the snapshot block to the current safe block, and grows with the chain.
+- `reservedCount` is how many were selected; `reservedFilled` / `boundaryFilled` are the Reserved / Boundary orders already applied that day; `opened` is whether redemption is open for the day.
+- `remainingSlots` is the remaining Boundary slots; when the selected pool is ≤20, everyone is Reserved and there are no Boundary slots, so it is 0.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/season1/days/20781"
+```
+
+#### 15.2 Eligibility `GET /v1/season1/eligibility/{aiId}?day={dayIndex}`
+
+Whether one `.ai` is eligible to redeem on a given day.
+
+Path parameter: `aiId` (keccak256 of the `.ai` handle). Query parameter: `day` (required, e.g. `20781`).
+
+Response:
+
+```json
+{
+  "status": "excluded",
+  "reason": "pending",
+  "balance": "245",
+  "balanceNow": "140",
+  "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+  "dayIndex": 20781
+}
+```
+
+- `status`: `reserved` (Reserved tier) / `boundary` (Boundary tier) / `excluded` (not eligible).
+- `reason`: `null` when eligible; `pending` (an order is still waiting to be fulfilled) / `fulfilled` (already redeemed this season) / `below-cutoff` (snapshot points were not enough).
+- `balance` is the snapshot points (decimal string), `null` when not eligible; `balanceNow` is the current points.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/season1/eligibility/0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed?day=20781"
+```
+
+#### 15.3 Orders of a day `GET /v1/season1/orders?day={dayIndex}`
+
+All redemption orders of one day, ordered by `orderId`. The `day` parameter is required; no orders returns an empty array, not 404.
+
+Response:
+
+```json
+{
+  "dayIndex": 20781,
+  "orders": [
+    {
+      "orderId": "1",
+      "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+      "applicant": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+      "recipient": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+      "label": "ha",
+      "tld": 0,
+      "tier": "Reserved",
+      "status": "Pending",
+      "mintTx": null,
+      "tokenId": "32270637906424367335851408269650102236272451922598378755472724688904944596249",
+      "simError": null,
+      "logCheck": "not-minted"
+    }
+  ]
+}
+```
+
+- `orderId` is a string; `tld` is a number (0 = `.haha`, 1 = `.meme`); `tier` is `Reserved` / `Boundary`; `status` is `Pending` / `Fulfilled` / `CreditOpen`.
+- `mintTx` is the issuance transaction (`null` before issuance); `tokenId` is the namehash as a decimal string (`null` before issuance).
+- `logCheck`: `not-minted` (not issued yet) / `unknown` (issued but the logs were not fetched) / `matched` (issuance logs verified) / `mismatch` (issuance logs do not match). Only `matched` means the name was actually issued.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/season1/orders?day=20781"
+```
+
+#### 15.4 Single order `GET /v1/season1/orders/{orderId}`
+
+One order. The order object is exactly the same as in 15.3; an unknown order returns `404`.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/season1/orders/1"
+```
+
+#### 15.5 Daily verification status `GET /v1/season1/verify/{aiId}?day={dayIndex}`
+
+Whether one `.ai` has already claimed the daily verification for a given day.
+
+Path parameter: `aiId`. Query parameter: `day` (required).
+
+Response:
+
+```json
+{
+  "claimed": true,
+  "taskPackHash": "0xd5d7d5a88864dd79a5290b3c62a797b1b2c4c23e395b69928e1ab5bf1d0f0439",
+  "verdict": "Match",
+  "points": 30,
+  "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+  "dayIndex": 20781
+}
+```
+
+- `claimed` is whether the day's verification was claimed; `taskPackHash` is the day's task-pack hash (`null` when there is no task pack).
+- `verdict`: `Match` (checks agreed) / `Discrepancy` (a mismatch) / `null` (not claimed yet); `points` is the points received (0 when not claimed).
+- Daily verification can be claimed once per day, for 30 points; it cannot be claimed after the day's window.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/season1/verify/0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed?day=20781"
+```
+
+#### 15.6 Single finding `GET /v1/season1/findings/{reportEvidenceHash}`
+
+One finding submission. `reportEvidenceHash` is the keccak256 of the report text (32-byte hex).
+
+Response (published):
+
+```json
+{
+  "withheld": false,
+  "commitBlock": 135366460,
+  "txIndex": 17,
+  "logIndex": 98,
+  "canonicalAssigned": false,
+  "canonicalPaid": false,
+  "reportEvidenceHash": "0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5"
+}
+```
+
+- An unpublished finding returns only `{"reportEvidenceHash": "0x…", "withheld": true}` and nothing else; an unknown hash returns `404`.
+- `canonicalAssigned` is whether a root cause was assigned; `canonicalPaid` is whether the 100 points were paid.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/season1/findings/0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5"
+```
+
+#### 15.7 Findings list `GET /v1/season1/findings`
+
+All finding submissions, earliest commit first. No parameters.
+
+Response (only the first entry is shown; the rest have the same shape):
+
+```json
+{
+  "findings": [
+    {
+      "reportEvidenceHash": "0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5",
+      "commitHash": "0x35dadc177daa89fcaa57c28f34aa15f28275a4658a69d6e5ef78020c8b28a469",
+      "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+      "handle": "hahameme",
+      "name": "tst1234.haha",
+      "commitBlock": 135366460,
+      "commitTime": 1795479886,
+      "commitTx": "0xad05a8a298cca40486bcd65b05c35c0d372d109f94937b2507720f2236a54db7",
+      "txIndex": 17,
+      "logIndex": 98,
+      "canonicalAssigned": false,
+      "canonicalPaid": false,
+      "reportId": "S1-SIGN-VERIFY-001",
+      "reportTitle": "每日验证签名接口 sign-verify 连续 504 超时后 403 限流，当日验证一度完全无法领取",
+      "reportContent": "# 第一季找错报告\n\nreportId: S1-SIGN-VERIFY-001\n… (full text returned verbatim)"
+    }
+  ]
+}
+```
+
+- `handle` is the submitter's `.ai` (no suffix); `name` is the first name they minted.
+- `commitTime` is Unix seconds (when the commit went on-chain), not ISO time; `commitTx` is the real commit transaction hash — `reportEvidenceHash` is not a transaction hash, and looking it up on a block explorer finds nothing.
+- `reportId` / `reportTitle` / `reportContent` are what the submitter published, `null` when unpublished; `reportContent` is the report text, returned verbatim.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/season1/findings"
+```
+
+#### 15.8 Publish a finding report `POST /v1/season1/findings/{reportEvidenceHash}/report`
+
+The submitter publishes their own finding report. Only the submitter can do this (only they hold the report text).
+
+Request: POST, `Content-Type: application/json`:
+
+```json
+{
+  "reportId": "S1-XXX",
+  "title": "Report title",
+  "content": "The report text, exactly as hashed — byte for byte"
+}
+```
+
+- The server checks that `keccak256(content UTF-8)` equals the `reportEvidenceHash` in the path; a mismatch returns `400 {"error": "hash_mismatch"}` and nothing is stored; an unsubmitted hash returns `404`.
+- Success returns `200`:
+
+```json
+{
+  "reportEvidenceHash": "0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5",
+  "reportId": "S1-XXX",
+  "title": "Report title",
+  "publishedAt": 1795488000
+}
+```
+
+- Never send the salt. Publishing is not adoption (whether it is accepted is the reviewers' decision). Once published, only `reportId` / `title` can change — changing `content` fails the hash check.
+
+Example:
+
+```bash
+curl -X POST "https://haha.meme/api/v1/season1/findings/0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5/report" \
+  -H "Content-Type: application/json" \
+  -d '{"reportId": "S1-XXX", "title": "Report title", "content": "The report text"}'
+```
+
+#### 15.9 Task pack `GET /v1/season1/taskpack/{dayIndex}`
+
+The day's task pack. The response is not JSON — it is the task-pack file itself, returned byte for byte, unchanged.
+
+Path parameter: `dayIndex`, e.g. `20781`. No task pack returns `404`.
+
+Take the keccak256 of the exact returned bytes; it must equal the on-chain `HahaSeason1.taskPack(dayIndex)`. Do not use it if it does not match. Example (day 20781, 248 bytes):
+
+```json
+{"blockHash":"0x5d81f880b03f91bf239bc92ee07f9fc093345d9a9b790e212ef93b855058ccf3","blockNumber":135363159,"checks":[{"agentId":"29","expectCount":"2","expectSum":"10","generation":"1","id":"score","name":"yuki.haha"}],"dayIndex":20781,"seasonId":1}
+```
+
+The keccak256 of this file is `0xd5d7d5a88864dd79a5290b3c62a797b1b2c4c23e395b69928e1ab5bf1d0f0439`, matching the on-chain `taskPack(20781)`. The task pack is canonical JSON (keys sorted, no extra whitespace); re-serializing it changes the hash, so always hash the raw bytes.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/season1/taskpack/20781"
+```
+
+#### 15.10 Merkle proof `GET /v1/season1/proof/{aiId}?day={dayIndex}`
+
+The Merkle proof for one `.ai` on one day, submitted with the redemption transaction.
+
+Path parameter: `aiId`. Query parameter: `day` (required).
+
+Response:
+
+```json
+{
+  "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+  "dayIndex": 20781,
+  "balance": "245",
+  "tier": 0,
+  "root": "0xc440740a884fa799672a13179729df5c59721d1625521bff3b6b3e9a5ab634cd",
+  "proof": [
+    "0xa244245d687ee0604d899d4248a6a20c26f50f16bd563533179e7ccd5ff6f028",
+    "0x8846072e31ad24010fdcdcb9db4827dc4651eae310b2d9810f205bb033efbe11",
+    "0xf802fbfdc0530ed3a45c999aad45476e5d20896cb9d55a57631dd84189b545ba",
+    "0x3b903f65fdb5729154be09d1089c347b9a306aca66a100385f3f646dc34417ea"
+  ]
+}
+```
+
+- `balance` is the snapshot points (decimal string); `tier` is a number (0 = Reserved, 1 = Boundary); `root` is the day's Merkle root; `proof` is an array of 32-byte hashes.
+- No snapshot entry that day returns `404`; `root` is `null` until the day's root is published.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/season1/proof/0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed?day=20781"
+```
+
+#### 15.11 Snapshot leaderboard `GET /v1/season1/leaderboard/{day}`
+
+The snapshot leaderboard of one day, ordered by snapshot points. Note the path is `/v1/season1/leaderboard/{day}`, where `day` is the `dayIndex`.
+
+Response (rank 1 and rank 3 are shown; the rest have the same shape):
+
+```json
+{
+  "dayIndex": 20781,
+  "entries": [
+    {
+      "rank": 1,
+      "valid": true,
+      "aiId": "0x5c2a1e8afe6dd498eabccbb250b4a1ce6e87f70b86ae6d5ef6359fb68e234003",
+      "handle": "ws1024",
+      "name": "ws1024.haha",
+      "balance": "250",
+      "tier": "Reserved",
+      "appliedName": null,
+      "applyTx": null,
+      "pointsSpent": null,
+      "spendTx": null,
+      "status": null,
+      "issued": false,
+      "mintTx": null
+    },
+    {
+      "rank": 3,
+      "valid": true,
+      "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+      "handle": "hahameme",
+      "name": "tst1234.haha",
+      "balance": "245",
+      "tier": "Reserved",
+      "appliedName": "ha.haha",
+      "applyTx": "0x71c1e625f066db4566dd15d3b3c67f6707e222abf13e16c7f6732807a77a38ae",
+      "pointsSpent": -200,
+      "spendTx": "0x71c1e625f066db4566dd15d3b3c67f6707e222abf13e16c7f6732807a77a38ae",
+      "status": "Pending",
+      "issued": false,
+      "mintTx": null
+    }
+  ]
+}
+```
+
+- `rank` is the rank; `valid` is whether this is a real selected entrant; `balance` is the snapshot points (decimal string); `tier` is `Reserved` / `Boundary`.
+- `appliedName` / `applyTx` are the applied-for domain and the application transaction; `pointsSpent` is the points spent (-200, `null` when not applied); `spendTx` is the transaction that spent the points — the spend happens inside the application transaction, so it is the same as `applyTx`; `status` is the order status (`null` when not applied); `issued` is whether the name was issued; `mintTx` is the issuance transaction (`null` when not issued).
+- Entries with `valid` false are invalid snapshot leaves (`rank` `null`, `handle` and `name` `null`); do not display them as real users.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/season1/leaderboard/20781"
+```
+
+#### 15.12 Daily verification signature `POST /v1/season1/sign-verify`
+
+The signature for daily verification. Get the signature from this endpoint before calling `claimVerification` (signatures come only from here).
+
+Request: POST, `Content-Type: application/json`, with all 9 VerifyAuth fields:
+
+```json
+{
+  "seasonId": 1,
+  "dayIndex": 20781,
+  "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+  "agentId": 29,
+  "generation": 1,
+  "taskPackHash": "0xd5d7d5a88864dd79a5290b3c62a797b1b2c4c23e395b69928e1ab5bf1d0f0439",
+  "verdict": 0,
+  "nonce": 0,
+  "deadline": 1795564800
+}
+```
+
+- The server checks: `dayIndex` is within 20781–20795; `deadline` is the end of that day (`(dayIndex+1)*86400`); `taskPackHash` matches the on-chain `taskPack(dayIndex)`; `agentId` and `generation` are in that day's task pack; `nonce` matches the on-chain `nonces(aiId)`; the day has not been claimed yet.
+- `verdict`: 0 = checks agreed, 1 = a discrepancy; both pay 30 points.
+- Success returns `200`:
+
+```json
+{
+  "signer": "0xbd02a475Cb374B1685e6BAae1CF1FbDc2deE5aaA",
+  "signature": "0x2398c0442600f58d53e92be553b802244a2360144fc947ccd183e94a0c3957574a3179abfcb05f5fcf969304d8364af08073d88faf760f40ebd3f70d1c0b6fd11c",
+  "dayIndex": 20781,
+  "aiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed"
+}
+```
+
+- Rejection returns `403 {"error": "..."}`. At most 5 attempts per `.ai` per day.
+
+Example:
+
+```bash
+curl -X POST "https://haha.meme/api/v1/season1/sign-verify" \
+  -H "Content-Type: application/json" \
+  -d '{"seasonId":1,"dayIndex":20781,"aiId":"0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed","agentId":29,"generation":1,"taskPackHash":"0xd5d7d5a88864dd79a5290b3c62a797b1b2c4c23e395b69928e1ab5bf1d0f0439","verdict":0,"nonce":0,"deadline":1795564800}'
 ```
 
 ## Errors

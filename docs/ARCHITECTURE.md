@@ -23,6 +23,7 @@ hahamemeid/
 │   ├── HahaReputation.sol
 │   ├── HahaPoints.sol
 │   ├── HahaMarketplace.sol
+│   ├── HahaSeason1.sol
 │   ├── HahaDeployer.sol
 │   ├── interfaces/      # 接口（IBinanceAiRegistry / IHahaProtocol / IHahaRegistry / IHahaResolver）
 │   └── libraries/       # 库（HahaAiIdentity / HahaConstants / HahaNamehash / HahaSvg）
@@ -65,7 +66,7 @@ BSC_RPC_URL=https://bsc-dataseed.binance.org forge test --match-path test/fork/*
 
 ## 合约一览
 
-全部 10 个合约部署在 BNB Smart Chain 主网（chainId 56），不可升级，没有代理，没有 Ownable，没有 Pausable。源码已在 BscScan 上全部开源验证。
+全部 11 个合约部署在 BNB Smart Chain 主网（chainId 56），不可升级，没有代理，没有 Ownable，没有 Pausable。源码已在 BscScan 上全部开源验证。
 
 | 合约 | 地址 | 职责 | 主要函数 |
 |---|---|---|---|
@@ -78,11 +79,12 @@ BSC_RPC_URL=https://bsc-dataseed.binance.org forge test --match-path test/fork/*
 | HahaReputation | `0xf1A41B30d0c03fE178D3d76CBE6044E9D5Ce1800` | 1–5 星评分 | `rate`、`getScore`、`ratingOf` |
 | HahaPoints | `0xB2D023b8B5895835EFD71C1150BeAD7bD735DfAa` | 积分 | `checkIn`、`claimFollow`、`claimLike`、`claimRetweet`、`claimComment`、`creditMintReward`、`earn`、`beginRound`、`claimRound`、`spend`、`refund`、`statusOf`、`balanceOf` |
 | HahaMarketplace | `0xC7294DF776344A39726b4C1256Faf0e728c99835` | 名字市场（BNB） | `list`、`updatePrice`、`cancel`、`clearStale`、`buy`、`withdraw`、`listings`、`feeBps`、`feeFor`、`pendingWithdrawal` |
+| HahaSeason1 | `0x4B8a35bFe18750c2058fd01e7159728adD345C00` | 第一季：积分兑换 2 位稀有域名 | `applyFor`、`claimVerification`、`commitFinding`、`setDayRoot`、`attestFulfillment` |
 | HahaDeployer | `0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601` | 一次性部署器 | `addresses`（部署后不再接受用户交易） |
 
 币安 `.ai` 注册表：`0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F`（外部合约，haha.meme 不拥有）。
 
-合约之间通过部署时写死的 immutable 地址互相调用。`HahaDeployer` 在部署时按顺序创建并连接全部合约，部署完成后不再接受用户交易。
+合约之间通过部署时写死的 immutable 地址互相调用。`HahaDeployer` 在部署时按顺序创建并连接全部合约，部署完成后不再接受用户交易。`HahaSeason1` 不由 `HahaDeployer` 部署，是由管理员单独部署的。
 
 ## 关键设计
 
@@ -174,8 +176,8 @@ BSC_RPC_URL=https://bsc-dataseed.binance.org forge test --match-path test/fork/*
 
 ## 验证
 
-- 全部 10 个合约的源码已在 BscScan 上开源验证。打开任一合约地址的 `#code` 页，对照本仓库 `src/` 下同名文件的源码，应当一致。
-- 部署 commit `70fe8e79`，部署区块 134834631–134834846。
+- 全部 11 个合约的源码已在 BscScan 上开源验证。打开任一合约地址的 `#code` 页，对照本仓库 `src/` 下同名文件的源码，应当一致。
+- 部署 commit `70fe8e79`，部署区块 134834631–134834846。`HahaSeason1` 单独部署在区块 135231506。
 - 编译验证：按上文「构建与测试」跑 `forge build`，应当一次通过（`via_ir = true` 必需）。
 - 尚未审计，自行承担风险，不承诺任何收益回报！目前只有自审计，没有第三方审计。
 
@@ -206,6 +208,7 @@ hahamemeid/
 │   ├── HahaReputation.sol
 │   ├── HahaPoints.sol
 │   ├── HahaMarketplace.sol
+│   ├── HahaSeason1.sol
 │   ├── HahaDeployer.sol
 │   ├── interfaces/      # IBinanceAiRegistry / IHahaProtocol / IHahaRegistry / IHahaResolver
 │   └── libraries/       # HahaAiIdentity / HahaConstants / HahaNamehash / HahaSvg
@@ -248,7 +251,7 @@ Tests cover minting, transfer, resolution, identity, reputation, points, the mar
 
 ## Contracts at a glance
 
-All 10 contracts are deployed on BNB Smart Chain mainnet (chainId 56), non-upgradeable, no proxy, no Ownable, no Pausable. Source is open-source verified on BscScan.
+All 11 contracts are deployed on BNB Smart Chain mainnet (chainId 56), non-upgradeable, no proxy, no Ownable, no Pausable. Source is open-source verified on BscScan.
 
 | Contract | Address | Role | Key functions |
 |---|---|---|---|
@@ -261,11 +264,12 @@ All 10 contracts are deployed on BNB Smart Chain mainnet (chainId 56), non-upgra
 | HahaReputation | `0xf1A41B30d0c03fE178D3d76CBE6044E9D5Ce1800` | 1–5 star ratings | `rate`, `getScore`, `ratingOf` |
 | HahaPoints | `0xB2D023b8B5895835EFD71C1150BeAD7bD735DfAa` | Points | `checkIn`, `claimFollow`, `claimLike`, `claimRetweet`, `claimComment`, `creditMintReward`, `earn`, `beginRound`, `claimRound`, `spend`, `refund`, `statusOf`, `balanceOf` |
 | HahaMarketplace | `0xC7294DF776344A39726b4C1256Faf0e728c99835` | Name market (BNB) | `list`, `updatePrice`, `cancel`, `clearStale`, `buy`, `withdraw`, `listings`, `feeBps`, `feeFor`, `pendingWithdrawal` |
+| HahaSeason1 | `0x4B8a35bFe18750c2058fd01e7159728adD345C00` | Season 1: redeem two-character rare names with points | `applyFor`, `claimVerification`, `commitFinding`, `setDayRoot`, `attestFulfillment` |
 | HahaDeployer | `0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601` | One-time deployer | `addresses` (takes no user transactions after deployment) |
 
 Binance `.ai` registry: `0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F` (an external contract; haha.meme does not own it).
 
-Contracts call each other through immutable addresses fixed at deployment. `HahaDeployer` creates and wires all contracts in order at deployment time, and takes no user transactions after that.
+Contracts call each other through immutable addresses fixed at deployment. `HahaDeployer` creates and wires all contracts in order at deployment time, and takes no user transactions after that. `HahaSeason1` was not deployed by `HahaDeployer`; it was deployed separately by the admin.
 
 ## Key design decisions
 
@@ -357,8 +361,8 @@ Seller -> HahaMarketplace.withdraw()  [pull the proceeds out]
 
 ## Verification
 
-- All 10 contracts are open-source verified on BscScan. Open any contract address's `#code` page and compare it with the same-named file under `src/` in this repo. They should match.
-- Deployment commit `70fe8e79`, deployment blocks 134834631–134834846.
+- All 11 contracts are open-source verified on BscScan. Open any contract address's `#code` page and compare it with the same-named file under `src/` in this repo. They should match.
+- Deployment commit `70fe8e79`, deployment blocks 134834631–134834846. `HahaSeason1` was deployed separately in block 135231506.
 - Build check: run `forge build` as described in "Build and test". It should pass in one go (`via_ir = true` is required).
 - Not audited yet. Take the risk yourself. No return is promised! So far there is only a self-audit; there is no third-party audit.
 

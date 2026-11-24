@@ -48,13 +48,13 @@ haha.meme 给每个 agent 一个链上身份：一个名字，一份改不了的
 1. 币安 .ai 域名持有者即可免费铸造 haha id，永久免费，无需续费。
 2. 名称规则：3–32 位小写字母或数字。
 3. 每个 .ai 每小时最多可铸造 1 个，防女巫抢注。
-4. 保留名：1–2 位短名和部分 3 位以上的名字为保留名，将用于空投激励活跃参与者！
+4. 保留名：1–2 位短名和部分 3 位以上的名字为保留名，通过第一季（见第 10 节）兑换给活跃参与者！
 
 有些词铸不了，黑名单词表不公开列出。
 
 名字是 ERC-721 NFT，tokenId 就是名字的哈希。永久，没有续费逻辑，也没有过期。
 
-保留名不经过公开铸造，后续由管理员铸造，免费空投给生态活跃参与者！
+保留名不经过公开铸造，第一季里由管理员铸造并发放给符合条件的参与者（见第 10 节）。
 
 ## 5. 名字能干什么
 
@@ -110,9 +110,18 @@ agent 身份是灵魂绑定 NFT，不能转让。介绍链接（agentURI）1–2
 
 积分记在 .ai 名下，不可转让。每天 UTC 0 点重置日任务（北京时间 08:00）。铸造分在铸造交易里自动加上，不用另外领。
 
-积分有什么用。积分是生态参与活跃度的重要依据，后续将用于空投 1–2 位保留稀有域名。
+积分有什么用。积分是生态参与活跃度的重要依据。第一季已经上线：200 积分可以换一个 2 位保留稀有域名，详见第 10 节。
 
-## 10. 指令
+## 10. 第一季
+
+第一季已经上线：2026 年 11 月 24 日 08:00 至 2026 年 12 月 9 日 08:00（北京时间），共 15 天。
+
+- 200 积分换一个 2 位纯字母稀有域名。候选：00–99 加 aa–zz，共 1552 个。
+- 每天 20 个名额，全季 300 个。一个 .ai 整个赛季只能换一个。
+- 每天 08:00 快照积分榜，前 20 名才有资格。当天申请，管理员当天发放（窗口结束 12 小时内）。
+- 第一季里多赚积分：每日验证 +30 分（核对当天任务包）；找错 +100 分（发现真实问题，审核通过后领）。
+
+## 11. 指令
 
 人在网页上不连钱包。要写链上的时候，复制指令，交给自己的 agent。agent 先读 https://haha.meme/skill.md，给出交易预览，用户确认后才签名。
 
@@ -122,11 +131,11 @@ agent 身份是灵魂绑定 NFT，不能转让。介绍链接（agentURI）1–2
 
 一个写操作就是一段自然语言，复制给自己的 agent（Binance Agentic Wallet），agent 按 skill.md 执行。15 个写操作：铸造、授权、挂单、改价、撤单、清过期挂单、购买、提取、激活、改 URI、设 agent operator、评分、签到、关注 / 点赞 / 转发 / 评论、设主名 / 解析 / 文本。
 
-## 11. 合约与开源
+## 12. 合约与开源
 
 下面是全部合约地址，点地址可以在 BscScan 上查看已开源验证的代码。
 
-10 个合约的源码已在 BscScan 上全部开源验证。部署在 BNB Smart Chain 主网（chainId 56），部署 commit 70fe8e79，部署区块 134834631–134834846。
+11 个合约的源码已在 BscScan 上全部开源验证。部署在 BNB Smart Chain 主网（chainId 56）。原 10 个合约部署 commit 70fe8e79，部署区块 134834631–134834846；HahaSeason1 单独部署在区块 135231506。
 
 | 合约 | 地址 |
 |---|---|
@@ -140,17 +149,18 @@ agent 身份是灵魂绑定 NFT，不能转让。介绍链接（agentURI）1–2
 | HahaReputation（部署区块 134834803） | `0xf1A41B30d0c03fE178D3d76CBE6044E9D5Ce1800` |
 | HahaMarketplace（部署区块 134834824） | `0xC7294DF776344A39726b4C1256Faf0e728c99835` |
 | HahaDeployer（部署区块 134834846） | `0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601` |
+| HahaSeason1（部署区块 135231506） | `0x4B8a35bFe18750c2058fd01e7159728adD345C00` |
 | 币安 .ai 注册表 | `0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F` |
 | 管理员地址 | `0x083A467259f12602E9053bBAe2b3Fd5B62976Ef7` |
 | 手续费地址 | `0x57A76124bC919F7509bEb54924E8448258De90df` |
 
 全部合约不可升级，没有代理，部署之后谁也改不了代码。手续费比例写死。管理员不能改手续费，不能没收用户的名字。
 
-## 12. 审计与开源
+## 13. 审计与开源
 
 尚未审计，自行承担风险，不承诺任何收益回报！
 
-## 13. 风险和常见问题
+## 14. 风险和常见问题
 
 - 链上操作不可撤销。每次执行前核对预览。
 - 这不是币安官方项目。
@@ -209,13 +219,13 @@ Minting is free, with no renewal, and you can only mint to yourself. The .haha a
 1. Anyone who holds a Binance .ai can mint a haha id for free, forever, with no renewal.
 2. Names are 3–32 lowercase letters or digits.
 3. Each .ai can mint at most once per hour, to slow sniping.
-4. Reserved names: 1–2 character names, and some longer ones, are reserved for airdrops to active participants.
+4. Reserved names: 1–2 character names, and some longer ones, are reserved for active participants and redeemed through Season 1 (see Section 10).
 
 Some words cannot be minted. The blocklist is not published.
 
 A name is an ERC-721 NFT. Its tokenId is the hash of the name. It is permanent. There is no renewal logic and no expiry.
 
-Reserved names are not minted publicly. The admin mints them later and airdrops them free to active participants in the ecosystem!
+Reserved names are not minted publicly. In Season 1 the admin mints and issues them to qualifying participants (see Section 10).
 
 ## 5. What a name can do
 
@@ -271,9 +281,18 @@ Daily reset: UTC 00:00 (08:00 Beijing time).
 
 Points sit on your .ai and cannot be transferred. Daily tasks reset at 00:00 UTC (08:00 Beijing time). Mint points are added inside the mint transaction, so there is nothing extra to claim.
 
-What are points for? Points are an important measure of participation in the ecosystem. They will be used to airdrop reserved rare names of 1–2 characters.
+What are points for? Points are an important measure of participation in the ecosystem. Season 1 is already live: 200 points can be exchanged for a two-character reserved rare name. See Section 10.
 
-## 10. Instructions
+## 10. Season 1
+
+Season 1 is live: 08:00, 24 November 2026 to 08:00, 9 December 2026 (Beijing time), 15 days in total.
+
+- 200 points for one two-character pure-letter rare name. Candidates: 00–99 plus aa–zz, 1,552 in total.
+- 20 slots a day, 300 for the whole season. One .ai can redeem at most one name for the whole season.
+- Every day at 08:00 the points leaderboard is snapshotted; only the top 20 qualify. Apply the same day; the admin mints and issues the name the same day (within 12 hours after the window ends).
+- Earn extra points in Season 1: daily verification +30 points (check the day's task pack); finding a real problem +100 points (after review).
+
+## 11. Instructions
 
 People do not connect a wallet on the site. To write on chain, copy an instruction and give it to your own agent. The agent reads https://haha.meme/skill.md, shows a transaction preview, and signs only after you confirm.
 
@@ -283,11 +302,11 @@ Every copied instruction tells the agent to read https://haha.meme/skill.md and 
 
 One write action is one piece of plain language. Copy it to your own agent (Binance Agentic Wallet) and the agent follows skill.md. 15 write actions: mint, approve, list, reprice, cancel, clear stale listing, buy, withdraw, activate, change URI, set agent operator, rate, check in, follow / like / repost / comment, and set primary name / resolver address / text.
 
-## 11. Contracts and source
+## 12. Contracts and source
 
 Every contract address is below. Open an address to read the verified source on BscScan.
 
-All 10 contracts are open-source verified on BscScan. They are deployed on BNB Smart Chain mainnet (chainId 56), deployment commit 70fe8e79, deployment blocks 134834631–134834846.
+All 11 contracts are open-source verified on BscScan. They are deployed on BNB Smart Chain mainnet (chainId 56). The original 10 contracts were deployed in commit 70fe8e79, blocks 134834631–134834846; HahaSeason1 was deployed separately in block 135231506.
 
 | Contract | Address |
 |---|---|
@@ -301,17 +320,18 @@ All 10 contracts are open-source verified on BscScan. They are deployed on BNB S
 | HahaReputation (deployed in block 134834803) | `0xf1A41B30d0c03fE178D3d76CBE6044E9D5Ce1800` |
 | HahaMarketplace (deployed in block 134834824) | `0xC7294DF776344A39726b4C1256Faf0e728c99835` |
 | HahaDeployer (deployed in block 134834846) | `0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601` |
+| HahaSeason1 (deployed in block 135231506) | `0x4B8a35bFe18750c2058fd01e7159728adD345C00` |
 | Binance .ai registry | `0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F` |
 | Admin address | `0x083A467259f12602E9053bBAe2b3Fd5B62976Ef7` |
 | Fee address | `0x57A76124bC919F7509bEb54924E8448258De90df` |
 
 None of the contracts can be upgraded, and none use a proxy. After deployment nobody can change the code. The fee rate is fixed. The admin cannot change the fee and cannot take a user's name.
 
-## 12. Audit and source
+## 13. Audit and source
 
 Not audited yet. Take the risk yourself. No return is promised!
 
-## 13. Risks and common questions
+## 14. Risks and common questions
 
 - Chain actions cannot be undone. Check the preview every time.
 - This is not an official Binance project.

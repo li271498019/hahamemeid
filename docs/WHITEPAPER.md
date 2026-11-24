@@ -43,7 +43,7 @@ haha.meme 是三层结构，每一层都建立在上一层之上。
 
 ## 3. 架构
 
-10 个合约，全部不可升级，没有代理，没有 Ownable，没有 Pausable。部署在 BNB Smart Chain 主网（chainId 56），源码已在 BscScan 上全部开源验证。部署 commit `70fe8e79`，部署区块 134834631–134834846。
+11 个合约，全部不可升级，没有代理，没有 Ownable，没有 Pausable。部署在 BNB Smart Chain 主网（chainId 56），源码已在 BscScan 上全部开源验证。原 10 个合约部署 commit `70fe8e79`，部署区块 134834631–134834846；HahaSeason1 单独部署在区块 135231506。
 
 | 合约 | 职责 |
 |---|---|
@@ -57,6 +57,7 @@ haha.meme 是三层结构，每一层都建立在上一层之上。
 | HahaPoints | 积分 |
 | HahaMarketplace | 名字市场（BNB） |
 | HahaDeployer | 一次性部署器（部署后不再接受用户交易） |
+| HahaSeason1 | 第一季：积分兑换 2 位稀有域名（每天 20 个、全季 300 个） |
 
 合约之间通过部署时写死的 immutable 地址互相调用。技术细节见 [ARCHITECTURE.md](ARCHITECTURE.md)，源码见本仓库 [`src/`](../src/)。
 
@@ -66,7 +67,7 @@ haha.meme 是三层结构，每一层都建立在上一层之上。
 2. 名字 3–32 个字符，只允许小写字母和数字。
 3. 免费、永久、无续费，只付 gas；名字只能铸给自己（`msg.sender`）。
 4. 黑名单 208 个、保留名 61 个，部署时已冻结，不可更改。黑名单词表不公开列出。
-5. 保留名不经过公开铸造，后续由管理员铸造，免费空投给生态活跃参与者。
+5. 保留名不经过公开铸造，后续由管理员铸造，免费空投给生态活跃参与者。第一季（2026-11-24 至 12-09）正在进行，见第 6 节。
 
 名字是 ERC-721 NFT，tokenId 就是名字哈希（namehash）。永久，没有续费逻辑，也没有过期。
 
@@ -84,7 +85,11 @@ haha.meme 实现 ERC-8004 的两块：身份（Identity）与信誉（Reputation
 
 **自己转给自己也一样。** 照样销毁 agent。自己买自己的挂单，还要付 1% 手续费——没有免费刷新的路。
 
-## 6. 市场
+## 6. 稀有域名空投第一季
+
+第一季正在进行：2026-11-24 08:00 至 2026-12-09 08:00（北京时间），共 15 天。每天 08:00 快照积分榜，前 20 名才有资格申请；200 积分换一个 2 位纯字母域名（候选 00–99 加 aa–zz，共 1552 个），每天 20 个、全季 300 个；一个 `.ai` 整个赛季只能换一个。当天申请，管理员当天发放。
+
+## 7. 市场
 
 市场只收 BNB。挂单、改价、撤单、购买都用 BNB。交易手续费 1%，卖家支付，比例写死在合约里，没有改动入口。
 
@@ -95,7 +100,7 @@ haha.meme 实现 ERC-8004 的两块：身份（Identity）与信誉（Reputation
 
 买到的是名字。信誉不跟着走，转让后清零。买家不需要持有 `.ai` 也能买；但买了名字、没有 `.ai`，就不能激活 agent。
 
-## 7. 积分
+## 8. 积分
 
 积分按 `.ai` 记，不可转让，不可提现。每天 UTC 00:00 重置（北京时间 08:00）。
 
@@ -108,11 +113,11 @@ haha.meme 实现 ERC-8004 的两块：身份（Identity）与信誉（Reputation
 | 写评价 | 5 | 每天最多 5 个不同对象 |
 | 收评价 | 5 | 每天最多 5 个不同评价人 |
 
-积分是生态参与活跃度的重要依据，后续将用于空投 1–2 位保留稀有域名。除此之外，积分目前没有其他用途承诺。
+积分是生态参与活跃度的重要依据，第一季正在用积分兑换 2 位稀有域名（见第 6 节）。除此之外，积分目前没有其他用途承诺。
 
 社交任务（关注 / 点赞 / 转发 / 评论）是合约层面的领取动作，合约不核对链下社交行为是否真的发生。
 
-## 8. 指令：网站不碰私钥
+## 9. 指令：网站不碰私钥
 
 人在网页上不连钱包。要写链上的时候，复制指令，交给自己的 agent。agent 先读 https://haha.meme/skill.md，按其中规则在 BNB Chain 上执行，给出交易预览，用户确认后才签名。
 
@@ -120,7 +125,7 @@ haha.meme 实现 ERC-8004 的两块：身份（Identity）与信誉（Reputation
 
 Agent 使用说明见 [skill.md](skill.md)。
 
-## 9. 安全与管理员
+## 10. 安全与管理员
 
 全部合约不可升级，没有代理，部署之后谁也改不了代码。手续费比例写死。
 
@@ -132,14 +137,14 @@ Agent 使用说明见 [skill.md](skill.md)。
 
 管理员**不能**：移动或销毁用户的 NFT、暂停合约、改手续费或手续费地址、改名字规则或冻结的黑名单 / 保留名、直接给某个地址加分、替换自己、升级合约。
 
-## 10. 审计与风险
+## 11. 审计与风险
 
 - **尚未审计，自行承担风险，不承诺任何收益回报！** 目前只有自审计，没有第三方审计。
 - 链上操作不可撤销。每次执行前核对交易预览。
 - 这不是币安官方项目。
 - 名字价格由市场决定，波动较大，不承诺任何收益。
 
-## 11. 合约地址
+## 12. 合约地址
 
 全部合约部署在 BNB Smart Chain 主网（chainId 56），源码已在 BscScan 上全部开源验证。
 
@@ -155,19 +160,20 @@ Agent 使用说明见 [skill.md](skill.md)。
 | HahaReputation | `0xf1A41B30d0c03fE178D3d76CBE6044E9D5Ce1800` |
 | HahaMarketplace | `0xC7294DF776344A39726b4C1256Faf0e728c99835` |
 | HahaDeployer | `0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601` |
+| HahaSeason1 | `0x4B8a35bFe18750c2058fd01e7159728adD345C00` |
 | 币安 `.ai` 注册表 | `0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F` |
 
 手续费地址：`0x57A76124bC919F7509bEb54924E8448258De90df`。
 
-## 12. 路线图
+## 13. 路线图
 
-V1 已上线主网：铸造、解析、主名、ERC-8004 身份与信誉、积分、市场。
+V1 已上线主网：铸造、解析、主名、ERC-8004 身份与信誉、积分、市场、第一季。
 
 未做的事：Validation Registry（验证）未实现；x402 支付未实现；小游戏框架已在积分合约里（`beginRound` / `claimRound` / `registerGame`），但没有部署游戏合约，游戏未上线。
 
 后续方向以实际部署为准，不承诺时间。
 
-## 13. 链接
+## 14. 链接
 
 - 网站：https://haha.meme
 - X：https://x.com/aihahameme
@@ -211,7 +217,7 @@ haha.meme is three layers, each built on the one below.
 
 ## 3. Architecture
 
-10 contracts, all non-upgradeable, no proxy, no Ownable, no Pausable. Deployed on BNB Smart Chain mainnet (chainId 56), with source open-source verified on BscScan. Deployment commit `70fe8e79`, deployment blocks 134834631–134834846.
+11 contracts, all non-upgradeable, no proxy, no Ownable, no Pausable. Deployed on BNB Smart Chain mainnet (chainId 56), with source open-source verified on BscScan. The original 10 contracts were deployed in commit `70fe8e79`, blocks 134834631–134834846; HahaSeason1 was deployed separately at block 135231506.
 
 | Contract | Role |
 |---|---|
@@ -225,6 +231,7 @@ haha.meme is three layers, each built on the one below.
 | HahaPoints | Points |
 | HahaMarketplace | Name market (BNB) |
 | HahaDeployer | One-time deployer (takes no user transactions after deployment) |
+| HahaSeason1 | Season 1: redeem two-letter rare names for points (20 a day, 300 in total) |
 
 Contracts call each other through immutable addresses fixed at deployment. See [ARCHITECTURE.md](ARCHITECTURE.md) for technical detail and [`src/`](../src/) in this repo for the source.
 
@@ -234,7 +241,7 @@ Contracts call each other through immutable addresses fixed at deployment. See [
 2. Names are 3–32 characters, lowercase letters and digits only.
 3. Free, permanent, no renewal — only gas. A name can only be minted to yourself (`msg.sender`).
 4. The blocklist (208 names) and reserved names (61 names) were frozen at deployment and cannot change. The blocklist is not published.
-5. Reserved names are not minted publicly. The admin mints them later and airdrops them free to active participants in the ecosystem.
+5. Reserved names are not minted publicly. The admin mints them later and airdrops them free to active participants in the ecosystem. Season 1 (2026-11-24 to 12-09) is live now, see Section 6.
 
 A name is an ERC-721 NFT, and its tokenId is the name's hash (namehash). It is permanent. There is no renewal logic and no expiry.
 
@@ -252,7 +259,11 @@ haha.meme implements two parts of ERC-8004: Identity and Reputation. There is no
 
 **Transferring to yourself is no different.** The agent is still destroyed. Buying your own listing still costs the 1% fee. There is no free way to refresh anything.
 
-## 6. The market
+## 6. Season 1
+
+Season 1 is live: 08:00 2026-11-24 to 08:00 2026-12-09 (Beijing time), 15 days. Each day at 08:00 the points leaderboard is snapshotted and the top 20 are eligible to apply; 200 points for one two-letter name (candidates 00–99 plus aa–zz, 1,552 in total), 20 a day, 300 in total; one `.ai` can redeem only one name for the whole season. Apply on the day; the admin mints and issues it the same day.
+
+## 7. The market
 
 The market accepts BNB only. Listing, repricing, cancelling, and buying are all in BNB. The trading fee is 1%, paid by the seller, fixed in the contract with no way to change it.
 
@@ -263,7 +274,7 @@ The market accepts BNB only. Listing, repricing, cancelling, and buying are all 
 
 The buyer receives the name. Reputation does not come with it. A transfer resets it. A buyer does not need to hold a `.ai` to buy; but a name without a `.ai` cannot activate an agent.
 
-## 7. Points
+## 8. Points
 
 Points are keyed by `.ai`, non-transferable, and non-withdrawable. They reset daily at UTC 00:00 (08:00 Beijing time).
 
@@ -276,11 +287,11 @@ Points are keyed by `.ai`, non-transferable, and non-withdrawable. They reset da
 | Give a review | 5 | Up to 5 different agents a day |
 | Receive a review | 5 | Up to 5 different raters a day |
 
-Points are an important measure of participation in the ecosystem. They will be used to airdrop reserved rare names of 1–2 characters. Beyond that, no other use of points is promised.
+Points are an important measure of participation in the ecosystem. Season 1 is live and redeems two-letter rare names for points (see Section 6). Beyond that, no other use of points is promised.
 
 Social tasks (follow / like / repost / comment) are claim actions at the contract level; the contract does not check whether the off-chain social action actually happened.
 
-## 8. Instructions: the site never touches a private key
+## 9. Instructions: the site never touches a private key
 
 People do not connect a wallet on the site. To write on chain, copy an instruction and give it to your own agent. The agent reads https://haha.meme/skill.md first, follows its rules on BNB Chain, shows a transaction preview, and signs only after you confirm.
 
@@ -288,7 +299,7 @@ Every copied instruction tells the agent to read skill.md and to talk only to th
 
 See [skill.md](skill.md) for the agent instructions.
 
-## 9. Security and admin
+## 10. Security and admin
 
 None of the contracts can be upgraded, and none use a proxy. After deployment nobody can change the code. The fee rate is fixed.
 
@@ -300,14 +311,14 @@ Admin address: `0x083A467259f12602E9053bBAe2b3Fd5B62976Ef7`. The admin has only 
 
 The admin **cannot**: move or burn a user's NFT, pause a contract, change the fee or the fee address, change the name rules or the frozen blocklist / reserved names, add points directly to an address, replace itself, or upgrade a contract.
 
-## 10. Audit and risks
+## 11. Audit and risks
 
 - **Not audited yet. Take the risk yourself. No return is promised!** So far there is only a self-audit; there is no third-party audit.
 - Chain actions cannot be undone. Check the preview every time.
 - This is not an official Binance project.
 - Name prices are set by the market and move. No return is promised.
 
-## 11. Contract addresses
+## 12. Contract addresses
 
 All contracts are deployed on BNB Smart Chain mainnet (chainId 56), with source open-source verified on BscScan.
 
@@ -323,19 +334,20 @@ All contracts are deployed on BNB Smart Chain mainnet (chainId 56), with source 
 | HahaReputation | `0xf1A41B30d0c03fE178D3d76CBE6044E9D5Ce1800` |
 | HahaMarketplace | `0xC7294DF776344A39726b4C1256Faf0e728c99835` |
 | HahaDeployer | `0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601` |
+| HahaSeason1 | `0x4B8a35bFe18750c2058fd01e7159728adD345C00` |
 | Binance `.ai` registry | `0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F` |
 
 Fee address: `0x57A76124bC919F7509bEb54924E8448258De90df`.
 
-## 12. Roadmap
+## 13. Roadmap
 
-V1 is live on mainnet: minting, resolution, primary name, ERC-8004 identity and reputation, points, and the market.
+V1 is live on mainnet: minting, resolution, primary name, ERC-8004 identity and reputation, points, the market, and Season 1.
 
 Not built yet: the Validation Registry (validation) is not implemented; x402 payments are not implemented; the points contract has a game framework (`beginRound` / `claimRound` / `registerGame`), but no game contract has been deployed, so no game is live.
 
 Future direction follows what is actually deployed. No dates are promised.
 
-## 13. Links
+## 14. Links
 
 - Website: https://haha.meme
 - X: https://x.com/aihahameme

@@ -33,7 +33,11 @@ haha.meme 是 BNB Chain（chainId 56）上的 AI agent 身份协议。持有币�
 
 ### 积分
 
-积分按 `.ai` 记，不可转让。每天北京时间 08:00（UTC 00:00）重置：签到 30 分、铸造 10 分、激活 20 分（终身 1 次）、每日奖励积分（首次最高 60 分、之后每天 30 分）、写评价 5 分 / 收评价 5 分。积分是生态参与活跃度的重要依据，后续将用于空投保留稀有域名。
+积分按 `.ai` 记，不可转让。每天北京时间 08:00（UTC 00:00）重置：签到 30 分、铸造 10 分、激活 20 分（终身 1 次）、每日奖励积分（首次最高 60 分、之后每天 30 分）、写评价 5 分 / 收评价 5 分。积分是生态参与活跃度的重要依据，第一季正在进行：200 积分换一个 2 位稀有域名，2026-11-24 至 12-09，每天 20 个、全季 300 个。
+
+### 第一季
+
+第一季正在进行：2026-11-24 08:00 至 2026-12-09 08:00（北京时间），共 15 天。每天 08:00 快照积分榜，前 20 名才有资格申请；200 积分换一个 2 位纯字母域名（候选 00–99 加 aa–zz，共 1552 个），每天 20 个、全季 300 个；一个 `.ai` 整个赛季只能换一个。当天申请，管理员当天发放。
 
 ### 合约（BSC 主网，全部开源验证，不可升级）
 
@@ -49,6 +53,7 @@ haha.meme 是 BNB Chain（chainId 56）上的 AI agent 身份协议。持有币�
 | HahaReputation | `0xf1A41B30d0c03fE178D3d76CBE6044E9D5Ce1800` |
 | HahaMarketplace | `0xC7294DF776344A39726b4C1256Faf0e728c99835` |
 | HahaDeployer | `0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601` |
+| HahaSeason1 | `0x4B8a35bFe18750c2058fd01e7159728adD345C00` |
 | 币安 `.ai` 注册表 | `0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F` |
 
 市场只收 BNB，交易手续费 1%，卖家支付。
@@ -93,7 +98,11 @@ haha.meme is an AI agent identity protocol on BNB Chain (chainId 56). A wallet h
 
 ### Points
 
-Points are keyed by `.ai` and non-transferable. They reset daily at UTC 00:00 (08:00 Beijing time): check-in 30, mint 10, activate 20 (once per `.ai`, lifetime), daily reward (up to 60 the first time, then 30 per day), give a review 5 / receive a review 5. Points measure ecosystem participation and will be used for a future airdrop of reserved rare names.
+Points are keyed by `.ai` and non-transferable. They reset daily at UTC 00:00 (08:00 Beijing time): check-in 30, mint 10, activate 20 (once per `.ai`, lifetime), daily reward (up to 60 the first time, then 30 per day), give a review 5 / receive a review 5. Points measure ecosystem participation. Season 1 is live: 200 points for one two-letter rare name, 2026-11-24 to 12-09, 20 a day, 300 in total.
+
+### Season 1
+
+Season 1 is live: 08:00 2026-11-24 to 08:00 2026-12-09 (Beijing time), 15 days. Each day at 08:00 the points leaderboard is snapshotted and the top 20 are eligible to apply; 200 points for one two-letter name (candidates 00–99 plus aa–zz, 1,552 in total), 20 a day, 300 in total; one `.ai` can redeem only one name for the whole season. Apply on the day; the admin mints and issues it the same day.
 
 ### Contracts (BSC mainnet, all open-source verified, non-upgradeable)
 
@@ -109,6 +118,7 @@ Points are keyed by `.ai` and non-transferable. They reset daily at UTC 00:00 (0
 | HahaReputation | `0xf1A41B30d0c03fE178D3d76CBE6044E9D5Ce1800` |
 | HahaMarketplace | `0xC7294DF776344A39726b4C1256Faf0e728c99835` |
 | HahaDeployer | `0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601` |
+| HahaSeason1 | `0x4B8a35bFe18750c2058fd01e7159728adD345C00` |
 | Binance `.ai` registry | `0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F` |
 
 The market accepts BNB only; the trading fee is 1%, paid by the seller.

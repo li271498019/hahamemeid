@@ -1,0 +1,17 @@
+[Unit]
+Description=haha.meme V1 indexer sync loop
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=haha
+Group=haha
+WorkingDirectory=/opt/haha-indexer
+EnvironmentFile=/etc/haha/indexer.env
+ExecStart=/usr/bin/python3 /opt/haha-indexer/syncer.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

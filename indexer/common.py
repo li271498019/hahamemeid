@@ -31,11 +31,14 @@ CONTRACTS = {
     "reputation": "0xf1a41b30d0c03fe178d3d76cbe6044e9d5ce1800",
     "market": "0xc7294df776344a39726b4c1256faf0e728c99835",
     "deployer": "0x3c7bd1649ac03afb65e6e10f949f45d764b6b601",
+    "season1": "0x4b8a35bfe18750c2058fd01e7159728add345c00",
+    "validation": "0xaf9d2d3b6717469b21464baa12b022817841952b",
 }
 AI_REGISTRY = "0x60b9262456de011f7d15a54cdd8c48baaa8b022f"
 ALL_ADDRESSES = [CONTRACTS[k] for k in
                  ("policy", "metadata", "resolver", "registry", "registrar",
-                  "identity", "points", "reputation", "market", "deployer")]
+                  "identity", "points", "reputation", "market", "deployer",
+                  "validation")]
 
 ZERO_ADDRESS = "0x" + "00" * 20
 ZERO_BYTES32 = "0x" + "00" * 32
@@ -105,20 +108,31 @@ class RpcError(Exception):
 
 
 def _mask_url(url):
-    # Mask a possible API key in a URL for logging. Ankr-style keys live
-    # in the last path segment; hide any long trailing segment so a key
-    # never reaches stderr / the systemd journal.
+    # Mask a possible API key in a URL for logging. Keys can hide in
+    # three places, and the old code only covered the first:
+    #   * the last path segment (Ankr-style https://rpc.ankr.com/bsc/<key>)
+    #   * the query string (?apikey=<key>)
+    #   * userinfo (https://<key>@host/...)
+    # The logged form keeps only scheme + host (+port) + the first path
+    # segment; everything after the first segment is masked, and the
+    # query/fragment are dropped entirely, so a key never reaches
+    # stderr / the systemd journal whatever form it takes.
     try:
         from urllib.parse import urlsplit, urlunsplit
-        parts = [s for s in urlsplit(url).path.split("/") if s]
-        if parts and len(parts[-1]) >= 16:
-            parts[-1] = "***"
-            q = urlsplit(url)
-            return urlunsplit((q.scheme, q.netloc,
-                               "/" + "/".join(parts), q.query, q.fragment))
+        q = urlsplit(url)
+        host = q.hostname or ""
+        if q.port:
+            host = "%s:%d" % (host, q.port)
+        parts = [s for s in q.path.split("/") if s]
+        if not parts:
+            masked_path = ""
+        elif len(parts) == 1:
+            masked_path = "/***" if len(parts[0]) >= 16 else "/" + parts[0]
+        else:
+            masked_path = "/" + parts[0] + "/***"
+        return urlunsplit((q.scheme, host, masked_path, "", ""))
     except Exception:
-        pass
-    return url
+        return url
 
 
 class RpcClient:
@@ -404,6 +418,69 @@ _EVENT_DEFS = [
      [("node", "bytes32", True), ("owner", "address", False)]),
     ("policy", "ListsFrozen(uint256,uint256)",
      [("bannedCount", "uint256", False), ("reservedCount", "uint256", False)]),
+    ("season1", "DayRootSet(uint64,bytes32,uint64,bytes32,uint16,uint16)",
+     [("dayIndex", "uint64", True), ("merkleRoot", "bytes32", False),
+      ("snapshotBlock", "uint64", False),
+      ("snapshotBlockHash", "bytes32", False),
+      ("reservedCount", "uint16", False),
+      ("remainingSlots", "uint16", False)]),
+    ("season1", "Redeemed(uint256,bytes32,address,address,uint8,string,uint64,uint8,uint256,bytes32)",
+     [("orderId", "uint256", True), ("aiId", "bytes32", True),
+      ("applicant", "address", True), ("recipient", "address", False),
+      ("tld", "uint8", False), ("label", "string", False),
+      ("dayIndex", "uint64", False), ("tier", "uint8", False),
+      ("price", "uint256", False), ("root", "bytes32", False)]),
+    ("season1", "FulfillmentAttested(uint256,uint256,address,bytes32)",
+     [("orderId", "uint256", True), ("tokenId", "uint256", True),
+      ("recipient", "address", True), ("mintTxHash", "bytes32", False)]),
+    ("season1", "Verified(bytes32,uint64,uint256,uint64,uint8,bytes32,uint256)",
+     [("aiId", "bytes32", True), ("dayIndex", "uint64", True),
+      ("agentId", "uint256", True), ("generation", "uint64", False),
+      ("verdict", "uint8", False), ("taskPackHash", "bytes32", False),
+      ("points", "uint256", False)]),
+    ("season1", "FindingCommitted(bytes32,bytes32,address,bytes32)",
+     [("commitHash", "bytes32", True), ("aiId", "bytes32", True),
+      ("committer", "address", True),
+      ("reportEvidenceHash", "bytes32", False)]),
+    ("season1", "CanonicalAssigned(bytes32,bytes32)",
+     [("reportEvidenceHash", "bytes32", True),
+      ("canonicalRootCauseId", "bytes32", True)]),
+    ("season1", "FindingPaid(bytes32,bytes32,bytes32,address,uint256)",
+     [("canonicalRootCauseId", "bytes32", True),
+      ("reportEvidenceHash", "bytes32", True), ("aiId", "bytes32", True),
+      ("recipient", "address", False), ("points", "uint256", False)]),
+    ("season1", "ValidatorSet(address,bool)",
+     [("account", "address", True), ("allowed", "bool", False)]),
+    ("season1", "RewardSignerSet(address)",
+     [("account", "address", True)]),
+    ("season1", "TaskPackSet(uint64,bytes32)",
+     [("dayIndex", "uint64", True), ("taskPackHash", "bytes32", False)]),
+    ("season1", "AccidentDeclared(uint256,bytes32,address,bytes32)",
+     [("orderId", "uint256", True), ("aiId", "bytes32", True),
+      ("applicant", "address", True), ("evidenceHash", "bytes32", False)]),
+    ("season1", "AccidentRefunded(uint256,bytes32,uint256)",
+     [("orderId", "uint256", True), ("aiId", "bytes32", True),
+      ("amount", "uint256", False)]),
+    ("season1", "AccidentCompensationDeferred(uint256,bytes32)",
+     [("orderId", "uint256", True), ("aiId", "bytes32", True)]),
+    ("season1", "AccidentCompensated(uint256,bytes32,uint256)",
+     [("orderId", "uint256", True), ("aiId", "bytes32", True),
+      ("amount", "uint256", False)]),
+    # G13 Validation Registry (HahaValidation, PR #101, deployed
+    # 2026-11-25, block 135619015). Signatures verbatim from
+    # src/HahaValidation.sol; ValidationDisputed is a v1 non-standard
+    # event (see plan docs/contracts/validation-registry-plan.md §2.3).
+    ("validation", "ValidationRequest(address,uint256,string,bytes32)",
+     [("validatorAddress", "address", True),
+      ("agentId", "uint256", True), ("requestURI", "string", False),
+      ("requestHash", "bytes32", True)]),
+    ("validation", "ValidationResponse(address,uint256,bytes32,uint8,string,bytes32,string)",
+     [("validatorAddress", "address", True),
+      ("agentId", "uint256", True), ("requestHash", "bytes32", True),
+      ("response", "uint8", False), ("responseURI", "string", False),
+      ("responseHash", "bytes32", False), ("tag", "string", False)]),
+    ("validation", "ValidationDisputed(bytes32,address)",
+     [("requestHash", "bytes32", True), ("disputer", "address", True)]),
 ]
 
 # (contract key, topic0) -> (event name, params)

@@ -58,7 +58,7 @@ haha.meme 的链下索引器：同步 BSC 主网上的合约事件，写进 Post
 - `GET /v1/owners/{address}/primary` — 该地址的主名。
 - `GET /v1/listings` / `GET /v1/trades` — 挂单 / 成交。
 - `GET /v1/agents` — agent 列表；`GET /v1/leaderboard/reputation` — 信誉榜；`GET /v1/reviews/latest` — 最新评价；`GET /v1/leaderboard/points` — 积分榜。
-- `GET /v1/events` — 全部已索引事件，最新在前。筛选：`contract=`（合约 key，如 `registrar`，或 0x 地址，或 `season1`）、`event=`（事件名，如 `NameMinted`）、`address=`（相关地址：日志自身的合约，或任一 topic 里带它的地址）。解不出来的日志也会返回，`event: null`、`args: {}`（比如第一季模块的事件，`common.py` 里没有它的定义）。
+- `GET /v1/events` — 全部已索引事件，最新在前。筛选：`contract=`（合约 key，如 `registrar`，或 0x 地址，或 `season1`）、`event=`（事件名，如 `NameMinted`）、`address=`（相关地址：日志自身的合约，或任一 topic 里带它的地址）。解不出来的日志也会返回，`event: null`、`args: {}`（只发生在 `common.py` 里没有定义的事件上；第一季的 14 个事件与验证的 3 个事件都已收录）。
 
 第一季（`day` 是 dayIndex，如 20781）：
 
@@ -73,6 +73,14 @@ haha.meme 的链下索引器：同步 BSC 主网上的合约事件，写进 Post
 - `GET /v1/season1/taskpack/{day}` — 当天任务包原文（raw bytes，原样返回）。
 - `GET /v1/season1/leaderboard/{day}` — 当天入选名单（含无效条目，`valid: false`）。
 - `POST /v1/season1/findings/{reportEvidenceHash}/report` — 提交人公示自己的找错报告（body：`reportId`、`title`、`content`；服务器验 `keccak256(content) == reportEvidenceHash` 才入库；salt 绝不发送、绝不入库）。
+
+标准注册文件与验证：
+
+- `GET /v1/agents/by-name/{fullName}/registration.json` — 某名字当前活跃 agent 的标准注册文件（EIP-8004 registration-v1；名字不存在 `404 name_not_found`，无活跃 agent `404 no_active_agent`）。
+- `GET /v1/agents/{agentId}/registration.json` — 某 agentId 的注册文件（已停用的也返回 200，`active: false`；不存在 `404 agent_not_found`）。
+- `GET /v1/agents/{agentId}/validations` — 某 agent 的全部验证记录（未知 agentId 返回空列表）。
+- `GET /v1/validations/{requestHash}` — 单条验证记录（不存在 `404 validation_not_found`）。
+- `POST /v1/validations/upload` — 上传签好的验证请求文档（body：`agentId` 或 `fullName`、`tag`、`version`、`document`、`signature`）；接口先验签名（恢复出的地址须是链上 `ownerOf(agentId)`），通过后自动发布到 `https://haha.meme/validations/{名字}-{短标签}-v{n}.json`，返回 `{url, requestHash, agentId}`；每个 agent 每天最多成功上传 10 次。验证合约 `HahaValidation`（`0xAF9d2D3b6717469B21464baA12B022817841952b`，部署区块 135619015），V1 验证者为项目管理员。
 
 注意：`POST /v1/season1/sign-verify`（每日核验签名）**不在这个仓库里**，
 它是独立的签名服务（私钥只在签名服务器上），不在索引器里。
@@ -185,7 +193,8 @@ bash setup_db.sh --reset     # 重建（危险：清库，有确认 + 先备份�
 依赖只有 Python 3.12 标准库 + `psycopg2` + `pycryptodome`
 （服务器上是 apt 的 `python3-psycopg2`、`python3-pycryptodome`，
 后者以 `Cryptodome` 命名空间提供；本地 `Crypto` 也能用，代码里
-两个都试）。
+两个都试）。上传接口（`POST /v1/validations/upload`）验签另需
+`eth-account`（函数内惰性 import，不用上传接口时不用装）。
 
 ```sh
 # 语法检查

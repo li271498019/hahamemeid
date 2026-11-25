@@ -13,14 +13,14 @@
 
 ## 概述
 
-haha.meme 的公开 API 由链上索引器提供，第 1–14 节只读，第 15 节有两个 POST 接口。它返回索引器已经确认的数据：名字、挂单、成交、agent、信誉、评价、积分、全站统计和第一季。网站前端用的就是这套接口。共 15 节接口，其中第 15 节是第一季的 12 个接口。
+haha.meme 的公开 API 由链上索引器提供，第 1–14 节只读，第 15 节有两个 POST 接口，第 16–17 节是标准注册文件与验证（第 17 节有一个 POST 接口）。它返回索引器已经确认的数据：名字、挂单、成交、agent、信誉、评价、积分、全站统计、第一季、注册文件和验证记录。网站前端用的就是这套接口。共 17 节接口，其中第 15 节是第一季的 12 个接口，第 17 节是验证的 3 个接口。
 
 所有数据只覆盖已确认区块（`safeBlock` 之前），不会读到未确认的数据。接口不写链、不花 gas、不需要钱包、不需要鉴权。
 
 ## 通用规则
 
 - 基础地址：`https://haha.meme/api`。索引器内部路由没有 `/api` 前缀，是 nginx 代理时去掉的。
-- 除第 15 节的两个 POST 接口外，全部是 GET。其他路径的 POST 返回 `405 {"error": "method_not_allowed"}`。未知路径返回 `404 {"error": "not_found"}`。
+- 除第 15 节的两个 POST 接口和第 17 节的上传接口外，全部是 GET。其他路径的 POST 返回 `405 {"error": "method_not_allowed"}`。未知路径返回 `404 {"error": "not_found"}`。
 - `uint256`（tokenId、价格、积分）用十进制字符串表示，例如 `"1000000000000000000"`。
 - 地址是小写 `0x` 开头，例如 `"0xe40a0c726fd2f990713ade7380c89800f4e8ac49"`。
 - 时间是 UTC ISO-8601，带 `Z`，例如 `"2026-11-21T10:40:27Z"`。
@@ -598,7 +598,7 @@ curl "https://haha.meme/api/v1/season1/days/20781"
 ```
 
 - `status`：`reserved`（保留组）/ `boundary`（边界组）/ `excluded`（无资格）。
-- `reason`：有资格时为 `null`；`pending`（已有待发放的订单）/ `fulfilled`（本季已换过）/ `below-cutoff`（快照积分不够）。
+- `reason`：有资格时为 `null`；`pending`（已有待发放的订单）/ `fulfilled`（本季已换过）/ `below-cutoff`（快照积分不够）。从第 20782 天起快照用 v2 轮换规则：上一天有资格但没申请的人当天排除，名额先给后面满 200 分的人，不够 20 个时前面被排除的人按当天快照区块哈希为种子随机补位到 20 人；被排除的人当天没有快照记录，返回 `excluded` / `below-cutoff`。
 - `balance` 是快照时的积分（十进制字符串），无资格时为 `null`；`balanceNow` 是当前积分。
 
 示例：
@@ -939,6 +939,141 @@ curl -X POST "https://haha.meme/api/v1/season1/sign-verify" \
   -d '{"seasonId":1,"dayIndex":20781,"aiId":"0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed","agentId":29,"generation":1,"taskPackHash":"0xd5d7d5a88864dd79a5290b3c62a797b1b2c4c23e395b69928e1ab5bf1d0f0439","verdict":0,"nonce":0,"deadline":1795564800}'
 ```
 
+### 16. 标准注册文件
+
+按 EIP-8004 格式生成的 agent 注册文件，由链上数据自动生成，第三方按标准读取，不用问 agent 主人。`type` 为 `https://eips.ethereum.org/EIPS/eip-8004#registration-v1`；`registrations` 里 `agentId` 是 JSON 数字，`agentRegistry` 为 `eip155:56:<HahaAgentIdentity 合约地址>`；`x402Support` 为 `false`；`supportedTrust` 为 `["reputation"]`。`Content-Type: application/json`，`Cache-Control: no-store`。
+
+#### 16.1 按名字 `GET /v1/agents/by-name/{fullName}/registration.json`
+
+取某个名字当前活跃 agent 的注册文件。名字不分大小写（大写归一化为小写）。
+
+```json
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "ha.haha",
+  "description": "haha id ha.haha 是链上 AI agent 身份，信誉写在链上。haha id ha.haha is an on-chain AI agent identity with reputation written on-chain.",
+  "image": "https://haha.meme/api/v1/names/ha.haha/image.svg",
+  "services": [],
+  "x402Support": false,
+  "active": true,
+  "registrations": [
+    {
+      "agentId": 30,
+      "agentRegistry": "eip155:56:0x54A70BF81B288d41013D7b57c2Db0922f1E1a4d4"
+    }
+  ],
+  "supportedTrust": ["reputation"]
+}
+```
+
+- 名字不存在返回 `404 {"error": "name_not_found"}`；名字存在但没有活跃 agent 返回 `404 {"error": "no_active_agent"}`。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/agents/by-name/ha.haha/registration.json"
+```
+
+#### 16.2 按 agentId `GET /v1/agents/{agentId}/registration.json`
+
+取某个 agentId 的注册文件。已停用的 agent 也返回 `200`，`active` 为 `false`，不是 404。
+
+- 不存在的 agentId 返回 `404 {"error": "agent_not_found"}`；非数字的 agentId 同样返回 `404 {"error": "agent_not_found"}`，不会 500。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/agents/30/registration.json"
+```
+
+### 17. 验证
+
+验证注册表 `HahaValidation`（`0xAF9d2D3b6717469B21464baA12B022817841952b`，部署区块 135619015）。V1 只有一个验证者：项目管理员（`0x083A467259f12602E9053bBAe2b3Fd5B62976Ef7`）。两种验证：接口可达（`endpoint-reachable`）与身份真实性（`identity-verified`）。验证结果是 0–100 分（100 通过，0 未通过），写在链上；分数是验证结果，不是积分也不是奖励，验证者不收钱、不赚积分。任何人可在第一次结果上链后 3 天内提一次争议，验证者重新核对一次；每个请求最多争议一次。
+
+#### 17.1 某 agent 的验证记录 `GET /v1/agents/{agentId}/validations`
+
+返回该 agent 的全部验证记录（最新在前）。未知的 agentId 返回空列表，不是 404。
+
+返回示例（`agentId` 为字符串；`response` 为 0–100 的数字；`disputeStatus` 为 `not_disputed` / `disputed` / `upheld` / `overturned`）：
+
+```json
+{
+  "agentId": "30",
+  "validations": [
+    {
+      "requestHash": "0x3446c40e71dbeeb405c3aedbebade1ff485726bd78deab11e73c6de898b5da50",
+      "agentId": "30",
+      "validatorAddress": "0x083a467259f12602e9053bbae2b3fd5b62976ef7",
+      "requestURI": "https://haha.meme/validations/ha.haha-identity-v1.json",
+      "requestedAt": "2026-11-25T10:35:33Z",
+      "requestedBlock": 135639801,
+      "requestTxHash": "0xb4d16a686e37bcc5e23eeaebb8e6adec90ff5009b6e82b12694a60c3a25b846f",
+      "response": 100,
+      "responseURI": "data:application/json;base64,...",
+      "responseHash": "0xdf8e06f3d1bd52340bcf67b0e5f47f3cd0f3d3dce0b72998bcdc7a7edaedb24f",
+      "tag": "identity-verified",
+      "lastUpdatedAt": "2026-11-25T10:36:00Z",
+      "lastUpdateBlock": 135639862,
+      "lastUpdateTxHash": "0x684097896d5892108a719144ab8d1b0bc1a60be323cd00b789cebf91dd2906ae",
+      "disputeStatus": "not_disputed",
+      "disputeCount": 0
+    }
+  ]
+}
+```
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/agents/30/validations"
+```
+
+#### 17.2 单条验证 `GET /v1/validations/{requestHash}`
+
+查某一次验证请求，返回的记录和 17.1 里的条目完全相同（不带外层 `validations` 数组）。
+
+- 不存在的 requestHash 返回 `404 {"error": "validation_not_found"}`。
+
+示例：
+
+```bash
+curl "https://haha.meme/api/v1/validations/0x3446c40e71dbeeb405c3aedbebade1ff485726bd78deab11e73c6de898b5da50"
+```
+
+#### 17.3 上传验证文档 `POST /v1/validations/upload`
+
+没有自己服务器的用户，把签好的验证请求文档传上来，接口验签后自动发布。签名是鉴权本身：不需要另外登录。
+
+请求：POST，`Content-Type: application/json`，body：
+
+```json
+{
+  "agentId": 30,
+  "tag": "identity-verified",
+  "version": 1,
+  "document": {
+    "type": "identity-verified",
+    "signature": "0x9a028f84ca79f36ea50be2f9e364fb7d345bcc2e89e92e194bcdff116fb1824a337316fa3a6b95018d5b20dbeba3b91e916140ff16524c7bd4513da83c1b19821b",
+    "signatureType": "eip712"
+  },
+  "signature": "0x9a028f84ca79f36ea50be2f9e364fb7d345bcc2e89e92e194bcdff116fb1824a337316fa3a6b95018d5b20dbeba3b91e916140ff16524c7bd4513da83c1b19821b"
+}
+```
+
+- `agentId` 或 `fullName` 二选一（传名字时须为当前有活跃 agent 的名字）；`tag` 为 `identity-verified` 或 `endpoint-reachable`；`version` 默认 1；`document` 为请求文档 JSON（≤ 64KB，`type` 须与 `tag` 一致）。
+- 身份真实性：文档里的 `signature` 是主人对 requestHash 的签名，先试 EIP-191（签名内容为 requestHash 的 32 字节原始值），再试 EIP-712（domain：name `HahaValidation`、version `1`、chainId 56、verifyingContract 为验证合约地址；主类型 `IdentityChallenge`，字段 `agentId` (uint256)、`requestHash` (bytes32)）；文档带 `signatureType`（`eip191` / `eip712`）时优先试对应的方式。恢复出的地址必须是链上 `ownerOf(agentId)`，否则拒绝。接口可达：文档无签名，用 body 外层的 `signature` 字段鉴权（不存进文档）。
+- 成功返回 `200`：`{"url": "https://haha.meme/validations/ha.haha-identity-v1.json", "requestHash": "0x3446c40e71dbeeb405c3aedbebade1ff485726bd78deab11e73c6de898b5da50", "agentId": 30}`。URL 格式为 `https://haha.meme/validations/{名字}-{短标签}-v{n}.json`，短标签：身份真实性 `identity`，接口可达 `endpoint`。拿到 `requestHash` 后，主人再调验证合约的 `validationRequest`。
+- 错误：签名恢复出的地址不是 agent 主人 → `403 {"error": "not_agent_owner"}`；签名无效 → `403 {"error": "signature_invalid"}`；agent 不存在 / 名字不存在 / 名字无活跃 agent → `404 {"error": "agent_not_found"}`；`tag` 不合法 → `400 {"error": "bad_tag"}`；文档不是合法 JSON、超 64KB 或 `type` 与 `tag` 不符 → `400`。
+- 每个 agent 每天最多成功上传 10 次。
+
+示例：
+
+```bash
+curl -X POST "https://haha.meme/api/v1/validations/upload" \
+  -H "Content-Type: application/json" \
+  -d '{"agentId":30,"tag":"identity-verified","version":1,"document":{"type":"identity-verified","signature":"0x...","signatureType":"eip712"},"signature":"0x..."}'
+```
+
 ## 错误
 
 | HTTP | `error` | 说明 |
@@ -951,7 +1086,7 @@ curl -X POST "https://haha.meme/api/v1/season1/sign-verify" \
 | 400 | `invalid_minReviews` | `minReviews` 不是整数，或不在 1–20。 |
 | 400 | `invalid_address` | 地址不是 `0x` + 40 位十六进制。 |
 | 404 | `not_found` | 路径不存在；或历代接口查了一个从未铸出的名字。 |
-| 405 | `method_not_allowed` | 只支持 GET。 |
+| 405 | `method_not_allowed` | 该路径不支持此方法。 |
 | 429 | — | 请求过多，等 `Retry-After` 后再试。 |
 | 500 | `internal` | 服务器内部错误。 |
 
@@ -975,14 +1110,14 @@ curl -X POST "https://haha.meme/api/v1/season1/sign-verify" \
 
 ## Overview
 
-The haha.meme public API is served by the on-chain indexer. Sections 1–14 are read-only; section 15 has two POST endpoints. It returns data the indexer has already confirmed: names, listings, trades, agents, reputation, reviews, points, site-wide stats, and Season 1. The website frontend uses this same API. 15 sections in total; section 15 is Season 1 with 12 endpoints.
+The haha.meme public API is served by the on-chain indexer. Sections 1–14 are read-only; section 15 has two POST endpoints, and sections 16–17 are the standard registration file and validation (section 17 has one POST endpoint). It returns data the indexer has already confirmed: names, listings, trades, agents, reputation, reviews, points, site-wide stats, Season 1, registration files, and validation records. The website frontend uses this same API. 17 sections in total; section 15 is Season 1 with 12 endpoints, and section 17 is validation with 3 endpoints.
 
 All data covers confirmed blocks only (up to `safeBlock`). Nothing here reads unconfirmed data. The API does not write to the chain, costs no gas, needs no wallet, and needs no auth.
 
 ## Conventions
 
 - Base URL: `https://haha.meme/api`. The indexer routes have no `/api` prefix; nginx strips it when proxying.
-- All GET except the two POST endpoints in section 15. POST to any other path returns `405 {"error": "method_not_allowed"}`. An unknown path returns `404 {"error": "not_found"}`.
+- All GET except the two POST endpoints in section 15 and the upload endpoint in section 17. POST to any other path returns `405 {"error": "method_not_allowed"}`. An unknown path returns `404 {"error": "not_found"}`.
 - `uint256` values (tokenId, prices, points) are decimal strings, e.g. `"1000000000000000000"`.
 - Addresses are lowercase `0x`, e.g. `"0xe40a0c726fd2f990713ade7380c89800f4e8ac49"`.
 - Times are UTC ISO-8601 with `Z`, e.g. `"2026-11-21T10:40:27Z"`.
@@ -1560,7 +1695,7 @@ Response:
 ```
 
 - `status`: `reserved` (Reserved tier) / `boundary` (Boundary tier) / `excluded` (not eligible).
-- `reason`: `null` when eligible; `pending` (an order is still waiting to be fulfilled) / `fulfilled` (already redeemed this season) / `below-cutoff` (snapshot points were not enough).
+- `reason`: `null` when eligible; `pending` (an order is still waiting to be fulfilled) / `fulfilled` (already redeemed this season) / `below-cutoff` (snapshot points were not enough). From day 20782 the snapshot uses the v2 rotation rule: anyone who was eligible the previous day but did not apply is excluded that day, places go first to people behind them with at least 200 points, and if fewer than 20 such people qualify, the excluded ones fill the remaining places by a random draw seeded on the snapshot block hash, up to 20. An excluded person has no snapshot entry that day and gets `excluded` / `below-cutoff`.
 - `balance` is the snapshot points (decimal string), `null` when not eligible; `balanceNow` is the current points.
 
 Example:
@@ -1901,6 +2036,141 @@ curl -X POST "https://haha.meme/api/v1/season1/sign-verify" \
   -d '{"seasonId":1,"dayIndex":20781,"aiId":"0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed","agentId":29,"generation":1,"taskPackHash":"0xd5d7d5a88864dd79a5290b3c62a797b1b2c4c23e395b69928e1ab5bf1d0f0439","verdict":0,"nonce":0,"deadline":1795564800}'
 ```
 
+### 16. Standard registration file
+
+The agent registration file in EIP-8004 format, generated from on-chain data. Third parties read it by the standard without asking the agent owner. `type` is `https://eips.ethereum.org/EIPS/eip-8004#registration-v1`; in `registrations`, `agentId` is a JSON number and `agentRegistry` is `eip155:56:<HahaAgentIdentity contract address>`; `x402Support` is `false`; `supportedTrust` is `["reputation"]`. `Content-Type: application/json`, `Cache-Control: no-store`.
+
+#### 16.1 By name `GET /v1/agents/by-name/{fullName}/registration.json`
+
+The registration file of a name's currently active agent. Names are case-insensitive (upper case is normalized to lower case).
+
+```json
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "ha.haha",
+  "description": "haha id ha.haha is an on-chain AI agent identity with reputation written on-chain.",
+  "image": "https://haha.meme/api/v1/names/ha.haha/image.svg",
+  "services": [],
+  "x402Support": false,
+  "active": true,
+  "registrations": [
+    {
+      "agentId": 30,
+      "agentRegistry": "eip155:56:0x54A70BF81B288d41013D7b57c2Db0922f1E1a4d4"
+    }
+  ],
+  "supportedTrust": ["reputation"]
+}
+```
+
+- A name that does not exist returns `404 {"error": "name_not_found"}`; a name with no active agent returns `404 {"error": "no_active_agent"}`.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/agents/by-name/ha.haha/registration.json"
+```
+
+#### 16.2 By agentId `GET /v1/agents/{agentId}/registration.json`
+
+The registration file of one agentId. A deactivated agent still returns `200` with `active: false`, not 404.
+
+- A nonexistent agentId returns `404 {"error": "agent_not_found"}`; a non-numeric agentId returns the same `404 {"error": "agent_not_found"}`, never 500.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/agents/30/registration.json"
+```
+
+### 17. Validation
+
+The Validation Registry `HahaValidation` (`0xAF9d2D3b6717469B21464baA12B022817841952b`, deployed in block 135619015). In v1 there is a single validator: the project admin (`0x083A467259f12602E9053bBAe2b3Fd5B62976Ef7`). Two checks: endpoint reachable (`endpoint-reachable`) and identity verified (`identity-verified`). A validation result is a 0–100 score (100 pass, 0 fail) written on chain. The score is a validation result, not points and not a reward; the validator is paid nothing and earns no points. Anyone can dispute a result once, within 3 days after the first result is written on chain; the validator checks the request again. Each request can be disputed at most once.
+
+#### 17.1 Validations of an agent `GET /v1/agents/{agentId}/validations`
+
+All validation records of one agent (newest first). An unknown agentId returns an empty list, not 404.
+
+Example response (`agentId` is a string; `response` is a number 0–100; `disputeStatus` is `not_disputed` / `disputed` / `upheld` / `overturned`):
+
+```json
+{
+  "agentId": "30",
+  "validations": [
+    {
+      "requestHash": "0x3446c40e71dbeeb405c3aedbebade1ff485726bd78deab11e73c6de898b5da50",
+      "agentId": "30",
+      "validatorAddress": "0x083a467259f12602e9053bbae2b3fd5b62976ef7",
+      "requestURI": "https://haha.meme/validations/ha.haha-identity-v1.json",
+      "requestedAt": "2026-11-25T10:35:33Z",
+      "requestedBlock": 135639801,
+      "requestTxHash": "0xb4d16a686e37bcc5e23eeaebb8e6adec90ff5009b6e82b12694a60c3a25b846f",
+      "response": 100,
+      "responseURI": "data:application/json;base64,...",
+      "responseHash": "0xdf8e06f3d1bd52340bcf67b0e5f47f3cd0f3d3dce0b72998bcdc7a7edaedb24f",
+      "tag": "identity-verified",
+      "lastUpdatedAt": "2026-11-25T10:36:00Z",
+      "lastUpdateBlock": 135639862,
+      "lastUpdateTxHash": "0x684097896d5892108a719144ab8d1b0bc1a60be323cd00b789cebf91dd2906ae",
+      "disputeStatus": "not_disputed",
+      "disputeCount": 0
+    }
+  ]
+}
+```
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/agents/30/validations"
+```
+
+#### 17.2 One validation `GET /v1/validations/{requestHash}`
+
+One validation request. The record is identical to an entry in 17.1 (without the outer `validations` array).
+
+- An unknown requestHash returns `404 {"error": "validation_not_found"}`.
+
+Example:
+
+```bash
+curl "https://haha.meme/api/v1/validations/0x3446c40e71dbeeb405c3aedbebade1ff485726bd78deab11e73c6de898b5da50"
+```
+
+#### 17.3 Upload a validation document `POST /v1/validations/upload`
+
+For users without their own server: upload a signed validation request document and the endpoint verifies the signature and publishes it automatically. The signature is the auth itself; no separate login is needed.
+
+Request: POST, `Content-Type: application/json`, body:
+
+```json
+{
+  "agentId": 30,
+  "tag": "identity-verified",
+  "version": 1,
+  "document": {
+    "type": "identity-verified",
+    "signature": "0x9a028f84ca79f36ea50be2f9e364fb7d345bcc2e89e92e194bcdff116fb1824a337316fa3a6b95018d5b20dbeba3b91e916140ff16524c7bd4513da83c1b19821b",
+    "signatureType": "eip712"
+  },
+  "signature": "0x9a028f84ca79f36ea50be2f9e364fb7d345bcc2e89e92e194bcdff116fb1824a337316fa3a6b95018d5b20dbeba3b91e916140ff16524c7bd4513da83c1b19821b"
+}
+```
+
+- Either `agentId` or `fullName` (a name must currently have an active agent); `tag` is `identity-verified` or `endpoint-reachable`; `version` defaults to 1; `document` is the request document JSON (at most 64KB, `type` must match `tag`).
+- Identity check: the `signature` inside the document is the owner's signature of the requestHash. EIP-191 is tried first (the signed value is the raw 32 bytes of the requestHash), then EIP-712 (domain: name `HahaValidation`, version `1`, chainId 56, verifyingContract is the validation contract address; primary type `IdentityChallenge`, fields `agentId` (uint256), `requestHash` (bytes32)). A `signatureType` field (`eip191` / `eip712`) in the document is tried first. The recovered address must be the on-chain `ownerOf(agentId)`, or the upload is rejected. Endpoint check: the document has no signature; the outer `signature` field in the body is used for auth (it is not stored in the document).
+- Success returns `200`: `{"url": "https://haha.meme/validations/ha.haha-identity-v1.json", "requestHash": "0x3446c40e71dbeeb405c3aedbebade1ff485726bd78deab11e73c6de898b5da50", "agentId": 30}`. The URL format is `https://haha.meme/validations/{name}-{short-tag}-v{n}.json`; short tags: `identity` for identity verification, `endpoint` for endpoint reachability. With the `requestHash`, the owner then calls the validation contract's `validationRequest`.
+- Errors: the recovered address is not the agent owner → `403 {"error": "not_agent_owner"}`; invalid signature → `403 {"error": "signature_invalid"}`; agent / name does not exist, or the name has no active agent → `404 {"error": "agent_not_found"}`; bad `tag` → `400 {"error": "bad_tag"}`; document is not valid JSON, over 64KB, or its `type` does not match `tag` → `400`.
+- At most 10 successful uploads per agent per day.
+
+Example:
+
+```bash
+curl -X POST "https://haha.meme/api/v1/validations/upload" \
+  -H "Content-Type: application/json" \
+  -d '{"agentId":30,"tag":"identity-verified","version":1,"document":{"type":"identity-verified","signature":"0x...","signatureType":"eip712"},"signature":"0x..."}'
+```
+
 ## Errors
 
 | HTTP | `error` | Meaning |
@@ -1913,7 +2183,7 @@ curl -X POST "https://haha.meme/api/v1/season1/sign-verify" \
 | 400 | `invalid_minReviews` | `minReviews` is not an integer, or outside 1–20. |
 | 400 | `invalid_address` | Address is not `0x` + 40 hex characters. |
 | 404 | `not_found` | Path does not exist; or the generations endpoint was given a name that was never minted. |
-| 405 | `method_not_allowed` | GET only. |
+| 405 | `method_not_allowed` | This path does not support this method. |
 | 429 | — | Too many requests; wait for `Retry-After` and retry. |
 | 500 | `internal` | Server error. |
 

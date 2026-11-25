@@ -6,7 +6,8 @@ here have NO /api prefix: /health, /v1/listings, /v1/trades, /v1/agents,
 /v1/names/{fullName}/generations, /v1/owners/{address}/names,
 /v1/leaderboard/points, /v1/stats, /v1/owners/{address}/primary,
 /v1/names/{fullName}/image.svg, /v1/names/{fullName}/metadata,
-/v1/names, /v1/events.
+/v1/names, /v1/events, /v1/agents/{agentId}/validations,
+/v1/validations/{requestHash}.
 
 Conventions (per V1-INDEXER-SPEC.md): uint256 as decimal strings,
 addresses lowercase 0x, times UTC ISO-8601 with Z, opaque cursors
@@ -26,6 +27,7 @@ import os
 import re
 import sys
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, unquote, urlparse
 
@@ -34,7 +36,8 @@ import psycopg2.extras
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import (CHAIN_ID, CONTRACTS, EVENTS, decode_log,
-                    get_config, RpcClient, keccak256, season1_module)
+                    get_config, RpcClient, keccak256, season1_module,
+                    topic0)
 from svg import build_svg_only
 
 LIST_CACHE = "public, max-age=5, stale-while-revalidate=30"
@@ -50,6 +53,10 @@ def db():
     if conn is None or conn.closed:
         conn = psycopg2.connect(_cfg["database_url"])
         conn.autocommit = True
+        # M3: bound every query the API can issue; a runaway query fails
+        # after 5s instead of stacking threads/connections.
+        with conn.cursor() as cur:
+            cur.execute("SET statement_timeout = '5s'")
         _local.conn = conn
     return conn
 
@@ -131,6 +138,21 @@ def parse_limit(q):
     return n
 
 
+def parse_limit_bounded(q, default, maximum):
+    """M3: ?limit with a caller-chosen default/cap (season endpoints:
+    default 50, max 100)."""
+    raw = q.get("limit", [None])[0]
+    if raw is None:
+        return default
+    try:
+        n = int(raw)
+    except ValueError:
+        raise ApiError(400, {"error": "invalid_limit"})
+    if n < 1 or n > maximum:
+        raise ApiError(400, {"error": "invalid_limit"})
+    return n
+
+
 def parse_sort(q, allowed, default):
     s = q.get("sort", [default])[0]
     if s not in allowed:
@@ -156,9 +178,12 @@ def h_health():
             row = cur.fetchone()
         safe = row[0] if row else None
     except Exception as e:
+        # L6: never echo the raw exception (it leaks the internal DB
+        # address/port); the detail goes to the server log only.
+        sys.stderr.write("[health] db error: %r\n" % e)
         return {"ok": False, "chainId": CHAIN_ID, "safeBlock": None,
                 "headBlock": None, "lagBlocks": None,
-                "lastError": "db: %s" % e}
+                "lastError": "db_unavailable"}
     head = None
     last_error = None
     try:
@@ -171,7 +196,9 @@ def h_health():
             h_health._head = head
             h_health._head_ts = now
     except Exception as e:
-        last_error = "rpc: %s" % e
+        # L6: fixed string only; the raw error goes to the server log.
+        sys.stderr.write("[health] rpc error: %r\n" % e)
+        last_error = "rpc_unavailable"
         head = getattr(h_health, "_head", None)
     lag = (head - safe) if (head is not None and safe is not None) else None
     ok = safe is not None and lag is not None and lag <= 40
@@ -361,9 +388,14 @@ def h_events(q):
         a = address.strip().lower()
         if not ADDR_RE.fullmatch(a):
             raise ApiError(400, {"error": "invalid_address"})
-        where.append("(r.address = %s OR r.topics::text ILIKE %s)")
+        # M3: match the 32-byte left-padded address topic via the
+        # raw_logs_topics_gin GIN index. The old
+        # `topics::text ILIKE '%hex%'` was a leading-wildcard full scan
+        # (and never used an index); @> on JSONB does.
+        topic = "0x" + "00" * 12 + a[2:]
+        where.append("(r.address = %s OR r.topics @> %s::jsonb)")
         args.append(bytes.fromhex(a[2:]))
-        args.append("%" + a[2:] + "%")
+        args.append(json.dumps([topic]))
     if cursor:
         cb, ct, cl = decode_cursor(cursor, ("int", "int", "int"))
         where.append("(r.block_number < %s OR (r.block_number = %s AND"
@@ -391,6 +423,15 @@ def h_events(q):
                                       bytes(r["data"]))
         except Exception:
             name, params = None, {}
+        # I3: uint256 values (tokenId etc.) are up to 77 digits, past the
+        # JS safe-integer limit. Emit every integer arg as a decimal
+        # string, matching the "uint256 as decimal strings" convention
+        # used by the other endpoints. decode_log itself is untouched
+        # (the syncer depends on its int return values); only this
+        # output layer converts. Booleans are not ints here (bool is a
+        # subclass of int, so exclude it explicitly).
+        params = {k: (str(v) if isinstance(v, int) and not isinstance(v, bool) else v)
+                  for k, v in params.items()}
         out.append({
             "blockNumber": r["block_number"],
             "blockHash": hexb(r["block_hash"]),
@@ -660,6 +701,263 @@ def h_name_image(full_name):
     return build_svg_only(label, tld)
 
 
+# ---------------------------------------------------------------- EIP-8004 registration file (G4)
+
+REGISTRATION_TYPE = "https://eips.ethereum.org/EIPS/eip-8004#registration-v1"
+AGENT_REGISTRY = "eip155:56:0x54A70BF81B288d41013D7b57c2Db0922f1E1a4d4"
+
+
+def _registration_file(full_name, agent_id, active):
+    """Standard EIP-8004 registration file JSON for one agent generation.
+
+    `agent_id` is a JSON number, not a string; `registrations` holds
+    exactly one entry with only `agentId` and `agentRegistry`.
+    """
+    return {
+        "type": REGISTRATION_TYPE,
+        "name": full_name,
+        "description": ("haha id %s 是链上 AI agent 身份，信誉写在链上。"
+                        "haha id %s is an on-chain AI agent identity with "
+                        "reputation written on-chain." % (full_name, full_name)),
+        "image": "%s/api/v1/names/%s/image.svg" % (SITE_BASE, full_name),
+        "services": [],
+        "x402Support": False,
+        "active": active,
+        "registrations": [{"agentId": agent_id,
+                           "agentRegistry": AGENT_REGISTRY}],
+        "supportedTrust": ["reputation"],
+    }
+
+
+def h_agent_registration_by_name(full_name):
+    """Registration file for a name's current (active) agent generation.
+
+    No active generation (never activated, or transferred and not
+    re-activated) is 404 no_active_agent; an unminted name is 404
+    name_not_found. Names are lowercased before lookup.
+    """
+    full_name = unquote(full_name).strip().lower()
+    if not NAME_RE.fullmatch(full_name):
+        raise ApiError(404, {"error": "name_not_found"})
+    with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute("SELECT token_id FROM names WHERE full_name = %s",
+                    (full_name,))
+        row = cur.fetchone()
+        if row is None:
+            raise ApiError(404, {"error": "name_not_found"})
+        cur.execute(
+            "SELECT agent_id, active FROM agents"
+            " WHERE name_token_id = %s AND active = TRUE",
+            (row["token_id"],))
+        agent = cur.fetchone()
+    if agent is None:
+        raise ApiError(404, {"error": "no_active_agent"})
+    return _registration_file(full_name, int(agent["agent_id"]),
+                              bool(agent["active"]))
+
+
+def h_agent_registration_by_id(agent_id_raw):
+    """Registration file for one agent generation by agentId.
+
+    A non-numeric agentId is 404 agent_not_found, never 500. An
+    inactive generation still returns its file with active=false;
+    only a missing agentId is 404.
+    """
+    try:
+        agent_id = int(unquote(agent_id_raw).strip())
+    except ValueError:
+        raise ApiError(404, {"error": "agent_not_found"})
+    with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(
+            "SELECT a.agent_id, a.active, n.full_name FROM agents a"
+            " JOIN names n ON n.token_id = a.name_token_id"
+            " WHERE a.agent_id = %s",
+            (agent_id,))
+        row = cur.fetchone()
+    if row is None:
+        raise ApiError(404, {"error": "agent_not_found"})
+    return _registration_file(row["full_name"], int(row["agent_id"]),
+                              bool(row["active"]))
+
+
+# ---------------------------------------------------------------- G13 Validation Registry
+
+VALIDATION_ADDR = CONTRACTS["validation"]
+VALIDATION_ADDR_BYTES = bytes.fromhex(VALIDATION_ADDR[2:])
+VALIDATION_TOPIC0S = [
+    topic0("ValidationRequest(address,uint256,string,bytes32)"),
+    topic0("ValidationResponse(address,uint256,bytes32,uint8,string,bytes32,string)"),
+    topic0("ValidationDisputed(bytes32,address)"),
+]
+# topic0 column is bytea: pass bytes, not hex strings (h_events pattern).
+VALIDATION_TOPIC0_BYTES = [bytes.fromhex(t[2:]) for t in VALIDATION_TOPIC0S]
+
+
+def _decode_validation_row(r):
+    """Decode one validation raw_log row. Returns an event dict or None
+    when the row does not decode (never raises)."""
+    try:
+        name, params = decode_log(VALIDATION_ADDR, r["topics"],
+                                  bytes(r["data"]))
+    except Exception:
+        return None
+    if name is None:
+        return None
+    return {
+        "event": name,
+        "blockNumber": r["block_number"],
+        "blockTime": r["block_time"],
+        "txHash": r["tx_hash"],
+        "txIndex": r["tx_index"],
+        "logIndex": r["log_index"],
+        "params": params,
+    }
+
+
+def _validation_groups():
+    """All validation requests grouped by requestHash, chain order.
+
+    Reads raw_logs and decodes at query time, like h_events (E14): old
+    events decode after a restart with no backfill table. Volume is
+    tiny (each validation is a manual on-chain tx), so one scan per
+    call is cheap; no new table.
+    """
+    with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(
+            "SELECT r.block_number, r.block_time, r.tx_hash, r.tx_index,"
+            " r.log_index, r.topics, r.data FROM raw_logs r"
+            " WHERE r.address = %s AND r.topic0 = ANY(%s)"
+            " ORDER BY r.block_number, r.tx_index, r.log_index",
+            (VALIDATION_ADDR_BYTES, VALIDATION_TOPIC0_BYTES))
+        rows = cur.fetchall()
+    groups = {}
+    for r in rows:
+        ev = _decode_validation_row(r)
+        if ev is None:
+            continue
+        rh = ev["params"].get("requestHash")
+        if rh is None:
+            continue
+        groups.setdefault(rh, []).append(ev)
+    return groups
+
+
+def _validation_dispute_state(events):
+    """Dispute derivation (plan §7.2) from one request's events in chain
+    order. Returns (disputeStatus, disputeCount, originalResponse,
+    latestResponse). Scores are 0-100 ints, or None when no response
+    exists yet. disputeCount is 0 or 1 (the contract allows at most one
+    dispute per request)."""
+    responses = [e for e in events if e["event"] == "ValidationResponse"]
+    disputes = [e for e in events if e["event"] == "ValidationDisputed"]
+    latest = responses[-1]["params"]["response"] if responses else None
+    if not disputes:
+        return "not_disputed", 0, latest, latest
+    first_dispute_idx = events.index(disputes[0])
+    before = [e for e in events[:first_dispute_idx]
+              if e["event"] == "ValidationResponse"]
+    original = before[-1]["params"]["response"] if before else None
+    after = [e for e in events[first_dispute_idx + 1:]
+             if e["event"] == "ValidationResponse"]
+    if not after:
+        return "disputed", 1, original, latest
+    if latest == original:
+        return "upheld", 1, original, latest
+    return "overturned", 1, original, latest
+
+
+def _validation_record(request_hash, events):
+    """One request's record: request + latest result + dispute state."""
+    req = next((e for e in events
+                if e["event"] == "ValidationRequest"), None)
+    responses = [e for e in events if e["event"] == "ValidationResponse"]
+    last = responses[-1] if responses else None
+    status, count, original, latest = _validation_dispute_state(events)
+    return {
+        "requestHash": request_hash,
+        "agentId": dec(req["params"]["agentId"]) if req is not None
+                   else (dec(responses[0]["params"]["agentId"])
+                         if responses else None),
+        "validatorAddress": (req["params"]["validatorAddress"]
+                             if req is not None else None),
+        "requestURI": req["params"]["requestURI"] if req is not None else None,
+        "requestedAt": iso(req["blockTime"]) if req is not None else None,
+        "requestedBlock": req["blockNumber"] if req is not None else None,
+        "requestTxHash": hexb(req["txHash"]) if req is not None else None,
+        "response": last["params"]["response"] if last is not None else None,
+        "responseURI": (last["params"]["responseURI"]
+                        if last is not None else None),
+        "responseHash": (last["params"]["responseHash"]
+                         if last is not None else None),
+        "tag": last["params"]["tag"] if last is not None else None,
+        "lastUpdatedAt": iso(last["blockTime"]) if last is not None else None,
+        "lastUpdateBlock": (last["blockNumber"]
+                            if last is not None else None),
+        "lastUpdateTxHash": (hexb(last["txHash"])
+                             if last is not None else None),
+        "disputeStatus": status,
+        "disputeCount": count,
+        "originalResponse": original,
+        "latestResponse": latest,
+    }
+
+
+def h_agent_validations(agent_id_raw):
+    """All validation records for one agent, oldest request first.
+
+    A missing agentId is 200 with an empty list, never 404 (a
+    non-numeric agentId is treated as missing, same result).
+    """
+    raw = unquote(agent_id_raw).strip()
+    try:
+        agent_id = int(raw)
+    except ValueError:
+        return {"agentId": raw, "validations": []}
+    groups = _validation_groups()
+    out = []
+    for rh, events in groups.items():
+        rec = _validation_record(rh, events)
+        if rec["agentId"] is not None and int(rec["agentId"]) == agent_id:
+            out.append(rec)
+    out.sort(key=lambda r: (r["requestedBlock"] is None,
+                            r["requestedBlock"] or 0))
+    return {"agentId": str(agent_id), "validations": out}
+
+
+def h_validation_detail(request_hash_raw):
+    """One validation request: request + latest result + dispute state,
+    plus the full response and dispute history in chain order.
+
+    An unknown or malformed requestHash is 404 validation_not_found
+    (machine-readable, like the G4 registration file 404s).
+    """
+    rh = unquote(request_hash_raw).strip().lower()
+    if not re.fullmatch(r"0x[0-9a-f]{64}", rh):
+        raise ApiError(404, {"error": "validation_not_found"})
+    groups = _validation_groups()
+    events = groups.get(rh)
+    if not events:
+        raise ApiError(404, {"error": "validation_not_found"})
+    rec = _validation_record(rh, events)
+    rec["responses"] = [{
+        "response": e["params"]["response"],
+        "responseURI": e["params"]["responseURI"],
+        "responseHash": e["params"]["responseHash"],
+        "tag": e["params"]["tag"],
+        "validatorAddress": e["params"]["validatorAddress"],
+        "respondedAt": iso(e["blockTime"]),
+        "blockNumber": e["blockNumber"],
+        "txHash": hexb(e["txHash"]),
+    } for e in events if e["event"] == "ValidationResponse"]
+    rec["disputes"] = [{
+        "disputer": e["params"]["disputer"],
+        "disputedAt": iso(e["blockTime"]),
+        "blockNumber": e["blockNumber"],
+        "txHash": hexb(e["txHash"]),
+    } for e in events if e["event"] == "ValidationDisputed"]
+    return rec
+
+
 def h_name_metadata(full_name):
     """NFT metadata (tokenURI-style JSON) for a minted name.
 
@@ -687,11 +985,27 @@ def h_name_metadata(full_name):
     }
 
 
-def h_generations(full_name):
+def _parse_reviews_limit(q):
+    """M3: reviews pagination for /v1/names/{name}/generations.
+    Query param reviewsLimit, default 20, max 50."""
+    raw = (q.get("reviewsLimit") or [None])[0]
+    if raw is None:
+        return 20
+    try:
+        n = int(raw)
+    except ValueError:
+        raise ApiError(400, {"error": "invalid_reviewsLimit"})
+    if n < 1 or n > 50:
+        raise ApiError(400, {"error": "invalid_reviewsLimit"})
+    return n
+
+
+def h_generations(full_name, q):
     full_name = unquote(full_name).strip()
     if not NAME_RE.fullmatch(full_name):
         raise ApiError(400, {"error": "invalid_name"})
     full_name = full_name.lower()
+    reviews_limit = _parse_reviews_limit(q)
     with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute("SELECT token_id FROM names WHERE full_name = %s", (full_name,))
         row = cur.fetchone()
@@ -702,23 +1016,37 @@ def h_generations(full_name):
             "SELECT * FROM agents WHERE name_token_id = %s ORDER BY generation DESC",
             (token_id,))
         agents = cur.fetchall()
+        # M3: was N+1 (one reviews query per generation, each with a
+        # correlated subquery for rater_name). Now one query for all
+        # generations: ROW_NUMBER() caps reviews per agent, and the
+        # rater's first name comes from a DISTINCT ON join instead of a
+        # per-row subquery.
+        revs_by_agent = {}
+        if agents:
+            cur.execute(
+                "SELECT s.* FROM ("
+                " SELECT r.agent_id, r.rater, r.rater_ai_id, r.stars,"
+                " r.review, r.edited, r.block_time, r.tx_hash,"
+                " p.handle AS rater_ai_handle, n2.full_name AS rater_name,"
+                " ROW_NUMBER() OVER (PARTITION BY r.agent_id"
+                " ORDER BY r.block_time DESC, r.block_number DESC,"
+                " r.tx_hash DESC, r.log_index DESC) AS rn"
+                " FROM reviews r"
+                " LEFT JOIN points p ON p.ai_id = r.rater_ai_id"
+                " LEFT JOIN (SELECT DISTINCT ON (mint_ai_id) mint_ai_id,"
+                " full_name FROM names"
+                " ORDER BY mint_ai_id, mint_block ASC, token_id ASC) n2"
+                " ON n2.mint_ai_id = r.rater_ai_id"
+                " WHERE r.agent_id = ANY(%s)) s"
+                " WHERE s.rn <= %s ORDER BY s.agent_id, s.rn",
+                ([a["agent_id"] for a in agents], reviews_limit + 1))
+            for r in cur.fetchall():
+                revs_by_agent.setdefault(r["agent_id"], []).append(r)
         gens = []
         for a in agents:
-            cur.execute(
-                "SELECT r.rater, r.rater_ai_id, r.stars, r.review, r.edited,"
-                " r.block_time, r.tx_hash, p.handle AS rater_ai_handle,"
-                " (SELECT n2.full_name FROM names n2"
-                " WHERE n2.mint_ai_id = r.rater_ai_id"
-                " ORDER BY n2.mint_block ASC, n2.token_id ASC LIMIT 1)"
-                " AS rater_name FROM reviews r"
-                " LEFT JOIN points p ON p.ai_id = r.rater_ai_id"
-                " WHERE r.agent_id = %s"
-                " ORDER BY r.block_time DESC, r.block_number DESC,"
-                " r.tx_hash DESC, r.log_index DESC LIMIT 101",
-                (a["agent_id"],))
-            revs = cur.fetchall()
-            truncated = len(revs) > 100
-            revs = revs[:100]
+            revs = revs_by_agent.get(a["agent_id"], [])
+            truncated = len(revs) > reviews_limit
+            revs = revs[:reviews_limit]
             gens.append({
                 "generation": a["generation"],
                 "agentId": dec(a["agent_id"]),
@@ -891,8 +1219,9 @@ def h_season_proof(ai_text, q):
 def h_season_orders(q):
     from season1_read import orders_for_day
     day = _day_param((q.get("day") or [None])[0])
+    limit = parse_limit_bounded(q, 50, 100)
     with db().cursor() as cur:
-        orders = orders_for_day(cur, day)
+        orders = orders_for_day(cur, day, limit)
     return {"dayIndex": day, "orders": orders}
 
 
@@ -907,7 +1236,7 @@ def h_season_order(order_text):
     return body
 
 
-def h_season_leaderboard(day_text):
+def h_season_leaderboard(day_text, q):
     """Per-person season leaderboard for one day.
 
     Ranked by snapshot balance (the day's official order), same shape
@@ -916,8 +1245,9 @@ def h_season_leaderboard(day_text):
     """
     from season1_read import leaderboard_rows
     day = _day_param(day_text)
+    limit = parse_limit_bounded(q, 50, 100)
     with db().cursor() as cur:
-        entries = leaderboard_rows(cur, day)
+        entries = leaderboard_rows(cur, day, limit)
     return {"dayIndex": day, "entries": entries}
 
 
@@ -951,15 +1281,37 @@ def h_season_taskpack(day_text):
         raise ApiError(404, {"error": "not_found"})
 
 
+# M3: findings-list block-header cache. Block headers are immutable,
+# so a fetched header stays valid; cache it in memory for 1h so a
+# repeat list call (or several findings sharing one block) costs no
+# extra RPC round-trip. Values are the raw eth_getBlockByNumber result
+# (or None on failure), exactly as the old per-request dedup did.
+_BLOCK_CACHE = {}
+_BLOCK_CACHE_TTL = 3600.0
+
+
+def _cached_block(block):
+    ent = _BLOCK_CACHE.get(block)
+    now = time.time()
+    if ent is not None and now - ent[0] < _BLOCK_CACHE_TTL:
+        return ent[1]
+    try:
+        blk = _rpc.call("eth_getBlockByNumber", [hex(block), False])
+    except Exception:
+        blk = None
+    _BLOCK_CACHE[block] = (now, blk)
+    return blk
+
+
 def h_season_findings_list():
     """All season-1 findings, earliest commit first.
 
     Same rows as the per-hash endpoint, plus the submitter's .ai
     handle/name, the commit block timestamp, and the commit tx hash.
     The timestamp and tx hash come from the block header via RPC
-    (one call per distinct block; findings are few, so this stays
-    cheap). An RPC failure leaves both null rather than failing the
-    whole list.
+    (one call per distinct block, cached in memory; findings are few,
+    so this stays cheap). An RPC failure leaves both null rather than
+    failing the whole list.
     """
     from season1_read import findings_rows
     with db().cursor() as cur:
@@ -972,11 +1324,7 @@ def h_season_findings_list():
     for f in findings:
         block = f["commitBlock"]
         if block not in blocks:
-            try:
-                blocks[block] = _rpc.call(
-                    "eth_getBlockByNumber", [hex(block), False])
-            except Exception:
-                blocks[block] = None
+            blocks[block] = _cached_block(block)
         blk = blocks[block]
         if blk is None:
             f["commitTime"] = None
@@ -995,6 +1343,12 @@ def h_season_findings_list():
     return {"findings": findings}
 
 
+# H9: reportId format — letters/digits/dash/underscore only, must start
+# with a letter or digit. The old check (non-empty, <=64 chars) let two
+# different findings share one reportId and let garbage through.
+REPORT_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+
+
 def h_season_finding_publish(digest_text, body):
     """Publish a finding report (submitter self-service).
 
@@ -1002,15 +1356,27 @@ def h_season_finding_publish(digest_text, body):
     keccak256(content UTF-8) == the on-chain reportEvidenceHash before
     storing, so only the submitter (who holds the report bytes) can
     publish it. The salt is never sent and never stored. Idempotent:
-    re-publishing the same content is a no-op; the content is fixed by
-    the hash, so reportId/title are the only updatable fields.
+    re-publishing the same content is a no-op.
+
+    H9: the first publish LOCKS reportId/title. The content is fixed by
+    the hash, so reportId/title were the only updatable fields — anyone
+    holding the (public, post-publication) content could re-POST it
+    with their own reportId/title and overwrite the submitter's. On
+    conflict only content/published_at are now updated, and the
+    already-stored reportId/title are returned. reportId is also
+    format-checked and unique across hashes (a second hash reusing an
+    existing reportId gets 409).
     """
+    # I2: validate the digest here too, not only in the route regex, so
+    # a future caller gets a 400 instead of a 500 from bytes.fromhex.
+    if not re.fullmatch(r"0x[0-9a-fA-F]{64}", digest_text or ""):
+        raise ApiError(400, {"error": "bad_digest"})
     if not isinstance(body, dict):
         raise ApiError(400, {"error": "bad_body"})
     report_id = body.get("reportId")
     title = body.get("title")
     content = body.get("content")
-    if not isinstance(report_id, str) or not report_id or len(report_id) > 64:
+    if not isinstance(report_id, str) or not REPORT_ID_RE.fullmatch(report_id):
         raise ApiError(400, {"error": "bad_report_id"})
     if not isinstance(title, str) or not title or len(title) > 200:
         raise ApiError(400, {"error": "bad_title"})
@@ -1024,7 +1390,31 @@ def h_season_finding_publish(digest_text, body):
             raise ApiError(404, {"error": "not_found"})
         if keccak256(content.encode("utf-8")) != raw:
             raise ApiError(400, {"error": "hash_mismatch"})
+        # H9: one reportId belongs to one hash. (The row for this hash
+        # itself is excluded, so re-publishing under its own id is fine.)
+        cur.execute("SELECT report_evidence_hash FROM season1_finding_reports"
+                    " WHERE report_id = %s AND report_evidence_hash <> %s",
+                    (report_id, raw))
+        if cur.fetchone() is not None:
+            raise ApiError(409, {"error": "report_id_conflict"})
+        cur.execute("SELECT report_id, title FROM season1_finding_reports"
+                    " WHERE report_evidence_hash = %s", (raw,))
+        existing = cur.fetchone()
         now = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+        if existing is not None and existing[0] and existing[1]:
+            # Already published: lock reportId/title, refresh only the
+            # (hash-fixed) content and the timestamp, return stored values.
+            cur.execute(
+                "INSERT INTO season1_finding_reports"
+                " (report_evidence_hash, report_id, title, content, published_at)"
+                " VALUES (%s, %s, %s, %s, %s)"
+                " ON CONFLICT (report_evidence_hash) DO UPDATE"
+                " SET content = EXCLUDED.content,"
+                " published_at = EXCLUDED.published_at",
+                (raw, existing[0], existing[1], content, now))
+            return {"reportEvidenceHash": "0x" + raw.hex(),
+                    "reportId": existing[0], "title": existing[1],
+                    "publishedAt": now}
         cur.execute(
             "INSERT INTO season1_finding_reports"
             " (report_evidence_hash, report_id, title, content, published_at)"
@@ -1053,12 +1443,24 @@ def h_season_finding(digest_text):
     return body
 
 
+# M3: h_stats server-side cache. 20s TTL.
+_STATS_TTL = 20.0
+_STATS_CACHE = {"ts": 0.0, "body": None}
+
+
 def h_stats():
     """Dashboard aggregates for the stats page. One object, no paging:
     participating .ai, active agents, registered names per TLD, 3-char
     names left per TLD, latest mints, total agent interactions with the
     11 contracts (distinct tx hashes in raw_logs), and the safe block
     the numbers cover."""
+    # M3: 11 queries per request with no caching. Stats numbers do not
+    # need to be realtime; serve a server-side in-memory copy for 20s.
+    global _STATS_CACHE
+    now = time.time()
+    if (_STATS_CACHE["body"] is not None
+            and now - _STATS_CACHE["ts"] < _STATS_TTL):
+        return _STATS_CACHE["body"]
     with db().cursor() as cur:
         cur.execute("SELECT COUNT(DISTINCT mint_ai_id) FROM names")
         participants = cur.fetchone()[0]
@@ -1110,7 +1512,7 @@ def h_stats():
         return {"minted": minted,
                 "remaining": total - reserved - blacklisted - minted}
 
-    return {
+    body = {
         "agentInteractions": int(agent_interactions),
         "participants": int(participants),
         "activeAgents": int(active_agents),
@@ -1146,12 +1548,321 @@ def h_stats():
         },
         "safeBlock": safe_block,
     }
+    _STATS_CACHE = {"ts": now, "body": body}
+    return body
+
+
+# ---------------------------------------------------------------- G13 validation document upload
+# POST /v1/validations/upload: an agent owner publishes their own validation
+# request document (automated; replaces the manual C deploy to
+# /validations/). The server verifies the uploader owns the agent before
+# writing anything, fail-closed: the signature over requestHash must
+# recover to the on-chain ownerOf(agentId) at upload time. Identity and
+# validator addresses are read from the HahaValidation contract on-chain
+# (validator() / getIdentityRegistry()), so the endpoint stays correct if
+# the validator ever changes, and it works on a test chain when
+# VALIDATION_UPLOAD_VALIDATION points at a test deployment. The EIP-712
+# domain is the same fixed domain the validator service uses (name
+# HahaValidation, version 1, chainId 56, verifyingContract = mainnet
+# HahaValidation); a signature the upload accepts is one the validator
+# service accepts too.
+
+VALIDATION_UPLOAD_DIR = os.environ.get(
+    "VALIDATION_UPLOAD_DIR", "/var/www/validations")
+# Public URL base for the published documents. Production default is the
+# fixed haha.meme path; tests point it at a local fixture HTTP server so
+# the validator service can fetch the uploaded file end to end.
+# NOTE: do NOT rstrip("/") here: the test value "ipfs://" would lose
+# its slashes and become "ipfs:", producing a one-slash URI the
+# validator rejects. Trailing slashes are handled at use time.
+VALIDATION_UPLOAD_URL_BASE = os.environ.get(
+    "VALIDATION_UPLOAD_URL_BASE", "https://haha.meme/validations")
+VALIDATION_UPLOAD_VALIDATION = os.environ.get(
+    "VALIDATION_UPLOAD_VALIDATION", CONTRACTS["validation"])
+VALIDATION_UPLOAD_EIP712_CHAIN_ID = int(os.environ.get(
+    "VALIDATION_UPLOAD_EIP712_CHAIN_ID", "56"))
+VALIDATION_UPLOAD_EIP712_CONTRACT = os.environ.get(
+    "VALIDATION_UPLOAD_EIP712_CONTRACT", CONTRACTS["validation"])
+VALIDATION_UPLOAD_MAX_DOC_BYTES = 64 * 1024
+VALIDATION_UPLOAD_MAX_PER_AGENT_PER_DAY = 10
+VALIDATION_UPLOAD_TAGS = ("identity-verified", "endpoint-reachable")
+# Short tag used in the public URL: the deployed ha.haha document is
+# ha.haha-identity-v1.json (short "identity"), not "identity-verified".
+VALIDATION_UPLOAD_URL_TAGS = {
+    "identity-verified": "identity",
+    "endpoint-reachable": "endpoint",
+}
+_SEL_VALIDATOR = "3a5381b5"               # validator()
+_SEL_GET_IDENTITY_REGISTRY = "bc4d861b"   # getIdentityRegistry()
+_SEL_OWNER_OF = "6352211e"               # ownerOf(uint256)
+
+# Per-agent daily upload cap (successful uploads only). In-memory, same
+# pattern as the findings/sign-verify limits; a restart resets it.
+_UPLOAD_RATE_LIMIT = {}
+_UPLOAD_RATE_LIMIT_LOCK = threading.Lock()
+
+
+def _upload_decode_address(hexdata):
+    raw = bytes.fromhex(hexdata[2:] if hexdata.startswith("0x") else hexdata)
+    if len(raw) < 32:
+        raise ValueError("short address return data")
+    return "0x" + raw[-20:].hex()
+
+
+def _upload_chain_validator():
+    res = _rpc.eth_call(VALIDATION_UPLOAD_VALIDATION,
+                        "0x" + _SEL_VALIDATOR)
+    if not res:
+        raise RuntimeError("validator() returned empty")
+    return _upload_decode_address(res)
+
+
+def _upload_chain_identity():
+    res = _rpc.eth_call(VALIDATION_UPLOAD_VALIDATION,
+                        "0x" + _SEL_GET_IDENTITY_REGISTRY)
+    if not res:
+        raise RuntimeError("getIdentityRegistry() returned empty")
+    return _upload_decode_address(res)
+
+
+def _upload_chain_owner(identity, agent_id):
+    data = "0x" + _SEL_OWNER_OF + agent_id.to_bytes(32, "big").hex()
+    res = _rpc.eth_call(identity, data)
+    if not res:
+        raise RuntimeError("ownerOf() returned empty")
+    return _upload_decode_address(res)
+
+
+def _upload_request_hash(validator_address, agent_id, request_uri):
+    """Plan §3.4: keccak256(abi.encodePacked(validatorAddress, agentId,
+    requestURI))."""
+    packed = (bytes.fromhex(validator_address[2:])
+              + agent_id.to_bytes(32, "big")
+              + request_uri.encode("utf-8"))
+    return "0x" + keccak256(packed).hex()
+
+
+def _upload_recover(req_hash, agent_id, sig_bytes, sig_type, owner):
+    """Recover the signer address and compare with the on-chain owner.
+    Tries EIP-191 then EIP-712 (reversed when sig_type == 'eip712'),
+    mirroring the validator service: an attempt that recovers to a
+    non-owner address does NOT stop the loop (an EIP-712 signature
+    recovers to a garbage address under EIP-191, and vice versa).
+    Returns the matching address, or None when neither attempt matches."""
+    try:
+        from eth_account import Account
+        from eth_account.messages import encode_defunct, encode_typed_data
+    except ImportError:
+        raise ApiError(500, {"error": "upload_unavailable"})
+    if sig_type == "eip712":
+        attempts = ("eip712", "eip191")
+    else:
+        attempts = ("eip191", "eip712")
+    for method in attempts:
+        try:
+            if method == "eip191":
+                recovered = Account.recover_message(
+                    encode_defunct(primitive=bytes.fromhex(req_hash[2:])),
+                    signature=sig_bytes)
+            else:
+                msg = {
+                    "types": {
+                        "EIP712Domain": [
+                            {"name": "name", "type": "string"},
+                            {"name": "version", "type": "string"},
+                            {"name": "chainId", "type": "uint256"},
+                            {"name": "verifyingContract", "type": "address"},
+                        ],
+                        "IdentityChallenge": [
+                            {"name": "agentId", "type": "uint256"},
+                            {"name": "requestHash", "type": "bytes32"},
+                        ],
+                    },
+                    "domain": {
+                        "name": "HahaValidation",
+                        "version": "1",
+                        "chainId": VALIDATION_UPLOAD_EIP712_CHAIN_ID,
+                        "verifyingContract": VALIDATION_UPLOAD_EIP712_CONTRACT,
+                    },
+                    "primaryType": "IdentityChallenge",
+                    "message": {
+                        "agentId": agent_id,
+                        "requestHash": bytes.fromhex(req_hash[2:]),
+                    },
+                }
+                recovered = Account.recover_message(
+                    encode_typed_data(full_message=msg), signature=sig_bytes)
+        except Exception:
+            continue
+        if recovered.lower() == owner.lower():
+            return recovered
+    return None
+
+
+def _upload_reserve_slot(agent_id):
+    """Per-agent daily cap. Check + reserve atomically, called only after
+    all validation passed (so a failed upload never consumes a slot)."""
+    today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+    with _UPLOAD_RATE_LIMIT_LOCK:
+        for k in list(_UPLOAD_RATE_LIMIT):
+            if _UPLOAD_RATE_LIMIT[k][0] != today:
+                del _UPLOAD_RATE_LIMIT[k]
+        day, count = _UPLOAD_RATE_LIMIT.get(agent_id, (today, 0))
+        if day != today:
+            day, count = today, 0
+        if count >= VALIDATION_UPLOAD_MAX_PER_AGENT_PER_DAY:
+            raise ApiError(429, {"error": "rate_limited"})
+        _UPLOAD_RATE_LIMIT[agent_id] = (day, count + 1)
+
+
+def h_validations_upload(body):
+    """POST /v1/validations/upload. Body: {agentId | fullName, tag,
+    version, document, signature}. Returns {url, requestHash, agentId}.
+    Fail-closed: any check failing rejects the upload and writes nothing.
+    identity-verified is authenticated by the signature inside the
+    document; endpoint-reachable by the signature in the request body
+    (never stored in the document)."""
+    if not isinstance(body, dict):
+        raise ApiError(400, {"error": "bad_body"})
+    tag = body.get("tag")
+    if tag not in VALIDATION_UPLOAD_TAGS:
+        raise ApiError(400, {"error": "bad_tag"})
+    version = body.get("version", 1)
+    if (not isinstance(version, int) or isinstance(version, bool)
+            or version < 1 or version > 9999):
+        raise ApiError(400, {"error": "bad_version"})
+    document = body.get("document")
+    if not isinstance(document, dict):
+        raise ApiError(400, {"error": "document_invalid"})
+    # Resolve agentId + fullName (either input, at least one).
+    agent_id = body.get("agentId")
+    full_name = body.get("fullName")
+    if agent_id is not None:
+        if (not isinstance(agent_id, int) or isinstance(agent_id, bool)
+                or agent_id < 0):
+            raise ApiError(400, {"error": "bad_agent"})
+        with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "SELECT n.full_name FROM agents a"
+                " JOIN names n ON n.token_id = a.name_token_id"
+                " WHERE a.agent_id = %s", (agent_id,))
+            row = cur.fetchone()
+        if row is None:
+            raise ApiError(404, {"error": "agent_not_found"})
+        full_name = row["full_name"]
+        if (isinstance(body.get("fullName"), str)
+                and body.get("fullName").strip().lower() != full_name):
+            raise ApiError(400, {"error": "bad_agent"})
+    else:
+        if not isinstance(full_name, str):
+            raise ApiError(400, {"error": "bad_agent"})
+        full_name = full_name.strip().lower()
+        if not NAME_RE.fullmatch(full_name):
+            raise ApiError(404, {"error": "name_not_found"})
+        with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT token_id FROM names WHERE full_name = %s",
+                        (full_name,))
+            row = cur.fetchone()
+            if row is None:
+                raise ApiError(404, {"error": "name_not_found"})
+            cur.execute(
+                "SELECT agent_id FROM agents"
+                " WHERE name_token_id = %s AND active = TRUE",
+                (row["token_id"],))
+            agent = cur.fetchone()
+        if agent is None:
+            raise ApiError(404, {"error": "no_active_agent"})
+        agent_id = int(agent["agent_id"])
+    if not NAME_RE.fullmatch(full_name):
+        raise ApiError(400, {"error": "bad_agent"})
+    # Validate the document before any chain call (fail fast).
+    if document.get("type") != tag:
+        raise ApiError(400, {"error": "document_invalid"})
+    if tag == "identity-verified":
+        if not isinstance(document.get("signature"), str):
+            raise ApiError(400, {"error": "document_invalid"})
+    else:
+        endpoint = document.get("endpoint")
+        if (not isinstance(endpoint, str) or not endpoint
+                or not endpoint.startswith(("http://", "https://"))):
+            raise ApiError(400, {"error": "document_invalid"})
+    doc_raw = json.dumps(document, ensure_ascii=False, sort_keys=True,
+                         separators=(",", ":")).encode("utf-8")
+    if len(doc_raw) > VALIDATION_UPLOAD_MAX_DOC_BYTES:
+        raise ApiError(400, {"error": "document_invalid"})
+    # Target URL + requestHash (validator read on-chain, current value).
+    # The URL base is normally https://haha.meme/validations; tests may
+    # point it at ipfs:// so the validator fetches via a local gateway.
+    filename = "%s-%s-v%d.json" % (
+        full_name, VALIDATION_UPLOAD_URL_TAGS[tag], version)
+    if VALIDATION_UPLOAD_URL_BASE.endswith("://"):
+        request_uri = VALIDATION_UPLOAD_URL_BASE + filename
+    else:
+        request_uri = (VALIDATION_UPLOAD_URL_BASE.rstrip("/") + "/"
+                       + filename)
+    try:
+        validator = _upload_chain_validator()
+    except Exception as exc:
+        sys.stderr.write("[upload] validator() failed: %r\n" % exc)
+        raise ApiError(503, {"error": "chain_unavailable"})
+    req_hash = _upload_request_hash(validator, agent_id, request_uri)
+    # Auth signature: inside the document for identity-verified, in the
+    # request body for endpoint-reachable.
+    if tag == "identity-verified":
+        signature = document.get("signature")
+        sig_type = document.get("signatureType")
+        if not isinstance(signature, str) or not signature:
+            raise ApiError(400, {"error": "document_invalid"})
+    else:
+        signature = body.get("signature")
+        sig_type = body.get("signatureType")
+        if not isinstance(signature, str) or not signature:
+            raise ApiError(403, {"error": "signature_invalid"})
+    try:
+        sig_bytes = bytes.fromhex(
+            signature[2:] if signature.startswith("0x") else signature)
+        if len(sig_bytes) != 65:
+            raise ValueError("signature is not 65 bytes")
+    except ValueError:
+        raise ApiError(403, {"error": "signature_invalid"})
+    try:
+        identity = _upload_chain_identity()
+        owner = _upload_chain_owner(identity, agent_id)
+    except Exception as exc:
+        sys.stderr.write("[upload] ownerOf failed: %r\n" % exc)
+        raise ApiError(403, {"error": "not_agent_owner"})
+    recovered = _upload_recover(req_hash, agent_id, sig_bytes, sig_type,
+                                owner)
+    if recovered is None:
+        raise ApiError(403, {"error": "not_agent_owner"})
+    # All checks passed: reserve a daily slot, then write atomically.
+    _upload_reserve_slot(agent_id)
+    target = os.path.join(VALIDATION_UPLOAD_DIR, filename)
+    os.makedirs(VALIDATION_UPLOAD_DIR, exist_ok=True)
+    tmp = os.path.join(VALIDATION_UPLOAD_DIR,
+                       ".%s.tmp.%d" % (filename, os.getpid()))
+    try:
+        with open(tmp, "wb") as f:
+            f.write(doc_raw)
+        os.chmod(tmp, 0o644)
+        os.replace(tmp, target)
+    except OSError as exc:
+        sys.stderr.write("[upload] write failed: %r\n" % exc)
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise ApiError(500, {"error": "upload_failed"})
+    return {"url": request_uri, "requestHash": req_hash,
+            "agentId": agent_id}
+
+
 
 ROUTES = [
     (re.compile(r"^/v1/season1/days/([0-9]+)$"),
      lambda q, m: (h_season_day(m.group(1)), "no-store")),
     (re.compile(r"^/v1/season1/leaderboard/([0-9]+)$"),
-     lambda q, m: (h_season_leaderboard(m.group(1)), "no-store")),
+     lambda q, m: (h_season_leaderboard(m.group(1), q), "no-store")),
     (re.compile(r"^/v1/season1/eligibility/(0x[0-9a-fA-F]{64})$"),
      lambda q, m: (h_season_eligibility(m.group(1), q), "no-store")),
     (re.compile(r"^/v1/season1/proof/(0x[0-9a-fA-F]{64})$"),
@@ -1174,10 +1885,18 @@ ROUTES = [
     (re.compile(r"^/v1/names$"), lambda q, m: (h_names(q), LIST_CACHE)),
     (re.compile(r"^/v1/events$"), lambda q, m: (h_events(q), LIST_CACHE)),
     (re.compile(r"^/v1/agents$"), lambda q, m: (h_agents(q), LIST_CACHE)),
+    (re.compile(r"^/v1/agents/by-name/([^/]+)/registration\.json$"),
+     lambda q, m: (h_agent_registration_by_name(m.group(1)), "no-store")),
+    (re.compile(r"^/v1/agents/([^/]+)/registration\.json$"),
+     lambda q, m: (h_agent_registration_by_id(m.group(1)), "no-store")),
+    (re.compile(r"^/v1/agents/([^/]+)/validations$"),
+     lambda q, m: (h_agent_validations(m.group(1)), "no-store")),
+    (re.compile(r"^/v1/validations/([^/]+)$"),
+     lambda q, m: (h_validation_detail(m.group(1)), "no-store")),
     (re.compile(r"^/v1/leaderboard/reputation$"),
      lambda q, m: (h_reputation(q), LIST_CACHE)),
     (re.compile(r"^/v1/names/([^/]+)/generations$"),
-     lambda q, m: (h_generations(m.group(1)), LIST_CACHE)),
+     lambda q, m: (h_generations(m.group(1), q), LIST_CACHE)),
     (re.compile(r"^/v1/names/([^/]+)/image\.svg$"),
      lambda q, m: (h_name_image(m.group(1)), SVG_CACHE, "image/svg+xml")),
     (re.compile(r"^/v1/names/([^/]+)/metadata$"),
@@ -1196,9 +1915,73 @@ ROUTES = [
 ]
 
 
+# ---------------------------------------------------------------- findings POST guards (H9 + L5)
+
+def _check_json_post_headers(handler):
+    """H9: the findings publish endpoint is a cross-site writable POST.
+    Two cheap gates stop a malicious page from firing it in a victim's
+    browser as a "simple request" (no preflight):
+    (1) Content-Type must be application/json — a simple request can
+    only carry text/plain etc., so requiring JSON forces a preflight,
+    which the API never answers with CORS headers; (2) when Origin or
+    Referer is present it must be https://haha.meme. A missing Origin
+    (curl, server-side callers) is allowed through.
+    """
+    ctype = (handler.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+    if ctype != "application/json":
+        raise ApiError(400, {"error": "bad_content_type"})
+    origin = handler.headers.get("Origin")
+    if origin is not None:
+        if origin.strip().rstrip("/") != "https://haha.meme":
+            raise ApiError(403, {"error": "forbidden_origin"})
+        return
+    referer = handler.headers.get("Referer")
+    if referer:
+        p = urlparse(referer)
+        if (p.scheme, p.netloc) != ("https", "haha.meme"):
+            raise ApiError(403, {"error": "forbidden_origin"})
+
+
+# L5: per-(IP + hash) rate limit for the findings publish route:
+# max 3 attempts per hash per minute. The client IP is the first entry
+# of X-Forwarded-For (nginx restores it); when there is no X-Forwarded-
+# For header the key degrades to per-hash only (ip=None), which still
+# bounds re-publishing of any single report.
+_FINDINGS_RATE_LIMIT = {}
+_FINDINGS_RATE_LIMIT_LOCK = threading.Lock()
+_FINDINGS_RATE_LIMIT_MAX = 3
+_FINDINGS_RATE_LIMIT_WINDOW = 60.0
+
+
+def _findings_client_ip(handler):
+    xff = handler.headers.get("X-Forwarded-For")
+    if xff:
+        first = xff.split(",")[0].strip()
+        if first:
+            return first
+    return None
+
+
+def _check_findings_rate_limit(handler, digest_hex):
+    key = (_findings_client_ip(handler), digest_hex.lower())
+    now = time.time()
+    with _FINDINGS_RATE_LIMIT_LOCK:
+        for k in list(_FINDINGS_RATE_LIMIT):
+            kept = [t for t in _FINDINGS_RATE_LIMIT[k]
+                    if now - t < _FINDINGS_RATE_LIMIT_WINDOW]
+            if kept:
+                _FINDINGS_RATE_LIMIT[k] = kept
+            else:
+                del _FINDINGS_RATE_LIMIT[k]
+        hits = _FINDINGS_RATE_LIMIT.get(key, [])
+        if len(hits) >= _FINDINGS_RATE_LIMIT_MAX:
+            raise ApiError(429, {"error": "rate_limited"})
+        hits.append(now)
+        _FINDINGS_RATE_LIMIT[key] = hits
+
+
 class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
-
     def log_message(self, fmt, *args):
         sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
 
@@ -1266,8 +2049,16 @@ class Handler(BaseHTTPRequestHandler):
                 r"/v1/season1/findings/(0x[0-9a-fA-F]{64})/report",
                 parsed.path or "")
             if m:
+                _check_json_post_headers(self)
+                _check_findings_rate_limit(self, m.group(1))
                 body = self._read_json_body()
                 res = h_season_finding_publish(m.group(1), body)
+                self._send(200, res, "no-store")
+                return
+            if parsed.path == "/v1/validations/upload":
+                _check_json_post_headers(self)
+                body = self._read_json_body()
+                res = h_validations_upload(body)
                 self._send(200, res, "no-store")
                 return
             self._send(405, {"error": "method_not_allowed"}, "no-store")

@@ -39,11 +39,11 @@ haha.meme 是三层结构，每一层都建立在上一层之上。
 
 **第二层：.haha / .meme 名字是链上名字。** 一个名字就是一个 ERC-721 NFT（haha id），tokenId 就是名字的哈希。永久属于你，没有续费，可以转让、可以卖。名字还提供解析（指向钱包地址）、主名（一个地址对外只亮一个名字）和文本记录（key 最长 64 字节，value 最长 1024 字节，每个名字最多 16 条）。
 
-**第三层：ERC-8004 身份 + 信誉是简历。** 激活 agent，得到一个 agentId；别人给你打分，分数和评语都写在链上。名字转让，agent 身份销毁，信誉清零，新一代从 0 分开始，旧评语按代数保留、可查。
+**第三层：ERC-8004 身份 + 信誉 + 验证是简历。** 激活 agent，得到一个 agentId；别人给你打分，验证者核对你的身份与接口，分数、评语和验证结果都写在链上。名字转让，agent 身份销毁，信誉清零，新一代从 0 分开始，旧评语按代数保留、可查。
 
 ## 3. 架构
 
-11 个合约，全部不可升级，没有代理，没有 Ownable，没有 Pausable。部署在 BNB Smart Chain 主网（chainId 56），源码已在 BscScan 上全部开源验证。原 10 个合约部署 commit `70fe8e79`，部署区块 134834631–134834846；HahaSeason1 单独部署在区块 135231506。
+12 个合约，全部不可升级，没有代理，没有 Ownable，没有 Pausable。部署在 BNB Smart Chain 主网（chainId 56），源码已在 BscScan 上全部开源验证。原 10 个合约部署 commit `70fe8e79`，部署区块 134834631–134834846；HahaSeason1 单独部署在区块 135231506；验证注册表 HahaValidation 部署区块 135619015。
 
 | 合约 | 职责 |
 |---|---|
@@ -58,6 +58,7 @@ haha.meme 是三层结构，每一层都建立在上一层之上。
 | HahaMarketplace | 名字市场（BNB） |
 | HahaDeployer | 一次性部署器（部署后不再接受用户交易） |
 | HahaSeason1 | 第一季：积分兑换 2 位稀有域名（每天 20 个、全季 300 个） |
+| HahaValidation | ERC-8004 验证注册表：接口可达与身份真实性验证，结果 0–100 分 |
 
 合约之间通过部署时写死的 immutable 地址互相调用。技术细节见 [ARCHITECTURE.md](ARCHITECTURE.md)，源码见本仓库 [`src/`](../src/)。
 
@@ -71,13 +72,15 @@ haha.meme 是三层结构，每一层都建立在上一层之上。
 
 名字是 ERC-721 NFT，tokenId 就是名字哈希（namehash）。永久，没有续费逻辑，也没有过期。
 
-## 5. ERC-8004：身份与信誉
+## 5. ERC-8004：身份、信誉与验证
 
-haha.meme 实现 ERC-8004 的两块：身份（Identity）与信誉（Reputation）。未实现 Validation Registry，不支持 x402。验证和支付还没做，先把身份和信誉做实。
+haha.meme 实现 ERC-8004 的三块：身份（Identity）、信誉（Reputation）与验证（Validation Registry）。不支持 x402。
 
-**身份。** agent 身份是灵魂绑定 NFT，不能转让。一个名字同一时间只能有一个活跃 agent。激活那一刻，调用者必须同时是名字持有人并且持有 `.ai`。激活后得到一个 agentId，从 1 开始递增，永远不重复使用。介绍链接（agentURI）1–2048 字节，自己随时能改；也可以设最多 8 个 operator，帮你打理 agent。agent 的钱包地址就是名字解析到的地址，不用另设。全局标识格式为 `eip155:56:<Identity 合约地址>`。
+**身份。** agent 身份是灵魂绑定 NFT，不能转让。一个名字同一时间只能有一个活跃 agent。激活那一刻，调用者必须同时是名字持有人并且持有 `.ai`。激活后得到一个 agentId，从 1 开始递增，永远不重复使用。介绍链接（agentURI）1–2048 字节，自己随时能改；也可以设最多 8 个 operator，帮你打理 agent。agent 的钱包地址就是名字解析到的地址，不用另设。全局标识格式为 `eip155:56:<Identity 合约地址>`。介绍链接默认指向一份标准注册文件（EIP-8004 格式），第三方按标准读取。
 
 **信誉。** 1–5 星评价，评语最长 140 字节。评分人须同时持有 `.ai` 与任意 `.haha` / `.meme` 名字；被评 agent 的主人当时也须仍持有 `.ai`。每个 `.ai` 对同一 agent 只有一条评价，可以修改。评语只写进链上事件（`Rated`），不进存储。
+
+**验证。** 验证是独立核对 agent 是不是真的、接口通不通：接口可达与身份真实性，两个都通过得 100 分，任一不通过得 0 分，分数写在链上。流程是主人写请求文档、签名、调上传接口 `POST /v1/validations/upload` 发布、再调验证合约的 `validationRequest`；验证程序拉文档、重新核对、把分数写到链上。分数是验证结果，不是积分也不是奖励。任何人可在第一次结果上链后 3 天内提一次争议。现在验证是中心化的——V1 只有一个验证者，就是项目管理员；结果公开、证据在链上，任何人能独立复核。等参与人多之后，验证权交给社区，做去中心化验证；合约已留口子（验证者地址可换），时间不写死。
 
 **不能给自己打分。** 四条路径都拦着：评分人本人、与名字持有人的 `.ai` 相同、与激活时记录的操作人 `operatorAiId` 相同、是该 agent 的 operator。
 
@@ -87,7 +90,7 @@ haha.meme 实现 ERC-8004 的两块：身份（Identity）与信誉（Reputation
 
 ## 6. 稀有域名空投第一季
 
-第一季正在进行：2026-11-24 08:00 至 2026-12-09 08:00（北京时间），共 15 天。每天 08:00 快照积分榜，前 20 名才有资格申请；200 积分换一个 2 位纯字母域名（候选 00–99 加 aa–zz，共 1552 个），每天 20 个、全季 300 个；一个 `.ai` 整个赛季只能换一个。当天申请，管理员当天发放。
+第一季正在进行：2026-11-24 08:00 至 2026-12-09 08:00（北京时间），共 15 天。每天 08:00 快照积分榜；上一天有资格但没申请的人当天排除，名额先给后面满 200 分的人，不够 20 个时前面被排除的人按当天快照区块哈希为种子随机补位到 20 人。200 积分换一个 2 位纯字母域名（候选 00–99 加 aa–zz，共 1552 个），每天 20 个、全季 300 个；一个 `.ai` 整个赛季只能换一个。当天申请，管理员当天发放。
 
 ## 7. 市场
 
@@ -135,6 +138,8 @@ Agent 使用说明见 [skill.md](skill.md)。
 - `HahaPoints.setPointParams` / `setSpender`：调整积分参数、授权积分消费方。
 - `HahaPoints.setEarner` / `setSpenderBudget` / `registerGame`：登记积分发放模块、消费额度、游戏。
 
+验证注册表 `HahaValidation` 的管理员也是同一地址，可调 `setValidator` 更换验证者（V1 验证者即管理员）。
+
 管理员**不能**：移动或销毁用户的 NFT、暂停合约、改手续费或手续费地址、改名字规则或冻结的黑名单 / 保留名、直接给某个地址加分、替换自己、升级合约。
 
 ## 11. 审计与风险
@@ -161,15 +166,17 @@ Agent 使用说明见 [skill.md](skill.md)。
 | HahaMarketplace | `0xC7294DF776344A39726b4C1256Faf0e728c99835` |
 | HahaDeployer | `0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601` |
 | HahaSeason1 | `0x4B8a35bFe18750c2058fd01e7159728adD345C00` |
+| HahaValidation | `0xAF9d2D3b6717469B21464baA12B022817841952b` |
+| HahaValidation | `0xAF9d2D3b6717469B21464baA12B022817841952b` |
 | 币安 `.ai` 注册表 | `0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F` |
 
 手续费地址：`0x57A76124bC919F7509bEb54924E8448258De90df`。
 
 ## 13. 路线图
 
-V1 已上线主网：铸造、解析、主名、ERC-8004 身份与信誉、积分、市场、第一季。
+V1 已上线主网：铸造、解析、主名、ERC-8004 身份、信誉与验证、积分、市场、第一季。
 
-未做的事：Validation Registry（验证）未实现；x402 支付未实现；小游戏框架已在积分合约里（`beginRound` / `claimRound` / `registerGame`），但没有部署游戏合约，游戏未上线。
+未做的事：x402 支付未实现；小游戏框架已在积分合约里（`beginRound` / `claimRound` / `registerGame`），但没有部署游戏合约，游戏未上线。验证目前是中心化的（V1 验证者为项目管理员），后续方向是参与人多之后把验证权交给社区，做去中心化验证。
 
 后续方向以实际部署为准，不承诺时间。
 
@@ -191,7 +198,7 @@ V1 已上线主网：铸造、解析、主名、ERC-8004 身份与信誉、积�
 
 AI agents are doing work for people: trading, posting, making deals. The person (or agent) on the other side needs to answer two questions: who is this agent, and can it be trusted?
 
-haha.meme answers with an on-chain resume. A wallet holding a Binance `.ai` can mint a `.haha` or `.meme` name (haha id) for free, permanently. The name is an ERC-721 NFT; once activated, it becomes an ERC-8004 agent identity; others rate it 1–5 stars, and the scores and reviews sit on chain for anyone to check. History cannot be rewritten. Participation (check-in, minting, activation, reviews) earns points keyed by `.ai`, and points are an important measure of participation in the ecosystem.
+haha.meme answers with an on-chain resume. A wallet holding a Binance `.ai` can mint a `.haha` or `.meme` name (haha id) for free, permanently. The name is an ERC-721 NFT; once activated, it becomes an ERC-8004 agent identity; others rate it 1–5 stars, and a validator checks whether its endpoint is reachable and its owner is genuine, with the scores, reviews, and validation results sitting on chain for anyone to check. History cannot be rewritten. Participation (check-in, minting, activation, reviews) earns points keyed by `.ai`, and points are an important measure of participation in the ecosystem.
 
 Everything is on chain, public and checkable. The site never touches a private key and never sends a transaction.
 
@@ -213,11 +220,11 @@ haha.meme is three layers, each built on the one below.
 
 **Layer 2: a .haha / .meme name is the on-chain name.** One name is one ERC-721 NFT (haha id), and its tokenId is the name's hash. It is yours forever, with no renewal. You can transfer it or sell it. A name also provides resolution (pointing at a wallet address), a primary name (one name shown for an address), and text records (a key of at most 64 bytes, a value of at most 1024 bytes, at most 16 keys per name).
 
-**Layer 3: ERC-8004 identity + reputation is the resume.** Activate an agent and get an agentId; others rate it, and the scores and reviews sit on chain. Transfer the name, the agent identity is destroyed, reputation resets, the next generation starts at 0, and old reviews stay queryable by generation.
+**Layer 3: ERC-8004 identity + reputation + validation is the resume.** Activate an agent and get an agentId; others rate it, a validator checks your identity and your endpoint, and the scores, reviews, and validation results sit on chain. Transfer the name, the agent identity is destroyed, reputation resets, the next generation starts at 0, and old reviews stay queryable by generation.
 
 ## 3. Architecture
 
-11 contracts, all non-upgradeable, no proxy, no Ownable, no Pausable. Deployed on BNB Smart Chain mainnet (chainId 56), with source open-source verified on BscScan. The original 10 contracts were deployed in commit `70fe8e79`, blocks 134834631–134834846; HahaSeason1 was deployed separately at block 135231506.
+12 contracts, all non-upgradeable, no proxy, no Ownable, no Pausable. Deployed on BNB Smart Chain mainnet (chainId 56), with source open-source verified on BscScan. The original 10 contracts were deployed in commit `70fe8e79`, blocks 134834631–134834846; HahaSeason1 was deployed separately at block 135231506; the Validation Registry HahaValidation was deployed in block 135619015.
 
 | Contract | Role |
 |---|---|
@@ -232,6 +239,7 @@ haha.meme is three layers, each built on the one below.
 | HahaMarketplace | Name market (BNB) |
 | HahaDeployer | One-time deployer (takes no user transactions after deployment) |
 | HahaSeason1 | Season 1: redeem two-letter rare names for points (20 a day, 300 in total) |
+| HahaValidation | ERC-8004 Validation Registry: endpoint-reachable and identity-verified checks, scored 0–100 |
 
 Contracts call each other through immutable addresses fixed at deployment. See [ARCHITECTURE.md](ARCHITECTURE.md) for technical detail and [`src/`](../src/) in this repo for the source.
 
@@ -245,13 +253,15 @@ Contracts call each other through immutable addresses fixed at deployment. See [
 
 A name is an ERC-721 NFT, and its tokenId is the name's hash (namehash). It is permanent. There is no renewal logic and no expiry.
 
-## 5. ERC-8004: identity and reputation
+## 5. ERC-8004: identity, reputation, and validation
 
-haha.meme implements two parts of ERC-8004: Identity and Reputation. There is no Validation Registry and no x402 support. Validation and payments are not here yet. Identity and reputation come first.
+haha.meme implements all three parts of ERC-8004: Identity, Reputation, and the Validation Registry. There is no x402 support.
 
-**Identity.** An agent identity is a soulbound NFT. It cannot be transferred. One name has at most one active agent at a time. At the moment of activation, the caller must both own the name and hold a `.ai`. After activation you get an agentId, counting up from 1 and never reused. The introduction link (agentURI) is 1–2048 bytes and you can change it any time. You can also set up to 8 operators to manage the agent for you. The agent's wallet address is the address your name resolves to. There is nothing extra to set. The global identifier form is `eip155:56:<Identity contract address>`.
+**Identity.** An agent identity is a soulbound NFT. It cannot be transferred. One name has at most one active agent at a time. At the moment of activation, the caller must both own the name and hold a `.ai`. After activation you get an agentId, counting up from 1 and never reused. The introduction link (agentURI) is 1–2048 bytes and you can change it any time. You can also set up to 8 operators to manage the agent for you. The agent's wallet address is the address your name resolves to. There is nothing extra to set. The global identifier form is `eip155:56:<Identity contract address>`. The introduction link points by default to a standard registration file (EIP-8004 format) that third parties read by the standard.
 
 **Reputation.** A 1–5 star rating with a review of at most 140 bytes. The rater must hold both a `.ai` and a `.haha` / `.meme` name, and the agent's owner must still hold a `.ai` at rating time. Each `.ai` has one rating per agent, and it can be edited. Reviews go only into chain events (`Rated`), never into storage.
+
+**Validation.** Validation is an independent check that an agent is real and reachable: endpoint reachable and identity verified. Pass both and the score is 100; fail either and it is 0, written on chain. The flow is: the owner writes a request document, signs it, publishes it with the upload endpoint `POST /v1/validations/upload`, then calls the validation contract's `validationRequest`; the validator program fetches the document, checks it again, and writes the score on chain. The score is a validation result, not points and not a reward. Anyone can dispute a result once, within 3 days after the first result is written on chain. Validation is centralized right now: in v1 there is only one validator, the project admin. The results are public and the evidence is on chain, so anyone can independently re-check them. Once enough people take part, validation will be handed to the community as decentralized validation; the contract already leaves room for it (the validator address can be changed). No date is promised.
 
 **You cannot rate yourself.** Four paths are blocked: the rater themself, the same `.ai` as the name owner, the operator recorded at activation (`operatorAiId`), and an operator of that agent.
 
@@ -261,7 +271,7 @@ haha.meme implements two parts of ERC-8004: Identity and Reputation. There is no
 
 ## 6. Season 1
 
-Season 1 is live: 08:00 2026-11-24 to 08:00 2026-12-09 (Beijing time), 15 days. Each day at 08:00 the points leaderboard is snapshotted and the top 20 are eligible to apply; 200 points for one two-letter name (candidates 00–99 plus aa–zz, 1,552 in total), 20 a day, 300 in total; one `.ai` can redeem only one name for the whole season. Apply on the day; the admin mints and issues it the same day.
+Season 1 is live: 08:00 2026-11-24 to 08:00 2026-12-09 (Beijing time), 15 days. Each day at 08:00 the points leaderboard is snapshotted. Anyone who was eligible the previous day but did not apply is excluded that day; places go first to people behind them with at least 200 points, and if fewer than 20 such people qualify, the excluded ones fill the remaining places by a random draw seeded on the snapshot block hash, up to 20. 200 points for one two-letter name (candidates 00–99 plus aa–zz, 1,552 in total), 20 a day, 300 in total; one `.ai` can redeem only one name for the whole season. Apply on the day; the admin mints and issues it the same day.
 
 ## 7. The market
 
@@ -309,6 +319,8 @@ Admin address: `0x083A467259f12602E9053bBAe2b3Fd5B62976Ef7`. The admin has only 
 - `HahaPoints.setPointParams` / `setSpender`: adjust points parameters and authorize points spenders.
 - `HahaPoints.setEarner` / `setSpenderBudget` / `registerGame`: register points earners, spender budgets, and games.
 
+The Validation Registry `HahaValidation` has the same admin, which can call `setValidator` to change the validator (in v1 the validator is the admin).
+
 The admin **cannot**: move or burn a user's NFT, pause a contract, change the fee or the fee address, change the name rules or the frozen blocklist / reserved names, add points directly to an address, replace itself, or upgrade a contract.
 
 ## 11. Audit and risks
@@ -341,9 +353,9 @@ Fee address: `0x57A76124bC919F7509bEb54924E8448258De90df`.
 
 ## 13. Roadmap
 
-V1 is live on mainnet: minting, resolution, primary name, ERC-8004 identity and reputation, points, the market, and Season 1.
+V1 is live on mainnet: minting, resolution, primary name, ERC-8004 identity, reputation, and validation, points, the market, and Season 1.
 
-Not built yet: the Validation Registry (validation) is not implemented; x402 payments are not implemented; the points contract has a game framework (`beginRound` / `claimRound` / `registerGame`), but no game contract has been deployed, so no game is live.
+Not built yet: x402 payments are not implemented; the points contract has a game framework (`beginRound` / `claimRound` / `registerGame`), but no game contract has been deployed, so no game is live. Validation is centralized today (in v1 the validator is the project admin); the future direction is to hand validation to the community as decentralized validation once enough people take part.
 
 Future direction follows what is actually deployed. No dates are promised.
 

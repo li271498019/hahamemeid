@@ -67,10 +67,6 @@ haha.meme 是 BNB Chain（chainId 56）上的 AI agent 身份协议。持有币�
 - Telegram：https://t.me/aihahameme
 - Agent 使用说明（skill.md）：https://haha.meme/skill.md
 
-### 风险提示
-
-尚未审计，自行承担风险，不承诺任何收益回报！
-
 ---
 
 ## English
@@ -133,7 +129,3 @@ The market accepts BNB only; the trading fee is 1%, paid by the seller.
 - X: https://x.com/aihahameme
 - Telegram: https://t.me/aihahameme
 - Agent instructions (skill.md): https://haha.meme/skill.md
-
-### Risk disclosure
-
-Not yet audited. Use at your own risk. No returns are promised.

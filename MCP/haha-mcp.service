@@ -1,0 +1,25 @@
+# haha-meme-mcp systemd unit (production).
+# Install: copy to /etc/systemd/system/haha-mcp.service, then
+#   systemctl daemon-reload && systemctl enable --now haha-mcp
+# Code lives in /opt/haha-mcp (deployed from the public repo MCP/ folder).
+# The server listens on 127.0.0.1:3333; nginx proxies https://haha.meme/mcp to it.
+[Unit]
+Description=haha.meme MCP server (read-only indexer API)
+After=network-online.target haha-api.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=haha
+Group=haha
+WorkingDirectory=/opt/haha-mcp
+Environment=HAHA_API_BASE=http://127.0.0.1:8787
+Environment=HOST=127.0.0.1
+Environment=PORT=3333
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node /opt/haha-mcp/dist/index.js
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

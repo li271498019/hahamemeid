@@ -1,0 +1,17 @@
+{
+  "fixture": "day-ok",
+  "note": "文档样本，不是线上响应",
+  "dayIndex": 20781,
+  "merkleRoot": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "recomputedRoot": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "rootMatch": true,
+  "snapshotBlock": 140000000,
+  "snapshotBlockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "confirmationsRequired": 15,
+  "confirmationsSeen": 15,
+  "reservedCount": 18,
+  "remainingSlots": 2,
+  "reservedFilled": 0,
+  "boundaryFilled": 0,
+  "opened": false
+}

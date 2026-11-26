@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<script src="/js/boot.js?v=8"></script>
+<script src="/js/config.js?v=9"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F7931A">
+<title data-i18n-title="season.docTitle">haha.meme · 稀有域名空投第一季</title>
+<meta name="description" data-i18n="season.docDesc" content="稀有域名空投第一季：15 天，每天 20 个 2 位纯字母域名，全季 300 个。200 积分兑换。">
+<link rel="icon" href="/assets/logo/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/logo/favicon-180.png">
+<meta property="og:title" data-i18n="season.docTitle" content="haha.meme · 稀有域名空投第一季">
+<meta property="og:description" data-i18n="season.docDesc" content="稀有域名空投第一季：15 天，每天 20 个 2 位纯字母域名，全季 300 个。200 积分兑换。">
+<meta property="og:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<link rel="stylesheet" href="/css/site.css?v=24">
+<style>
+#season-page { max-width: 1100px; }
+#season-page .lede,
+#season-page .sheet p,
+#season-page .sheet li,
+#season-page .note,
+#season-page .stat span,
+#season-page .boundary,
+#season-page .when span {
+  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-weight: 500;
+  line-height: 1.6;
+}
+#season-page h1, #season-page h2, #season-page .kicker,
+#season-page .btn, #season-page .stat b, #season-page .clock,
+#season-page summary, #season-live .status {
+  font-family: "Fusion Pixel", ui-monospace, monospace;
+}
+#season-page h1 { max-width: 14em; }
+#season-live .status { display: inline-block; margin: 0; font-size: 18px; font-weight: 800; }
+#season-live .clock { margin: 10px 0 0; color: #C2410C; font-size: 28px; line-height: 1.2; font-weight: 800; letter-spacing: -0.03em; }
+#season-live .when { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+#season-live .when div { background: #FFF6EA; border-radius: 16px; padding: 10px 12px; }
+#season-live .when b { display: block; color: #C2410C; font-size: 13px; }
+#season-live .boundary { margin: 10px 0 0; }
+#season-apply-form { display: flex; gap: 8px; margin-top: 12px; flex-wrap: nowrap; align-items: stretch; }
+#season-apply-form[hidden] { display: none; }
+#apply-label, #apply-tld button, #season-apply-form .btn {
+  border: 2px solid #FFD7A8; background: #FFF6EA; color: #7C2D12;
+  border-radius: 14px; padding: 10px 12px; font-weight: 800;
+}
+#apply-label { width: 10em; flex: 0 0 auto; text-align: center; text-transform: lowercase; }
+#apply-tld { display: flex; gap: 8px; flex: 0 0 auto; }
+#apply-tld button { cursor: pointer; }
+#apply-tld button[aria-pressed="true"] { background: #F7931A; border-color: #F7931A; color: #fff; }
+#apply-tld button:focus-visible, #season-apply-form .btn:focus-visible { outline: 3px solid #C2410C; outline-offset: 3px; }
+#season-apply-form .btn { flex: 0 0 auto; white-space: nowrap; }
+#season-today .today-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+#season-today .today-grid div { background: #FFF6EA; border-radius: 16px; padding: 10px 12px; }
+#season-today .today-grid b { display: block; color: #C2410C; font-size: 13px; }
+#season-today .lb-scroll { overflow-x: auto; margin-top: 12px; }
+#season-today table { width: 100%; border-collapse: collapse; min-width: 900px; }
+#season-today th, #season-today td { text-align: left; padding: 8px 6px; border-top: 1px solid #FFE2C6; overflow-wrap: anywhere; word-break: break-all; }
+#season-today th { color: #C2410C; font-size: 13px; }
+#season-today tr.invalid td { color: #B45309; background: #FEF3C7; }
+#season-findings .lb-scroll { overflow-x: auto; margin-top: 12px; }
+#season-findings table { width: 100%; border-collapse: collapse; min-width: 900px; }
+#season-findings th, #season-findings td { text-align: left; padding: 8px 6px; border-top: 1px solid #FFE2C6; overflow-wrap: anywhere; word-break: break-all; vertical-align: top; }
+#season-findings th { color: #C2410C; font-size: 13px; }
+#season-findings .adopted-yes { color: #15803D; font-weight: 800; }
+#season-findings .adopted-no { color: #6B7280; }
+#season-findings .adopted-pending { color: #6B7280; }
+#season-findings .finding-content { white-space: pre-wrap; margin-top: 6px; }
+#season-findings .finding-toggle { cursor: pointer; color: #C2410C; font-weight: 800; background: none; border: none; padding: 0; font: inherit; }
+#season-findings .finding-toggle:focus-visible { outline: 3px solid #C2410C; outline-offset: 3px; }
+#season-findings .btn:focus-visible { outline: 3px solid #C2410C; outline-offset: 3px; }
+@media (max-width: 800px) {
+  #season-today .today-grid { grid-template-columns: 1fr; }
+}
+#season-page .steps { margin: 8px 0 0; padding-left: 1.2em; }
+#season-eligibility form, #season-refund form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+#season-eligibility input, #season-refund input { flex: 1; min-width: 180px; }
+#season-eligibility .proof-lines { overflow-wrap: anywhere; word-break: break-all; }
+#season-page .steps li { margin: 8px 0; }
+#season-page details { margin-top: 12px; }
+#season-page summary { cursor: pointer; color: #C2410C; font-weight: 800; }
+#season-page summary:focus-visible { outline: 3px solid #C2410C; outline-offset: 3px; }
+#season-status .addr { table-layout: fixed; }
+#season-status .addr td { overflow-wrap: anywhere; word-break: break-all; }
+#season-status .addr td:first-child { width: 8em; }
+#season-status .case { border-top: 1px solid #FFE2C6; padding: 8px 0; }
+#season-status .case p { margin: 4px 0; overflow-wrap: anywhere; word-break: break-all; }
+#rules { scroll-margin-top: 90px; }
+@media (max-width: 800px) {
+  #season-live .when { grid-template-columns: 1fr; }
+  #season-live .clock { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="wrap">
+<header class="nav">
+  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40">haha.meme</a>
+  <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/market.html"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html"><span data-i18n="nav.earn">赚取积分</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/scan.html"><span data-i18n="nav.scan">haha scan</span></a><a href="/how.html"><span data-i18n="nav.how">工作原理</span></a><a href="/season" aria-current="page" data-i18n="nav.season">稀有域名空投第一季</a></nav>
+  <div class="nav-right">
+    <span class="hello" id="hello" hidden>Hi! <b id="hello-name"></b></span>
+
+    <div class="points" id="points"><img src="/assets/coins/_smiley-coin.svg" alt="" width="32" height="32"><span class="points-num" id="points-num">0</span></div>
+    <form class="login" id="login-form">
+      <label class="sr" for="ai" data-i18n="nav.loginPh">输入您的.ai域名</label>
+      <div class="login-field"><input id="ai" autocomplete="off" spellcheck="false" maxlength="32" placeholder="输入您的.ai域名" aria-label="输入您的.ai域名" data-i18n-placeholder="nav.loginPh" data-i18n-aria="nav.loginPh"><em>.ai</em></div>
+      <button type="submit" id="login-btn">进入</button>
+    </form>
+  </div>
+  <button type="button" class="lang-switch" id="lang-switch">EN</button>
+</header>
+
+<main><section class="page" id="season-page">
+  <p class="kicker" data-i18n="nav.season">稀有域名空投第一季</p>
+  <h1 data-i18n="season.title">积分兑换2位纯字母域名</h1>
+  <p class="lede"><span data-i18n="season.ledeDates">2026年11月24日08:00–2026年12月9日08:00（北京时间），共计15天</span><br><span data-i18n="season.ledeExchange">可消费200积分，兑换2位纯字母极品稀有域名！任选.haha或.meme后缀，每个.ai持有人可参与一次</span></p>
+  <p class="status" id="season-issued" data-i18n="season.issuedLoading">正在读取发放数…</p>
+
+  <div class="panel" id="season-eligibility">
+    <h2 data-i18n="season.eligTitle">查兑换资格</h2>
+    <form id="elig-form">
+      <input id="elig-ai" class="field-input" autocomplete="off" spellcheck="false" maxlength="32" placeholder="比如 hahameme" data-i18n-placeholder="season.eligAiPh" aria-label=".ai 名字">
+      <button class="btn" type="submit" data-i18n="season.eligCheck">查资格</button>
+    </form>
+    <p class="note" id="elig-result"></p>
+    <div id="elig-proof"></div>
+    <p class="note"><a href="/earn.html" data-i18n="season.verifyLink">每日验证在赚取页领 30 分</a></p>
+  </div>
+
+  <div class="panel" id="season-live">
+    <p class="status" id="season-open-state">状态：正在读取…</p>
+    <p class="clock" id="beijing-now"></p>
+    <div class="when">
+      <div><b data-i18n="season.startLabel">开始</b><span data-i18n="season.startTime">2026-11-24 08:00 北京</span></div>
+      <div><b data-i18n="season.endLabel">结束申请</b><span data-i18n="season.endTime">2026-12-09 08:00 北京</span></div>
+    </div>
+    <p class="boundary" id="countdown" hidden></p>
+    <form id="season-apply-form" hidden>
+      <input id="apply-label" maxlength="2" pattern="[a-z0-9]{2}" placeholder="ab" data-i18n-aria="season.applyLabel" aria-label="两位名字" autocomplete="off" spellcheck="false">
+      <div id="apply-tld" role="group" data-i18n-aria="season.applyTld" aria-label="后缀">
+        <button type="button" data-tld="0" aria-pressed="true">.haha</button>
+        <button type="button" data-tld="1" aria-pressed="false">.meme</button>
+      </div>
+      <button class="btn" type="submit" id="apply-copy" data-i18n="season.applyCopy">复制领取指令</button>
+    </form>
+    <p class="note" id="season-cta-note" data-i18n="season.noteLoading">正在读取开放记录。读不到或没有根时，保持尚未开放。</p>
+  </div>
+
+  <div class="panel" id="season-today">
+    <h2 id="season-today-title">第1日</h2>
+    <div id="season-today-body">
+      <p class="note" data-i18n="season.todayLoading">正在读取今日数据…</p>
+    </div>
+  </div>
+
+  <div class="panel" id="season-findings">
+    <h2 data-i18n="season.findingsTitle">找错公示</h2>
+    <p class="lede" data-i18n="season.findingsIntro">为保证积分兑换2位纯字母域名活动公开公正透明，欢迎监督找错，一经核实，奖励100积分！</p>
+    <p><button class="btn" type="button" id="findings-copy" data-i18n="season.findingsCopy">复制找错指令</button></p>
+    <p class="note" data-i18n="season.findingsFlow">提交 → 7 天内向复核人揭示 → 指定根因公示 24 小时 → 凭签名领 100 分。</p>
+    <p class="note" id="findings-note" hidden></p>
+    <div id="season-findings-body">
+      <p class="note" data-i18n="season.findingsLoading">正在读取找错公示…</p>
+    </div>
+  </div>
+
+  <div class="panel" id="season-refund">
+    <h2 data-i18n="season.refundTitle">事故退款领取</h2>
+    <p class="lede" data-i18n="season.refundIntro">兑换因不可抗力没发放成功，可领回 200 积分并另加 100 分补偿。输入订单号查状态。</p>
+    <form id="refund-form">
+      <input id="refund-order" class="field-input" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="订单号，比如 1" data-i18n-placeholder="season.refundOrderPh" aria-label="订单号">
+      <button class="btn" type="submit" data-i18n="season.refundCheck">查订单</button>
+    </form>
+    <div id="refund-result"></div>
+  </div>
+
+  <article class="sheet" id="rules">
+    <h2 data-i18n="season.rulesTitle">参与规则</h2>
+    <ol class="steps">
+      <li data-i18n="season.rule1">赛季时间：2026年11月24日08:00–2026年12月9日08:00（北京时间），共计15天</li>
+      <li data-i18n="season.rule2">每天发放20个2位纯字母极品域名，赛季总共300个，需消耗200积分兑换。</li>
+      <li data-i18n="season.rule3">任意.haha或.meme后缀，名字任选，限制2位纯字母。</li>
+      <li data-i18n="season.rule4">发放时间：当天发放截止是窗口结束后再加 12 小时。</li>
+      <li data-i18n="season.rule5">每日 08:00（北京时间）积分快照：上一天有资格没申请的人当天排除，名额顺延给后面满 200 分的人；不够 20 个时，前面被排除的人随机补位到 20 人。随机补位用当天快照区块哈希当种子，公开可验证。</li>
+      <li data-i18n="season.rule6">符合条件的用户在兑换指令页填写两位名字和接收地址，复制那段话给你自己的 agent即可领取。</li>
+      <li data-i18n="season.rule7">如果因为不可抗力因素，导致域名未发放成功，退回消费的200积分，并且额外补偿100积分。</li>
+      <li data-i18n="season.rule8">全程链上执行，可核验。</li>
+      <li data-i18n="season.rule9">本项目与币安无关。</li>
+    </ol>
+  </article>
+
+  </details>
+</section></main>
+<footer>haha.meme · haha id · <span data-i18n="footer.tagline">基于币安 .ai Agent ID 的链上agent身份信誉协议</span> · <a href="https://x.com/aihahameme" target="_blank" rel="noopener noreferrer">X</a> · <a href="https://t.me/aihahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目方"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg> <span data-i18n="footer.tgOwner">项目方</span></a> · <a href="https://t.me/idhahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目群组"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h9v-2.5c0-.85.33-1.59.88-2.16C7.4 14.12 6.16 13 5 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span data-i18n="footer.tgGroup">项目群组</span></a> · <a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a> · <a href="/skill.md">skill.md</a> · <a href="/api.html">API</a></footer>
+</div>
+<div id="toast" role="status"></div>
+<script src="/js/addresses.js?v=8"></script>
+<script src="/js/rpc.js?v=17"></script>
+<script src="/js/i18n.js?v=63"></script>
+<script src="/js/instructions.js?v=12"></script>
+<script src="/js/session.js?v=8"></script>
+<script src="/js/nft.js?v=9"></script>
+<script src="/js/ui.js?v=8"></script>
+<script src="/js/rain.js?v=7"></script>
+<script src="/js/season-status.js?v=19"></script>
+</body>
+</html>

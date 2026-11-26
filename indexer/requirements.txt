@@ -1,0 +1,6 @@
+# haha.meme indexer ( /opt/haha-indexer ) — pinned runtime dependencies.
+# I7: locked with `pip freeze` on the server 2026-11-24 (system python3,
+# the interpreter haha-api.service runs: /usr/bin/python3).
+# Everything else the indexer imports is Python stdlib.
+psycopg2==2.9.9
+pycryptodomex==3.20.0

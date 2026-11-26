@@ -1,0 +1,18 @@
+[Unit]
+Description=Season 1 daily operations (snapshot, setDayRoot, task pack, fulfill)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Anti-kill: if the run is killed or exits non-zero, systemd restarts it.
+# RestartSec gives the chain a minute to settle before the retry.
+Restart=on-failure
+RestartSec=60
+# One run at a time: the runtime cron also triggers this script, and the
+# flock makes the second trigger a no-op instead of a nonce collision.
+ExecStart=/usr/bin/flock -n /var/lock/haha-daily-ops.lock /opt/haha-season1/venv/bin/python /opt/haha-season1/admin/daily_ops.py
+Environment=PYTHONPATH=/opt/haha-season1:/opt/haha-indexer:/opt/haha-season1/admin
+# Never log a private key; the script only logs public fields.
+StandardOutput=journal
+StandardError=journal

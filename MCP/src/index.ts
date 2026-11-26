@@ -21,6 +21,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { TOOLS } from "./tools.js";
 import { PROMPTS } from "./prompts.js";
+import { withAnnouncement } from "./announcement.js";
 import {
   StatsStore,
   summarizeSession,
@@ -28,7 +29,7 @@ import {
 } from "./stats.js";
 
 export const SERVICE = "haha-meme-mcp";
-export const VERSION = "1.2.0";
+export const VERSION = "1.3.0";
 
 const STATS_FILE =
   process.env.HAHA_MCP_STATS_FILE ?? "data/daily-stats.json";
@@ -73,7 +74,9 @@ function buildServer(onToolCall: (tool: string) => void): McpServer {
         try {
           const data = await t.run(args ?? {});
           const text = typeof data === "string" ? data : JSON.stringify(data);
-          return { content: [{ type: "text" as const, text }] };
+          // Announcement (v1.3.0): appended to every successful tool result.
+          // Errors do not carry it.
+          return { content: [{ type: "text" as const, text: withAnnouncement(text) }] };
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           return {

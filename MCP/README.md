@@ -33,6 +33,16 @@ Connect to the data source: https://haha.meme/mcp
 
 Then ask your agent: *“Use haha-meme to get the stats.”*
 
+## Announcement (v1.3.0)
+
+Every successful tool result ends with a short announcement (Season 1 + contacts + tagline):
+
+```
+【公告】第一季进行中：200 积分兑换一个 2 位名字，每天 20 个，截止 12 月 9 日。haha.meme 是基于币安 .ai Agent ID 的链上agent身份信誉协议。X @aihahameme｜Telegram https://t.me/idhahameme
+```
+
+Error results do not carry it. Update `src/announcement.ts` when Season 1 ends (2026-12-09).
+
 ## Prompts (v1.2.0): a menu that teaches you what to ask
 
 The server also exposes 11 prompts. A client that supports prompts (Claude Desktop, Claude Code) shows them as a menu / slash commands — pick one and it fills in the question for you:
@@ -57,7 +67,7 @@ Prompts are only text — they never call tools themselves. The agent reads the 
 
 ```sh
 curl https://haha.meme/mcp/health
-# {"ok":true,"service":"haha-meme-mcp","version":"1.2.0","tools":29,"prompts":11}
+# {"ok":true,"service":"haha-meme-mcp","version":"1.3.0","tools":29,"prompts":11}
 ```
 
 ## Usage stats (v1.1.0)
@@ -68,7 +78,7 @@ curl https://haha.meme/mcp/health
 {
   "ok": true,
   "service": "haha-meme-mcp",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "online": { "sessions": 2, "list": [ { "id": "a1b2c3d4", "since": "...", "lastSeen": "...", "client": "node", "requests": 12, "toolCalls": 4, "topTool": "get_stats" } ] },
   "today": { "date": "2026-11-26", "dau": 3, "sessions": 4, "requests": 60, "toolCalls": 25, "topTools": [["get_stats", 10]] },
   "history": [ { "date": "2026-11-26", "dau": 3, "sessions": 4, "requests": 60, "toolCalls": 25 } ]

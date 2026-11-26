@@ -109,6 +109,15 @@
 - **会话过期**：客户端断开时 SDK 的 `close()` 不发 DELETE，服务端收不到断开通知，所以设 30 分钟空闲过期（`HAHA_MCP_SESSION_IDLE_MS`，默认 1800000 毫秒），过期会话自动清理；客户端回来时重新初始化（新会话），DAU 按 IP 算所以不重复。客户端主动调 `terminateSession()` 发 DELETE 时立即清理。
 - **环境变量**：`HAHA_MCP_STATS_FILE`（默认 `data/daily-stats.json`），`HAHA_MCP_SESSION_IDLE_MS`（默认 30 分钟）。
 
+### 5.2 提示词菜单 Prompts（v1.2.0，让用户简单上手）
+
+- **为什么要做**：用户接上 MCP 后不知道该问什么。Prompts 是 MCP 协议自带的“菜单”功能：服务端定义好提示词模板，支持的客户端（Claude Desktop、Claude Code）会把它显示成菜单或斜杠命令，用户一点就把问题填进对话，agent 再用工具去查。
+- **11 个提示词**：`getting_started`（上手指南：能查什么、示例问题）、`platform_stats`（平台总数据）、`check_name`（查一个名字，需填名字）、`check_agent`（查一个 agent 的信誉与注册信息，需填名字）、`reputation_leaderboard`（信誉榜）、`season_today`（今天第一季）、`season_leaderboard`（第一季资格榜）、`season_eligibility`（查我的第一季兑换资格，需填 aiId）、`market_listings`（市场在售）、`points_leaderboard`（积分榜）、`latest_reviews`（最新评价）。
+- **提示词只是文字**：它本身不调工具、不动钱，只是把一句问话填进对话；真正查数据的是 agent 调那 29 个工具。
+- **第一季的 dayIndex 服务端自己算**：第一季 day 20781 = 2026-11-24（UTC），每天 +1。`season_today` / `season_leaderboard` / `season_eligibility` 在返回提示词时已经算好今天的 dayIndex 填进去，用户不用知道这个数字。
+- **参数校验**：需要填的都校验格式（如 aiId 必须是 0x 开头 64 位十六进制），填错了服务端直接报错，不会去查。
+- **实现**：`src/prompts.ts` 一个注册表（名字、标题、描述、参数、生成问话的函数），`src/index.ts` 里 `buildServer` 时逐个注册；加新提示词 = 注册表加一条。`GET /health` 返回里加 `prompts` 个数。
+
 ## 6. 可拓展性（以后加新功能、新接口，能拓展吗？能）
 
 设计成这样，以后加接口就是加一行，不用动骨架：
@@ -154,7 +163,7 @@
 
 ## 10. 版本与更新
 
-- **版本号**：从 `1.0.0` 开始，语义版本。v1.1.0（2026-11-26）加了使用统计（§5.1）：在线会话数、日活、工具调用统计。
+- **版本号**：从 `1.0.0` 开始，语义版本。v1.1.0（2026-11-26）加了使用统计（§5.1）：在线会话数、日活、工具调用统计。v1.2.0（2026-11-26）加了提示词菜单（§5.2）：11 个 Prompts，教用户怎么问。
 - **更新流程**：索引器加新接口 → MCP 加对应工具 → 升版本号 → 更新 README 与 api.html → 部署到服务器 → 告诉 L。HTTP 版用户不用做任何事，服务端一更新就自动用上新版。
 - **更新触达**：MCP 本身不能推送消息。发新版后，在 X / Telegram 告诉用户；工具返回里可带一条版本号提示（用户下次调工具时能看到）。
 

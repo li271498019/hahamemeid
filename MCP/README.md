@@ -33,11 +33,31 @@ claude mcp add --transport http haha-meme https://haha.meme/mcp
 
 Then ask your agent: *“Use haha-meme to get the stats.”*
 
+## Prompts (v1.2.0): a menu that teaches you what to ask
+
+The server also exposes 11 prompts. A client that supports prompts (Claude Desktop, Claude Code) shows them as a menu / slash commands — pick one and it fills in the question for you:
+
+| Prompt | What it asks |
+|---|---|
+| `getting_started` （上手指南） | What can I ask? Lists everything with example questions |
+| `platform_stats` （平台总数据） | How many names, participants, active agents? |
+| `check_name` （查一个名字） | Details of one .haha / .meme name (needs the name) |
+| `check_agent` （查一个 agent 的信誉与注册信息） | One agent's registration, reputation, validation (needs the name) |
+| `reputation_leaderboard` （信誉榜） | Top 10 agents by reputation |
+| `season_today` （今天第一季） | Is Season 1 open today, how many are eligible? |
+| `season_leaderboard` （第一季资格榜） | Top 10 by Season 1 points today |
+| `season_eligibility` （查我的第一季兑换资格） | Am I eligible today? (needs your aiId, the 0x…64-hex hash of your .ai) |
+| `market_listings` （市场在售） | What's for sale, cheapest first? |
+| `points_leaderboard` （积分榜） | Top 10 by points |
+| `latest_reviews` （最新评价） | The latest reputation reviews |
+
+Prompts are only text — they never call tools themselves. The agent reads the prompt, then uses the 29 tools to answer.
+
 ## Check that it works
 
 ```sh
 curl https://haha.meme/mcp/health
-# {"ok":true,"service":"haha-meme-mcp","version":"1.1.0","tools":29}
+# {"ok":true,"service":"haha-meme-mcp","version":"1.2.0","tools":29,"prompts":11}
 ```
 
 ## Usage stats (v1.1.0)

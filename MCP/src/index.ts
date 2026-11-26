@@ -20,6 +20,7 @@ import { randomUUID } from "node:crypto";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { TOOLS } from "./tools.js";
+import { PROMPTS } from "./prompts.js";
 import {
   StatsStore,
   summarizeSession,
@@ -27,7 +28,7 @@ import {
 } from "./stats.js";
 
 export const SERVICE = "haha-meme-mcp";
-export const VERSION = "1.1.0";
+export const VERSION = "1.2.0";
 
 const STATS_FILE =
   process.env.HAHA_MCP_STATS_FILE ?? "data/daily-stats.json";
@@ -44,6 +45,25 @@ const SESSION_IDLE_MS = Number(
 
 function buildServer(onToolCall: (tool: string) => void): McpServer {
   const server = new McpServer({ name: SERVICE, version: VERSION });
+  // Prompts (v1.2.0): a menu that teaches users what to ask. Picking one
+  // inserts its text into the conversation; the agent then uses the tools.
+  for (const p of PROMPTS) {
+    if (p.argsSchema) {
+      server.registerPrompt(
+        p.name,
+        { title: p.title, description: p.description, argsSchema: p.argsSchema },
+        async (args) => ({
+          messages: p.render(args as Record<string, string | undefined>),
+        }),
+      );
+    } else {
+      server.registerPrompt(
+        p.name,
+        { title: p.title, description: p.description },
+        async () => ({ messages: p.render({}) }),
+      );
+    }
+  }
   for (const t of TOOLS) {
     server.registerTool(
       t.name,
@@ -252,6 +272,7 @@ async function main(): Promise<void> {
             service: SERVICE,
             version: VERSION,
             tools: TOOLS.length,
+            prompts: PROMPTS.length,
             sessions: sessions.size,
           }),
         );
@@ -276,7 +297,7 @@ async function main(): Promise<void> {
   });
 
   httpServer.listen(port, host, () => {
-    console.error(`[${SERVICE}] v${VERSION} listening on ${host}:${port} (POST/GET/DELETE /mcp, GET /health, GET /stats, ${TOOLS.length} tools)`);
+    console.error(`[${SERVICE}] v${VERSION} listening on ${host}:${port} (POST/GET/DELETE /mcp, GET /health, GET /stats, ${TOOLS.length} tools, ${PROMPTS.length} prompts)`);
   });
 }
 

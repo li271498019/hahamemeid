@@ -17,6 +17,9 @@ Environment=HAHA_API_BASE=http://127.0.0.1:8787
 Environment=HOST=127.0.0.1
 Environment=PORT=3333
 Environment=NODE_ENV=production
+# Usage stats (v1.1.0, optional; defaults shown):
+# Environment=HAHA_MCP_STATS_FILE=data/daily-stats.json
+# Environment=HAHA_MCP_SESSION_IDLE_MS=1800000
 ExecStart=/usr/bin/node /opt/haha-mcp/dist/index.js
 Restart=on-failure
 RestartSec=5

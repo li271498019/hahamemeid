@@ -1,0 +1,37 @@
+(function () {
+  /* On-chain SVG template, ported verbatim from src/libraries/HahaSvg.sol
+   * (PREFIX / MID / NAME_OPEN / SUFFIX). The frontend preview must be
+   * byte-identical to HahaMetadata.buildSvgOnly. Do not edit the template
+   * by hand; regenerate it from the contract if it ever changes
+   * (it cannot: the contracts are non-upgradeable). */
+  var SVG_PREFIX = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"500\" height=\"500\" viewBox=\"0 0 500 500\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#FFC21A\"/><stop offset=\"1\" stop-color=\"#FF7A1A\"/></linearGradient></defs><rect width=\"500\" height=\"500\" fill=\"url(#g)\"/><g opacity=\"0.28\"><g transform=\"translate(40,430) scale(0.9)\"><circle r=\"26\" fill=\"#F5C542\" stroke=\"#9A6B00\" stroke-width=\"3\"/><circle r=\"19\" fill=\"none\" stroke=\"#9A6B00\" stroke-width=\"2\"/><text y=\"9\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"24\" font-weight=\"bold\" fill=\"#9A6B00\">Ð</text></g><g transform=\"translate(105,420) scale(0.85)\"><path d=\"M-30 -20 L-22 -48 L-6 -28 L6 -28 L22 -48 L30 -20 Q38 10 0 32 Q-38 10 -30 -20Z\" fill=\"#E8A23A\" stroke=\"#7A4A10\" stroke-width=\"3\"/><path d=\"M-18 8 Q0 30 18 8 Q0 18 -18 8Z\" fill=\"#FFF1D6\"/><circle cx=\"-11\" cy=\"-6\" r=\"3.5\" fill=\"#3A2A10\"/><circle cx=\"11\" cy=\"-6\" r=\"3.5\" fill=\"#3A2A10\"/><ellipse cx=\"0\" cy=\"8\" rx=\"5\" ry=\"3.5\" fill=\"#3A2A10\"/></g><g transform=\"translate(180,435) scale(0.8)\"><ellipse cx=\"0\" cy=\"8\" rx=\"34\" ry=\"24\" fill=\"#5BA83B\" stroke=\"#2C5A1A\" stroke-width=\"3\"/><ellipse cx=\"-14\" cy=\"-14\" rx=\"14\" ry=\"11\" fill=\"#5BA83B\" stroke=\"#2C5A1A\" stroke-width=\"3\"/><ellipse cx=\"14\" cy=\"-14\" rx=\"14\" ry=\"11\" fill=\"#5BA83B\" stroke=\"#2C5A1A\" stroke-width=\"3\"/><ellipse cx=\"-14\" cy=\"-14\" rx=\"8\" ry=\"6\" fill=\"#fff\"/><ellipse cx=\"14\" cy=\"-14\" rx=\"8\" ry=\"6\" fill=\"#fff\"/><circle cx=\"-11\" cy=\"-14\" r=\"3\" fill=\"#111\"/><circle cx=\"17\" cy=\"-14\" r=\"3\" fill=\"#111\"/><path d=\"M-22 14 Q0 24 22 14\" fill=\"none\" stroke=\"#A0322A\" stroke-width=\"5\" stroke-linecap=\"round\"/></g><g transform=\"translate(250,410) scale(0.75)\"><circle r=\"26\" fill=\"#F5C542\" stroke=\"#9A6B00\" stroke-width=\"3\"/><circle r=\"19\" fill=\"none\" stroke=\"#9A6B00\" stroke-width=\"2\"/><text y=\"9\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"24\" font-weight=\"bold\" fill=\"#9A6B00\">S</text></g><g transform=\"translate(320,438) scale(0.7)\"><path d=\"M-30 -20 L-22 -48 L-6 -28 L6 -28 L22 -48 L30 -20 Q38 10 0 32 Q-38 10 -30 -20Z\" fill=\"#E8A23A\" stroke=\"#7A4A10\" stroke-width=\"3\"/><path d=\"M-18 8 Q0 30 18 8 Q0 18 -18 8Z\" fill=\"#FFF1D6\"/><circle cx=\"-11\" cy=\"-6\" r=\"3.5\" fill=\"#3A2A10\"/><circle cx=\"11\" cy=\"-6\" r=\"3.5\" fill=\"#3A2A10\"/><ellipse cx=\"0\" cy=\"8\" rx=\"5\" ry=\"3.5\" fill=\"#3A2A10\"/></g><g transform=\"translate(395,415) scale(0.85)\"><ellipse cx=\"0\" cy=\"8\" rx=\"34\" ry=\"24\" fill=\"#5BA83B\" stroke=\"#2C5A1A\" stroke-width=\"3\"/><ellipse cx=\"-14\" cy=\"-14\" rx=\"14\" ry=\"11\" fill=\"#5BA83B\" stroke=\"#2C5A1A\" stroke-width=\"3\"/><ellipse cx=\"14\" cy=\"-14\" rx=\"14\" ry=\"11\" fill=\"#5BA83B\" stroke=\"#2C5A1A\" stroke-width=\"3\"/><ellipse cx=\"-14\" cy=\"-14\" rx=\"8\" ry=\"6\" fill=\"#fff\"/><ellipse cx=\"14\" cy=\"-14\" rx=\"8\" ry=\"6\" fill=\"#fff\"/><circle cx=\"-11\" cy=\"-14\" r=\"3\" fill=\"#111\"/><circle cx=\"17\" cy=\"-14\" r=\"3\" fill=\"#111\"/><path d=\"M-22 14 Q0 24 22 14\" fill=\"none\" stroke=\"#A0322A\" stroke-width=\"5\" stroke-linecap=\"round\"/></g><g transform=\"translate(465,440) scale(0.8)\"><circle r=\"26\" fill=\"#F5C542\" stroke=\"#9A6B00\" stroke-width=\"3\"/><circle r=\"19\" fill=\"none\" stroke=\"#9A6B00\" stroke-width=\"2\"/><text y=\"9\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"24\" font-weight=\"bold\" fill=\"#9A6B00\">Ð</text></g><g transform=\"translate(30,480) scale(0.6)\"><path d=\"M-30 -20 L-22 -48 L-6 -28 L6 -28 L22 -48 L30 -20 Q38 10 0 32 Q-38 10 -30 -20Z\" fill=\"#E8A23A\" stroke=\"#7A4A10\" stroke-width=\"3\"/><path d=\"M-18 8 Q0 30 18 8 Q0 18 -18 8Z\" fill=\"#FFF1D6\"/><circle cx=\"-11\" cy=\"-6\" r=\"3.5\" fill=\"#3A2A10\"/><circle cx=\"11\" cy=\"-6\" r=\"3.5\" fill=\"#3A2A10\"/><ellipse cx=\"0\" cy=\"8\" rx=\"5\" ry=\"3.5\" fill=\"#3A2A10\"/></g><g transform=\"translate(140,485) scale(0.6)\"><circle r=\"26\" fill=\"#F5C542\" stroke=\"#9A6B00\" stroke-width=\"3\"/><circle r=\"19\" fill=\"none\" stroke=\"#9A6B00\" stroke-width=\"2\"/><text y=\"9\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"24\" font-weight=\"bold\" fill=\"#9A6B00\">P</text></g><g transform=\"translate(285,482) scale(0.6)\"><ellipse cx=\"0\" cy=\"8\" rx=\"34\" ry=\"24\" fill=\"#5BA83B\" stroke=\"#2C5A1A\" stroke-width=\"3\"/><ellipse cx=\"-14\" cy=\"-14\" rx=\"14\" ry=\"11\" fill=\"#5BA83B\" stroke=\"#2C5A1A\" stroke-width=\"3\"/><ellipse cx=\"14\" cy=\"-14\" rx=\"14\" ry=\"11\" fill=\"#5BA83B\" stroke=\"#2C5A1A\" stroke-width=\"3\"/><ellipse cx=\"-14\" cy=\"-14\" rx=\"8\" ry=\"6\" fill=\"#fff\"/><ellipse cx=\"14\" cy=\"-14\" rx=\"8\" ry=\"6\" fill=\"#fff\"/><circle cx=\"-11\" cy=\"-14\" r=\"3\" fill=\"#111\"/><circle cx=\"17\" cy=\"-14\" r=\"3\" fill=\"#111\"/><path d=\"M-22 14 Q0 24 22 14\" fill=\"none\" stroke=\"#A0322A\" stroke-width=\"5\" stroke-linecap=\"round\"/></g><g transform=\"translate(355,488) scale(0.55)\"><circle r=\"26\" fill=\"#F5C542\" stroke=\"#9A6B00\" stroke-width=\"3\"/><circle r=\"19\" fill=\"none\" stroke=\"#9A6B00\" stroke-width=\"2\"/><text y=\"9\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"24\" font-weight=\"bold\" fill=\"#9A6B00\">Ð</text></g><g transform=\"translate(440,486) scale(0.6)\"><path d=\"M-30 -20 L-22 -48 L-6 -28 L6 -28 L22 -48 L30 -20 Q38 10 0 32 Q-38 10 -30 -20Z\" fill=\"#E8A23A\" stroke=\"#7A4A10\" stroke-width=\"3\"/><path d=\"M-18 8 Q0 30 18 8 Q0 18 -18 8Z\" fill=\"#FFF1D6\"/><circle cx=\"-11\" cy=\"-6\" r=\"3.5\" fill=\"#3A2A10\"/><circle cx=\"11\" cy=\"-6\" r=\"3.5\" fill=\"#3A2A10\"/><ellipse cx=\"0\" cy=\"8\" rx=\"5\" ry=\"3.5\" fill=\"#3A2A10\"/></g></g><text x=\"250\" y=\"62\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"30\" font-weight=\"bold\" fill=\"#fff\">haha.meme</text><text x=\"250\" y=\"";
+  var SVG_MID = "\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"";
+  var SVG_NAME_OPEN = "\" font-weight=\"bold\" fill=\"#fff\">";
+  var SVG_SUFFIX = "</text><text x=\"250\" y=\"468\" text-anchor=\"middle\" font-family=\"Arial\" font-size=\"24\" font-weight=\"bold\" fill=\"#fff\" letter-spacing=\"2\">agent id</text></svg>";
+
+  function metrics(label, tld) {
+    var n = (label || "").length + (tld || "").length + 1;
+    if (n < 1) n = 1;
+    var fsz = Math.trunc(420 / n / 0.58);
+    if (fsz > 96) fsz = 96;
+    if (fsz < 18) fsz = 18;
+    var num = fsz * 35;
+    var q = Math.trunc(num / 100);
+    var r = num % 100;
+    if (r > 50 || (r === 50 && q % 2 === 1)) q += 1;
+    return { fsz: fsz, y: 250 + q };
+  }
+
+  function xmlEsc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  window.hahaNft = function (full) {
+    var parts = String(full || "name.haha").split(".");
+    var label = parts[0];
+    var tld = parts[1] || "haha";
+    var m = metrics(label, tld);
+    var name = label + "." + tld;
+    return SVG_PREFIX + m.y + SVG_MID + m.fsz + SVG_NAME_OPEN + xmlEsc(name) + SVG_SUFFIX;
+  };
+})();

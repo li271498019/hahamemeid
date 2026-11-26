@@ -1,0 +1,30 @@
+{
+  "fixture": "verify",
+  "note": "文档样本。过日不补。全网 100000 用尽时 claimed 仍为 false",
+  "aiId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+  "dayIndex": 20781,
+  "cases": [
+    {
+      "id": "open",
+      "claimed": false,
+      "taskPackHash": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "verdict": null,
+      "points": 0
+    },
+    {
+      "id": "paid",
+      "claimed": true,
+      "taskPackHash": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "verdict": "Match",
+      "points": 30
+    },
+    {
+      "id": "queued",
+      "claimed": false,
+      "taskPackHash": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "verdict": null,
+      "points": 0,
+      "queue": "global-cap"
+    }
+  ]
+}

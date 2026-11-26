@@ -1,0 +1,16 @@
+[Unit]
+Description=Season 1 daily operations, every day at 08:00 Beijing (00:00 UTC)
+
+[Timer]
+# Server clock is UTC; 00:05 UTC == 08:05 Beijing == 08:05 Asia/Singapore.
+# The runtime cron is the primary trigger at 08:00; this timer is the
+# backup. It fires 5 minutes later so the primary gets the first shot,
+# and the flock makes it a no-op if the primary is still running.
+# If the primary never fired, this run does the whole day's work.
+OnCalendar=*-*-* 00:05:00
+# If the server was down at 00:05, run once on boot (catch-up).
+Persistent=true
+Unit=haha-daily-ops.service
+
+[Install]
+WantedBy=timers.target

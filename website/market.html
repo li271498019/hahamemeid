@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<script src="/js/boot.js?v=8"></script>
+<script src="/js/config.js?v=9"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F7931A">
+<title data-i18n-title="market.docTitle">haha.meme · 交易市场</title>
+<meta name="description" data-i18n="market.docDesc" content="只展示卖家挂单。购买和挂单都是复制给 agent 的指令。">
+<link rel="icon" href="/assets/logo/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/logo/favicon-180.png">
+<meta property="og:title" content="haha.meme · 交易市场">
+<meta property="og:description" content="只展示卖家挂单。购买和挂单都是复制给 agent 的指令。">
+<meta property="og:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<link rel="stylesheet" href="/css/site.css?v=24">
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="wrap">
+<header class="nav">
+  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40">haha.meme</a>
+    <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/market.html" aria-current="page"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html"><span data-i18n="nav.earn">赚取积分</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/scan.html"><span data-i18n="nav.scan">haha scan</span></a><a href="/how.html"><span data-i18n="nav.how">工作原理</span></a><a href="/season" data-i18n="nav.season">稀有域名空投第一季</a></nav>
+  <div class="nav-right">
+    <span class="hello" id="hello" hidden>Hi! <b id="hello-name"></b></span>
+
+    <div class="points" id="points"><img src="/assets/coins/_smiley-coin.svg" alt="" width="32" height="32"><span class="points-num" id="points-num">0</span></div>
+    <form class="login" id="login-form">
+      <label class="sr" for="ai" data-i18n="nav.loginPh">输入您的.ai域名</label>
+      <div class="login-field"><input id="ai" autocomplete="off" spellcheck="false" maxlength="32" placeholder="输入您的.ai域名" aria-label="输入您的.ai域名" data-i18n-placeholder="nav.loginPh" data-i18n-aria="nav.loginPh"><em>.ai</em></div>
+      <button type="submit" id="login-btn">进入</button>
+    </form>
+  </div>
+  <button type="button" class="lang-switch" id="lang-switch">EN</button>
+</header>
+
+<main><section class="page">
+  <p class="kicker" data-i18n="market.kicker">交易市场</p>
+  <p class="lede" data-i18n="market.lede">交易手续费1%，卖家支付。</p>
+  <div class="stats" id="stats"></div>
+  <div class="panel">
+    <form class="toolbar" id="find-form">
+      <input id="find" placeholder="搜完整名称，比如 abc123.meme" data-i18n-placeholder="market.findPh" style="flex:1;min-width:200px">
+      <button class="btn" type="submit" data-i18n="market.search">搜索</button>
+      <label class="sr" for="sort">排序</label>
+      <select id="sort">
+        <option value="low" data-i18n="market.sortLow">价格从低到高</option>
+        <option value="high" data-i18n="market.sortHigh">价格从高到低</option>
+        <option value="new" data-i18n="market.sortNew">最新挂单</option>
+      </select>
+    </form>
+    <div id="hit" class="search-hit"></div>
+    <div class="filters" id="filters">
+      <label><input type="checkbox" data-tld="haha"> .haha</label>
+      <label><input type="checkbox" data-tld="meme"> .meme</label>
+      <label><input type="checkbox" data-bucket="3l"> <span data-i18n="market.f3l">3 位纯字母</span></label>
+      <label><input type="checkbox" data-bucket="3d"> <span data-i18n="market.f3d">3 位纯数字</span></label>
+      <label><input type="checkbox" data-bucket="3m"> <span data-i18n="market.f3m">3 位字母数字</span></label>
+      <label><input type="checkbox" data-bucket="4l"> <span data-i18n="market.f4l">4 位纯字母</span></label>
+      <label><input type="checkbox" data-bucket="4d"> <span data-i18n="market.f4d">4 位纯数字</span></label>
+      <label><input type="checkbox" data-bucket="4m"> <span data-i18n="market.f4m">4 位字母数字</span></label>
+      <label><input type="checkbox" data-bucket="5p"> <span data-i18n="market.f5p">5 位以上纯字母或数字</span></label>
+      <label><input type="checkbox" data-bucket="5m"> <span data-i18n="market.f5m">5 位以上字母数字</span></label>
+      <label><input type="checkbox" data-bucket="rare"> <span data-i18n="market.frare">其他 · 1–2 位稀有名</span></label>
+    </div>
+    <p class="note" data-i18n="market.note">域名转手后 ERC-8004 agent 身份销毁、信誉清零。域名信誉值不跟随转移，信誉转账清零。</p>
+    <p class="note" data-i18n="market.withdrawNote">域名出售后，售出资金暂存合约，请复制提款指令给agent提取资金，市场合约已经开源，您的资金是安全的，谁也动不了！</p>
+    <p class="note" data-i18n="market.riskNote">风险提示：域名价格由市场决定，波动较大，不承诺任何收益。</p>
+  </div>
+  <div class="grid" id="grid"></div>
+  <p class="note" id="buy-confirm" hidden></p>
+  <div class="panel" id="mine-panel">
+    <div class="section-head">
+      <h2 data-i18n="market.mine">我的域名</h2>
+    </div>
+    <div class="actions" id="withdraw-row" hidden>
+      <button class="btn" type="button" data-withdraw data-i18n="market.copyWithdraw">复制提款指令</button>
+      <span class="muted" id="withdraw-amount"></span>
+    </div>
+    <div class="grid" id="mine"></div>
+  </div>
+  <div class="panel">
+    <h2 data-i18n="market.sales">最近成交</h2>
+    <div class="list" id="sales"></div>
+  </div>
+</section></main>
+<footer>haha.meme · haha id · <span data-i18n="footer.tagline">基于币安 .ai Agent ID 的链上agent身份信誉协议</span> · <a href="https://x.com/aihahameme" target="_blank" rel="noopener noreferrer">X</a> · <a href="https://t.me/aihahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目方"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg> <span data-i18n="footer.tgOwner">项目方</span></a> · <a href="https://t.me/idhahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目群组"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h9v-2.5c0-.85.33-1.59.88-2.16C7.4 14.12 6.16 13 5 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span data-i18n="footer.tgGroup">项目群组</span></a> · <a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a> · <a href="/skill.md">skill.md</a> · <a href="/api.html">API</a></footer>
+</div>
+<div id="toast" role="status"></div>
+<script src="/js/addresses.js?v=8"></script>
+<script src="/js/rpc.js?v=17"></script>
+<script src="/js/i18n.js?v=62"></script>
+<script src="/js/instructions.js?v=12"></script>
+<script src="/js/session.js?v=8"></script>
+<script src="/js/nft.js?v=9"></script>
+<script src="/js/ui.js?v=8"></script>
+
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  if (params.get("q")) document.getElementById("find").value = params.get("q");
+  var ZERO = "0x0000000000000000000000000000000000000000";
+  function T(key) { return HahaI18n.t(key); }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function weiToBnb(wei) {
+    var s = String(wei == null ? "0" : wei).trim();
+    if (!/^\d+$/.test(s)) return "0";
+    s = s.replace(/^0+(?=\d)/, "");
+    if (s.length <= 18) {
+      var frac = s.padStart(18, "0").replace(/0+$/, "");
+      return frac ? "0." + frac : "0";
+    }
+    var intPart = s.slice(0, s.length - 18);
+    var fracPart = s.slice(s.length - 18).replace(/0+$/, "");
+    return fracPart ? intPart + "." + fracPart : intPart;
+  }
+  /* 价格上限 10000 BNB、精度上限 18 位小数（M2）：只验数字格式不够，
+   * 天价或超精度价格不进指令。".5" 这种写法仍放行。 */
+  function priceOk(v) {
+    if (!/^\d*\.?\d+$/.test(v)) return false;
+    var parts = String(v).split(".");
+    if (parts[1] && parts[1].length > 18) return false;
+    var n = parseFloat(v);
+    return n > 0 && n <= 10000;
+  }
+  /* 规范化价格字符串再比较："1.0" 与 "1"、"001" 与 "1" 视为同一价。 */
+  function normPrice(v) {
+    var s = String(v == null ? "" : v).trim();
+    var parts = s.split(".");
+    var ip = parts[0].replace(/^0+(?=\d)/, "") || "0";
+    var fp = parts.length > 1 ? parts[1].replace(/0+$/, "") : "";
+    return fp ? ip + "." + fp : ip;
+  }
+  function readPrice(btn) {
+    var article = btn.closest("article");
+    var input = article ? article.querySelector(".price-input") : null;
+    var v = input ? input.value.trim() : "";
+    if (!priceOk(v)) {
+      HahaUI.toast(T("toast.needPrice"));
+      if (input) input.focus();
+      return null;
+    }
+    return v;
+  }
+  document.addEventListener("click", function (e) {
+    var listBtn = e.target.closest("[data-list]");
+    if (listBtn) {
+      var price = readPrice(listBtn);
+      if (price === null) return;
+      var name = listBtn.getAttribute("data-list");
+      HahaUI.copyText(hahaInstruction(HahaI18n.task("list", { price: price, name: name }))).then(function (ok) {
+        if (ok === false) return;
+        HahaUI.toast(T("toast.listCopied"));
+      });
+      return;
+    }
+    var repriceBtn = e.target.closest("[data-reprice]");
+    if (repriceBtn) {
+      var price2 = readPrice(repriceBtn);
+      if (price2 === null) return;
+      HahaUI.copyText(hahaInstruction(HahaI18n.task("reprice", { price: price2, name: repriceBtn.getAttribute("data-reprice") }))).then(function (ok) {
+        if (ok === false) return;
+        HahaUI.toast(T("toast.repriceCopied"));
+      });
+      return;
+    }
+    var cancelBtn = e.target.closest("[data-cancel]");
+    if (cancelBtn) {
+      HahaUI.copyText(hahaInstruction(HahaI18n.task("cancel", { name: cancelBtn.getAttribute("data-cancel") }))).then(function (ok) {
+        if (ok === false) return;
+        HahaUI.toast(T("toast.cancelCopied"));
+      });
+      return;
+    }
+    var clearBtn = e.target.closest("[data-clear-stale]");
+    if (clearBtn) {
+      HahaUI.copyText(hahaInstruction(HahaI18n.task("clearStale", { name: clearBtn.getAttribute("data-clear-stale") }))).then(function (ok) {
+        if (ok === false) return;
+        HahaUI.toast(T("toast.clearStaleCopied"));
+      });
+      return;
+    }
+    var withdrawBtn = e.target.closest("[data-withdraw]");
+    if (withdrawBtn) {
+      HahaUI.copyText(hahaInstruction(HahaI18n.task("withdraw"))).then(function (ok) {
+        if (ok === false) return;
+        HahaUI.toast(T("toast.withdrawCopied"));
+      });
+    }
+  });
+  function card(row, mode) {
+    var html = '<article class="card"><div class="nft">' + hahaNft(row.name) + '</div><h3>' + esc(row.name) + '</h3>';
+    if (mode !== "mine-open") html += '<p class="price">' + esc(row.price) + ' BNB</p>';
+    else html += '<p class="price">' + esc(T("market.notListed")) + '</p>';
+    if (mode === "sell" || mode === "mine-open") {
+      html += '<input class="price-input" type="text" inputmode="decimal" placeholder="' + esc(T("market.pricePh")) + '" aria-label="' + esc(T("market.priceAria")) + '">';
+    }
+    html += '<div class="actions">';
+    if (mode === "buy") {
+      html += '<button class="btn" type="button" data-buy="' + esc(row.name) + '" data-price="' + esc(row.price) + '">' + esc(T("market.copyBuy")) + '</button>';
+    }
+    /* 已挂单（row.price 不为空）不再给“复制挂单指令”按钮，只留改价和撤单；再挂单链上必 revert AlreadyListed。 */
+    if ((mode === "sell" || mode === "mine-open") && !row.price) {
+      html += '<button class="btn" type="button" data-list="' + esc(row.name) + '">' + esc(T("market.copyList")) + '</button>';
+    }
+    if (mode === "sell") {
+      html += '<button class="btn light" type="button" data-reprice="' + esc(row.name) + '">' + esc(T("market.copyReprice")) + '</button>';
+      html += '<button class="btn light" type="button" data-cancel="' + esc(row.name) + '">' + esc(T("market.copyCancel")) + '</button>';
+    }
+    /* 过期挂单：挂单卖家已不再是名字持有人，只有这时才出现清理按钮。 */
+    if (row.owner && row.seller && String(row.owner).toLowerCase() !== String(row.seller).toLowerCase()) {
+      html += '<button class="btn light" type="button" data-clear-stale="' + esc(row.name) + '">' + esc(T("market.copyClearStale")) + '</button>';
+    }
+    html += "</div></article>";
+    return html;
+  }
+  /* 购买后链上确认：每 10 秒查一次 /v1/names/{name}，最多 5 分钟。买家地址
+   * 已知时比 owner 是否已是买家；未知时比 owner 是否已不是卖家。查到变
+   * “已确认”；超时明确说未查到，并给去 scan 查的链接，不一直转圈。 */
+  var confirmTimer = null;
+  function stopConfirm() { if (confirmTimer) { clearInterval(confirmTimer); confirmTimer = null; } }
+  function startBuyConfirm(name, seller) {
+    var box = document.getElementById("buy-confirm");
+    if (!box) return;
+    stopConfirm();
+    box.hidden = false;
+    box.textContent = T("confirm.checking");
+    var buyer = "";
+    try { var s = window.HahaSession && HahaSession.get ? HahaSession.get() : null; buyer = s && s.address ? String(s.address).toLowerCase() : ""; } catch (err) {}
+    var tries = 0;
+    var maxTries = window.__confirmMaxTries || 30;
+    var gap = window.__confirmPollMs || 10000;
+    function finish(html) { stopConfirm(); box.innerHTML = html; }
+    function scanLink() { return ' <a href="/scan.html">' + esc(T("confirm.scan")) + '</a>'; }
+    function tick() {
+      tries++;
+      fetch((window.HAHA_INDEXER_BASE || "/api").replace(/\/$/, "") + "/v1/names/" + encodeURIComponent(name), { headers: { "accept": "application/json" } })
+        .then(function (res) { if (!res.ok) throw new Error(String(res.status)); return res.json(); })
+        .then(function (body) {
+          var owner = body && body.owner ? String(body.owner).toLowerCase() : "";
+          var ok = buyer ? owner === buyer : (!!owner && owner !== String(seller || "").toLowerCase());
+          if (ok) { finish(esc(T("confirm.done")) + scanLink()); return; }
+          if (tries >= maxTries) finish(esc(T("confirm.timeout")) + scanLink());
+        })
+        .catch(function () { if (tries >= maxTries) finish(esc(T("confirm.timeout")) + scanLink()); });
+    }
+    confirmTimer = setInterval(tick, gap);
+    tick();
+  }
+  document.addEventListener("click", function (e) {
+    var buy = e.target.closest("[data-buy]");
+    if (!buy) return;
+    var name = buy.getAttribute("data-buy");
+    var price = buy.getAttribute("data-price");
+    /* 购买价不直接信任索引器下发的 data-price（M2）：先验格式与范围，
+     * 再用链上 listings(tokenId) 的价格重新核对，不一致或查不到就不生成指令。 */
+    var parsed = parseFull(name);
+    if (!parsed || !priceOk(price)) { HahaUI.toast(T("toast.priceMismatch")); return; }
+    if (!window.HahaRPC || !HahaRPC.tokenIdOf || !HahaRPC.listings) { HahaUI.toast(T("toast.priceCheckFail")); return; }
+    var tokenId;
+    try { tokenId = HahaRPC.tokenIdOf(parsed.label, parsed.tld); } catch (err) { HahaUI.toast(T("toast.priceCheckFail")); return; }
+    HahaRPC.listings(tokenId).then(function (onchain) {
+      if (!onchain || !onchain.seller || String(onchain.seller).toLowerCase() === ZERO || !onchain.priceBnb) {
+        HahaUI.toast(T("toast.priceCheckFail"));
+        return;
+      }
+      if (normPrice(onchain.priceBnb) !== normPrice(price)) { HahaUI.toast(T("toast.priceMismatch")); return; }
+      HahaUI.copyText(hahaInstruction(HahaI18n.task("buy", { name: name, price: price }))).then(function (ok) {
+        if (ok === false) return;
+        HahaUI.toast(T("toast.buyCopied"));
+        startBuyConfirm(name, onchain.seller);
+      });
+    }).catch(function () { HahaUI.toast(T("toast.priceCheckFail")); });
+  });
+  function selected(attr) {
+    return Array.prototype.map.call(document.querySelectorAll("#filters input[" + attr + "]:checked"), function (el) { return el.getAttribute(attr); });
+  }
+  function bucketOf(label) {
+    var s = String(label || "");
+    if (s.length <= 2) return "rare";
+    var letters = /^[a-z]+$/.test(s);
+    var digits = /^[0-9]+$/.test(s);
+    if (s.length === 3) return letters ? "3l" : (digits ? "3d" : "3m");
+    if (s.length === 4) return letters ? "4l" : (digits ? "4d" : "4m");
+    return (letters || digits) ? "5p" : "5m";
+  }
+  function sortParam() {
+    var v = document.getElementById("sort").value;
+    if (v === "high") return "price_desc";
+    if (v === "new") return "listed_desc";
+    return "price_asc";
+  }
+  var renderSeq = 0;
+  function renderMine(session) {
+    var mine = document.getElementById("mine");
+    if (!session || !session.address) {
+      mine.innerHTML = '<p class="note" style="grid-column:1/-1">' + esc(T("market.mineGuest")) + '</p>';
+      return;
+    }
+    if (!window.HahaIndex || !HahaIndex.namesOf) {
+      mine.innerHTML = '<p class="note" style="grid-column:1/-1">' + esc(T("market.mineFail")) + '</p>';
+      return;
+    }
+    mine.innerHTML = '<p class="note" style="grid-column:1/-1">' + esc(T("common.loading")) + '</p>';
+    HahaIndex.namesOf(session.address).then(function (res) {
+      if (!res || res.error) {
+        mine.innerHTML = '<p class="note" style="grid-column:1/-1">' + esc(T("market.mineFail")) + '</p>';
+        return;
+      }
+      var items = res.items || [];
+      if (!items.length) {
+        mine.innerHTML = '<p class="note" style="grid-column:1/-1">' + esc(T("market.mineEmpty")) + ' <a href="/">' + esc(T("market.mintLink")) + '</a></p>';
+        return;
+      }
+      mine.innerHTML = items.map(function (it) {
+        var listed = it.listing && it.listing.seller && String(it.listing.seller).toLowerCase() !== ZERO;
+        if (listed) return card({ name: it.fullName, price: weiToBnb(it.listing.priceWei) }, "sell");
+        return card({ name: it.fullName }, "mine-open");
+      }).join("");
+    });
+  }
+  /* 提款按钮：只有登录用户在市场合约里有待提货款时才显示，平时隐藏。 */
+  function checkWithdraw(session) {
+    var row = document.getElementById("withdraw-row");
+    var amountEl = document.getElementById("withdraw-amount");
+    if (!session || !session.address || !window.HahaRPC || typeof HahaRPC.pendingWithdrawal !== "function") {
+      row.hidden = true;
+      return;
+    }
+    HahaRPC.pendingWithdrawal(session.address).then(function (wei) {
+      if (wei && wei !== "0") {
+        row.hidden = false;
+        amountEl.textContent = T("market.withdrawable") + " " + weiToBnb(wei) + " BNB";
+      } else {
+        row.hidden = true;
+      }
+    }).catch(function () { row.hidden = true; });
+  }
+  /* 市场顶部 5 格数据：手续费 + 地板价 + 最新成交价 + 上架数量 + 24 小时成交量。
+   * 后 4 格来自索引器 /v1/stats 的 market 一节；先画缓存值防闪烁，再后台刷新。 */
+  var marketStatsData = null;
+  function renderMarketStats() {
+    var statsEl = document.getElementById("stats");
+    var fee = '<div class="stat"><b>' + esc(T("common.fee")) + '</b><span>' + esc(T("common.feeNote")) + '</span></div>';
+    function statHtml(value, labelKey) {
+      return '<div class="stat"><b>' + esc(value) + '</b><span>' + esc(T(labelKey)) + '</span></div>';
+    }
+    function paint(m) {
+      var floor = (m && m.floorPriceWei) ? weiToBnb(m.floorPriceWei) + " BNB" : "—";
+      var latest = (m && m.latestTradePriceWei) ? weiToBnb(m.latestTradePriceWei) + " BNB" : "—";
+      var count = (m && m.listings != null) ? String(m.listings) : "—";
+      var vol = weiToBnb((m && m.volume24hWei) || "0") + " BNB";
+      statsEl.innerHTML = fee
+        + statHtml(floor, "market.floorPrice")
+        + statHtml(latest, "market.latestPrice")
+        + statHtml(count, "market.listingCount")
+        + statHtml(vol, "market.volume24h");
+    }
+    if (marketStatsData) paint(marketStatsData);
+    else statsEl.innerHTML = fee + statHtml("…", "market.floorPrice") + statHtml("…", "market.latestPrice") + statHtml("…", "market.listingCount") + statHtml("…", "market.volume24h");
+    if (!window.HahaIndex || typeof HahaIndex.stats !== "function") return;
+    HahaIndex.stats().then(function (res) {
+      if (res && res.market) { marketStatsData = res.market; paint(marketStatsData); }
+    }).catch(function () {});
+  }
+  function render() {
+    renderMarketStats();
+    var session = window.HahaSession ? HahaSession.get() : null;
+    renderMine(session);
+    checkWithdraw(session);
+    var mySeq = ++renderSeq;
+    var tlds = selected("data-tld");
+    var buckets = selected("data-bucket");
+    var gridEl = document.getElementById("grid");
+    var salesEl = document.getElementById("sales");
+    var index = window.HahaIndex;
+    if (!index || typeof index.listings !== "function") {
+      gridEl.innerHTML = '<p class="note">' + esc(T("common.chainFail")) + '</p>';
+      salesEl.innerHTML = '<div class="row"><span>' + esc(T("common.chainFail")) + '</span></div>';
+      return;
+    }
+    var listParams = { sort: sortParam(), limit: 24 };
+    if (tlds.length === 1) listParams.tld = tlds[0];
+    index.listings(listParams).then(function (res) {
+      if (mySeq !== renderSeq) return;
+      var items = (res && res.items) || [];
+      if (buckets.length) items = items.filter(function (it) { return buckets.indexOf(bucketOf(it.label)) >= 0; });
+      if (!items.length) {
+        gridEl.innerHTML = '<p class="note">' + esc(T("market.empty")) + '</p>';
+        return;
+      }
+      var myAddr = session && session.address ? String(session.address).toLowerCase() : "";
+      gridEl.innerHTML = items.map(function (it) {
+        var isMine = myAddr && it.seller && String(it.seller).toLowerCase() === myAddr;
+        return card({ name: it.fullName, price: weiToBnb(it.priceWei), seller: it.seller, owner: it.owner }, isMine ? "sell" : "buy");
+      }).join("");
+    }).catch(function () {
+      if (mySeq !== renderSeq) return;
+      gridEl.innerHTML = '<p class="note">' + esc(T("common.chainFail")) + '</p>';
+    });
+    index.trades({ sort: "time_desc", limit: 24 }).then(function (res) {
+      if (mySeq !== renderSeq) return;
+      var items = (res && res.items) || [];
+      if (!items.length) {
+        salesEl.innerHTML = '<div class="row"><span>' + esc(T("market.noSales")) + '</span></div>';
+        return;
+      }
+      salesEl.innerHTML = items.map(function (it) {
+        var when = HahaI18n.formatTime(it.tradedAt);
+        return '<div class="row"><b>' + esc(it.fullName) + '</b><span>' + esc(weiToBnb(it.priceWei)) + ' BNB · ' + esc(when) + '</span></div>';
+      }).join("");
+    }).catch(function () {
+      if (mySeq !== renderSeq) return;
+      salesEl.innerHTML = '<div class="row"><span>' + esc(T("common.chainFail")) + '</span></div>';
+    });
+  }
+  function parseFull(q) {
+    var parts = String(q || "").trim().toLowerCase().split(".");
+    if (parts.length !== 2) return null;
+    if (!/^[a-z0-9]{1,32}$/.test(parts[0])) return null;
+    if (parts[1] !== "haha" && parts[1] !== "meme") return null;
+    return { label: parts[0], tld: parts[1], full: parts[0] + "." + parts[1] };
+  }
+  function searchHit() {
+    var q = document.getElementById("find").value.trim().toLowerCase();
+    var hit = document.getElementById("hit");
+    if (!q) { hit.innerHTML = ""; return; }
+    var parsed = parseFull(q);
+    if (!parsed) { hit.innerHTML = '<div class="note">' + esc(T("market.badQuery")) + '</div>'; return; }
+    hit.innerHTML = '<div class="note">' + esc(T("common.loading")) + '</div>';
+    var index = window.HahaIndex;
+    var rpc = window.HahaRPC;
+    var looked = (index && index.name) ? index.name(parsed.full) : Promise.resolve(null);
+    looked.then(function (row) {
+      if (row && row.minted && row.owner) {
+        paintHit(parsed, row.owner, row.listing);
+        return "done";
+      }
+      if (!rpc || !rpc.lookupName) {
+        if (row && row.minted === false) {
+          hit.innerHTML = '<div class="note">' + esc(T("market.notMinted")) + ' <a href="/">' + esc(T("market.goMint")) + '</a></div>';
+          return "done";
+        }
+        throw new Error("no rpc");
+      }
+      return rpc.lookupName(parsed.label, parsed.tld).then(function (chain) {
+        if (!chain || !chain.owner) {
+          hit.innerHTML = '<div class="note">' + esc(T("market.notMinted")) + ' <a href="/">' + esc(T("market.goMint")) + '</a></div>';
+          return;
+        }
+        paintHit(parsed, chain.owner, null, chain.tokenId);
+      });
+    }).catch(function () {
+      hit.innerHTML = '<div class="note">' + esc(T("common.chainFail")) + '</div>';
+    });
+  }
+  function paintHit(parsed, owner, listing, tokenId) {
+    var hit = document.getElementById("hit");
+    if (listing && listing.seller && String(listing.seller).toLowerCase() !== ZERO) {
+      var price = weiToBnb(listing.priceWei);
+      hit.innerHTML = '<div class="note">' + esc(T("market.listed")) + ' · ' + esc(price) + ' BNB'
+        + ' <button class="btn" type="button" data-buy="' + esc(parsed.full) + '" data-price="' + esc(price) + '">' + esc(T("market.copyBuy")) + '</button></div>';
+      return;
+    }
+    if (!tokenId || !window.HahaRPC) {
+      hit.innerHTML = '<div class="note">' + esc(T("market.notForSale")) + '</div>';
+      return;
+    }
+    HahaRPC.listings(tokenId).then(function (onchain) {
+      if (onchain && onchain.seller && onchain.seller.toLowerCase() !== ZERO) {
+        hit.innerHTML = '<div class="note">' + esc(T("market.listed")) + ' · ' + esc(onchain.priceBnb) + ' BNB'
+          + ' <button class="btn" type="button" data-buy="' + esc(parsed.full) + '" data-price="' + esc(onchain.priceBnb) + '">' + esc(T("market.copyBuy")) + '</button></div>';
+      } else {
+        hit.innerHTML = '<div class="note">' + esc(T("market.notForSale")) + '</div>';
+      }
+    }).catch(function () {
+      hit.innerHTML = '<div class="note">' + esc(T("market.notForSale")) + '</div>';
+    });
+  }
+  document.getElementById("filters").addEventListener("change", render);
+  document.getElementById("sort").addEventListener("change", render);
+  document.getElementById("find-form").addEventListener("submit", function (e) { e.preventDefault(); searchHit(); });
+  window.hahaOnSession = render;
+  if (window.HahaI18n) HahaI18n.onChange(function () { render(); searchHit(); });
+  render();
+  if (document.getElementById("find").value.trim()) searchHit();
+})();
+</script>
+
+<script src="/js/rain.js?v=7"></script>
+</body>
+</html>

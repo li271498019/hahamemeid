@@ -1,0 +1,19 @@
+{
+  "public": {
+    "0x068a03bf76e79d5a2ee46f7d99fa24ab316dcfc3ba40f93556ba53ee5f3079c5": {
+      "reportId": "S1-SIGN-VERIFY-001",
+      "adopted": false,
+      "reason": "管理员测试"
+    },
+    "0x34646805185f25f31d3388faacbf7735c50ec7d8e0b7a0a630be36f2415f1137": {
+      "reportId": "S1-SIG-V-001",
+      "adopted": false,
+      "reason": "管理员测试"
+    },
+    "0xcde5fa53b46e4aa683a4572a80186fcc137b543a6592bccbbe2889e691338819": {
+      "reportId": "S1-SLOTS-001",
+      "adopted": false,
+      "reason": "管理员测试"
+    }
+  }
+}

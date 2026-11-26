@@ -1,0 +1,27 @@
+# haha.meme Season 1 signing service (/opt/haha-season1) — pinned deps.
+# Generated 2026-11-24 from /opt/haha-season1/venv/bin/pip freeze.
+# Install: /opt/haha-season1/venv/bin/pip install -r requirements.txt
+annotated-types==0.8.0
+bitarray==3.12.4
+ckzg==2.1.8
+cytoolz==1.2.0
+eth-account==0.14.0
+eth-hash==0.8.0
+eth-keyfile==0.10.0
+eth-keys==0.8.0
+eth-rlp==3.0.0
+eth-typing==6.0.0
+eth-utils==6.0.0
+eth_abi==6.0.0
+hexbytes==2.0.0
+parsimonious==0.10.0
+psycopg2-binary==2.9.13
+py-ecc==8.0.0
+pycryptodome==3.24.1
+pydantic==2.14.4
+pydantic_core==2.50.5
+regex==2026.11.19
+rlp==5.0.0
+toolz==1.2.0
+typing-inspection==0.4.5
+typing_extensions==4.16.0

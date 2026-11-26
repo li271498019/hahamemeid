@@ -165,7 +165,6 @@ def order_dict(row, logs=None):
         "status": status,
         "mintTx": hx(mint_tx),
         "tokenId": None if token_id is None else str(token_id),
-        "simError": None,
     }
     body["logCheck"] = log_check(body, logs)
     return body
@@ -177,11 +176,12 @@ def _with_logs(cur, row):
     return order_dict(row, logs)
 
 
-def orders_for_day(cur, day_index):
+def orders_for_day(cur, day_index, limit):
     cur.execute(
         "SELECT order_id, ai_id, applicant, recipient, label, tld, tier, status,"
-        " mint_tx, token_id FROM season1_orders WHERE day_index = %s ORDER BY order_id",
-        (day_index,))
+        " mint_tx, token_id FROM season1_orders WHERE day_index = %s ORDER BY order_id"
+        " LIMIT %s",
+        (day_index, limit))
     return [_with_logs(cur, row) for row in cur.fetchall()]
 
 
@@ -194,7 +194,7 @@ def order_by_id(cur, order_id):
     return None if row is None else _with_logs(cur, row)
 
 
-def leaderboard_rows(cur, day_index):
+def leaderboard_rows(cur, day_index, limit):
     """Per-person season leaderboard for one day (the daily ranking).
 
     One row per Merkle entry, in the same scope as the day's selection
@@ -227,8 +227,9 @@ def leaderboard_rows(cur, day_index):
         " LEFT JOIN points p ON p.ai_id = e.ai_id"
         " LEFT JOIN season1_orders o ON o.day_index = e.day_index AND o.ai_id = e.ai_id"
         " WHERE e.day_index = %s"
-        " ORDER BY (p.ai_id IS NULL), e.balance DESC, e.ai_id ASC",
-        (day_index,))
+        " ORDER BY (p.ai_id IS NULL), e.balance DESC, e.ai_id ASC"
+        " LIMIT %s",
+        (day_index, limit))
     out = []
     rank = 0
     for row in cur.fetchall():
@@ -244,7 +245,10 @@ def leaderboard_rows(cur, day_index):
             "aiId": hx(ai),
             "handle": handle,
             "name": first_name,
-            "balance": str(int(balance)),
+            # I4: a dirty leaf (valid=false) carries a fake balance from
+            # the raw Merkle leaf value — report null so no consumer
+            # mistakes it for real points. rank stays null as before.
+            "balance": str(int(balance)) if valid else None,
             "tier": "Reserved" if int(tier) == 0 else "Boundary",
             "appliedName": (label + (".meme" if int(tld) == 1 else ".haha")) if applied else None,
             "applyTx": hx(tx_hash) if applied else None,

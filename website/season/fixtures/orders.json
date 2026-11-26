@@ -1,0 +1,21 @@
+{
+  "fixture": "orders",
+  "note": "文档样本。一笔订单一条。没有批量铸造字段",
+  "dayIndex": 20781,
+  "orders": [
+    {
+      "orderId": "1",
+      "aiId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+      "applicant": "0x2222222222222222222222222222222222222222",
+      "recipient": "0x3333333333333333333333333333333333333333",
+      "label": "ab",
+      "tld": 0,
+      "tier": "Reserved",
+      "status": "Pending",
+      "mintTx": null,
+      "tokenId": "12345",
+      "simError": null,
+      "logCheck": "not-minted"
+    }
+  ]
+}

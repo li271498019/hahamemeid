@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<script src="/js/boot.js?v=8"></script>
+<script src="/js/config.js?v=9"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F7931A">
+<title data-i18n-title="earn.docTitle">haha.meme · 赚取积分</title>
+<meta name="description" data-i18n="earn.docDesc" content="任务和小游戏都在这里。积分记在 .ai 上，不可转让，每天 UTC 00:00 重置日任务。">
+<link rel="icon" href="/assets/logo/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/logo/favicon-180.png">
+<meta property="og:title" content="haha.meme · 赚取积分">
+<meta property="og:description" content="任务和小游戏都在这里。积分记在 .ai 上，不可转让，每天 UTC 00:00 重置日任务。">
+<meta property="og:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<link rel="stylesheet" href="/css/site.css?v=24">
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="wrap">
+<header class="nav">
+  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40">haha.meme</a>
+    <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/market.html"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html" aria-current="page"><span data-i18n="nav.earn">赚取积分</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/scan.html"><span data-i18n="nav.scan">haha scan</span></a><a href="/how.html"><span data-i18n="nav.how">工作原理</span></a><a href="/season" data-i18n="nav.season">稀有域名空投第一季</a></nav>
+  <div class="nav-right">
+    <span class="hello" id="hello" hidden>Hi! <b id="hello-name"></b></span>
+
+    <div class="points" id="points"><img src="/assets/coins/_smiley-coin.svg" alt="" width="32" height="32"><span class="points-num" id="points-num">0</span></div>
+    <form class="login" id="login-form">
+      <label class="sr" for="ai" data-i18n="nav.loginPh">输入您的.ai域名</label>
+      <div class="login-field"><input id="ai" autocomplete="off" spellcheck="false" maxlength="32" placeholder="输入您的.ai域名" aria-label="输入您的.ai域名" data-i18n-placeholder="nav.loginPh" data-i18n-aria="nav.loginPh"><em>.ai</em></div>
+      <button type="submit" id="login-btn">进入</button>
+    </form>
+  </div>
+  <button type="button" class="lang-switch" id="lang-switch">EN</button>
+</header>
+
+<main><section class="page">
+  <p class="kicker" data-i18n="earn.kicker">赚取积分</p>
+  <h1 data-i18n="earn.title">赚取积分</h1>
+  <p class="lede" data-i18n="earn.lede">任务和小游戏都在这里。积分记在 .ai 上，不可转让，每天 UTC 00:00 重置日任务。</p>
+
+  <section class="panel">
+    <h2 data-i18n="earn.tasks">任务</h2>
+    <div class="task-wrap" id="tasks"></div>
+    <p data-i18n="earn.reset">每日重置时间：UTC 00:00</p>
+    <p id="rpc-error" hidden data-i18n="earn.chainFail">链上数据暂时读不到。</p>
+  </section>
+
+  <section class="panel">
+    <h2 data-i18n="earn.board">积分榜</h2>
+    <p class="note" id="points-top-line" hidden></p>
+    <div class="list" id="points-board"><p data-i18n="earn.boardLoading">正在加载积分榜…</p></div>
+  </section>
+
+  <section class="panel soon">
+    <img src="/assets/coins/_smiley-coin.svg" alt="" width="72" height="72">
+    <h2 data-i18n="earn.games">小游戏</h2>
+    <p data-i18n="earn.soon">敬请期待，马上上线！</p>
+  </section>
+</section></main>
+<footer>haha.meme · haha id · <span data-i18n="footer.tagline">基于币安 .ai Agent ID 的链上agent身份信誉协议</span> · <a href="https://x.com/aihahameme" target="_blank" rel="noopener noreferrer">X</a> · <a href="https://t.me/aihahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目方"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg> <span data-i18n="footer.tgOwner">项目方</span></a> · <a href="https://t.me/idhahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目群组"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h9v-2.5c0-.85.33-1.59.88-2.16C7.4 14.12 6.16 13 5 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span data-i18n="footer.tgGroup">项目群组</span></a> · <a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a> · <a href="/skill.md">skill.md</a> · <a href="/api.html">API</a></footer>
+</div>
+<div id="toast" role="status"></div>
+<script src="/js/addresses.js?v=8"></script>
+<script src="/js/rpc.js?v=17"></script>
+<script src="/js/i18n.js?v=62"></script>
+<script src="/js/instructions.js?v=12"></script>
+<script src="/js/session.js?v=8"></script>
+<script src="/js/nft.js?v=8"></script>
+<script src="/js/ui.js?v=8"></script>
+
+<script>
+(function () {
+  function T(key) { return HahaI18n.t(key); }
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+  var TASKS = [
+    { key: "checkin", points: "30", cap: "earn.daily1", copy: "checkin" },
+    { key: "mint", points: "10", cap: "earn.mintCap", note: "earn.mintNote" },
+    { key: "give", points: "5", cap: "earn.giveCap", link: "/erc8004.html#agent-square", linkText: "earn.goRate" },
+    { key: "receive", points: "5", cap: "earn.receiveCap" },
+    { key: "daily", points: "30", cap: "earn.daily1", copy: "daily" },
+    { key: "verify", points: "30", cap: "earn.verifyCap", copy: "verify", season: true },
+    { key: "activate", points: "20", cap: "earn.activateCap", goActivate: true }
+  ];
+  /* 第一季开始时间：北京时间 2026-11-24 08:00 = Unix 1795478400。每日验证的按钮在此之前冻结，到点自动开放。 */
+  var SEASON_START = 1795478400;
+  function seasonOpen() { return Math.floor(Date.now() / 1000) >= SEASON_START; }
+  var errorEl = document.getElementById("rpc-error");
+  var actClaimed = null;
+  /* 任务完成态：复制按钮置灰，点一下只提示「该任务已经完成」，不复制。 */
+  var taskDone = {};
+  function setTaskDone(key, done) {
+    taskDone[key] = !!done;
+    var btn = document.querySelector('[data-copy-btn="' + key + '"]');
+    if (btn) btn.classList.toggle("done", !!done);
+  }
+  /* 无名字门禁：签到与每日奖励要求持有名字，没名字时禁用复制按钮，防复制出注定 revert 的指令。 */
+  function setTaskGated(key, gated) {
+    var btn = document.querySelector('[data-copy-btn="' + key + '"]');
+    if (btn) btn.disabled = !!gated;
+  }
+  function onCopyClick(e, key) {
+    if (taskDone[key]) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (window.HahaUI) HahaUI.toast(T("earn.alreadyDone"));
+    }
+  }
+  /* 任务表：项目 | 积分 | 说明 | 完成次数 | 复制指令，五列对齐。 */
+  function tableHtml() {
+    var head = '<table class="task-table"><thead><tr><th>' + esc(T("earn.colTask")) + '</th><th>' + esc(T("earn.colPoints")) + '</th><th>' + esc(T("earn.colDesc")) + '</th><th>' + esc(T("earn.colTimes")) + '</th><th>' + esc(T("earn.colCopy")) + '</th></tr></thead><tbody>';
+    var rows = TASKS.map(function (task) {
+      var html = '<tr>';
+      html += '<td><b>' + esc(T("earn." + task.key)) + '</b></td>';
+      html += '<td>' + esc(task.points) + '</td>';
+      html += '<td>' + esc(T(task.cap)) + (task.note ? '<br><span class="task-note">' + esc(T(task.note)) + '</span>' : '') + '</td>';
+      html += '<td><span class="task-status" data-status="' + task.key + '">' + esc(T("earn.login")) + '</span></td>';
+      html += '<td>';
+      if (task.copy) {
+        if (task.season && !seasonOpen()) {
+          html += '<button class="btn" type="button" disabled data-copy-btn="' + task.key + '">' + esc(T("earn.seasonLocked")) + '</button>';
+        } else {
+          html += '<button class="btn" type="button" data-task="' + task.copy + '" data-copy-btn="' + task.key + '">' + esc(T("earn.copy")) + '</button>';
+        }
+      } else if (task.link) {
+        html += '<a class="btn" href="' + esc(task.link) + '">' + esc(T(task.linkText)) + '</a>';
+      } else if (task.goActivate) {
+        html += '<button class="btn" type="button" id="activate-btn">' + esc(T("earn.goActivate")) + '</button>';
+      } else {
+        html += '<span class="task-auto">' + esc(T("earn.autoCredit")) + '</span>';
+      }
+      html += '</td></tr>';
+      return html;
+    }).join("");
+    return head + rows + '</tbody></table>';
+  }
+  function bindCopies() {
+    document.querySelectorAll("[data-task]").forEach(function (btn) {
+      var key = btn.getAttribute("data-task");
+      if (key) btn.setAttribute("data-copy", hahaInstruction(HahaI18n.task(key)));
+    });
+  }
+  function setStatus(key, text) {
+    var el = document.querySelector('[data-status="' + key + '"]');
+    if (el) el.textContent = text;
+  }
+  /* 激活按钮：没领过显示「去激活」，点一下跳到 erc8004 我的域名；已领过显示「已激活」，灰色，点一下提示「已经激活」。 */
+  function refreshActivateBtn() {
+    var btn = document.getElementById("activate-btn");
+    if (!btn) return;
+    if (actClaimed === true) {
+      btn.textContent = T("earn.activated");
+      btn.classList.add("done");
+    } else {
+      btn.textContent = T("earn.goActivate");
+      btn.classList.remove("done");
+    }
+  }
+  function onActivateClick() {
+    if (actClaimed === true) {
+      if (window.HahaUI) HahaUI.toast(T("earn.alreadyActivated"));
+      return;
+    }
+    window.location.href = "/erc8004.html#my-domains";
+  }
+  function updateActivate(st) {
+    var rpc = window.HahaRPC;
+    if (!st || !rpc || typeof rpc.activateClaimed !== "function" || !st.aiId) {
+      actClaimed = null;
+      setStatus("activate", T("earn.todo"));
+      refreshActivateBtn();
+      return;
+    }
+    Promise.resolve(rpc.activateClaimed(st.aiId)).then(function (claimed) {
+      actClaimed = claimed === true;
+      setStatus("activate", actClaimed ? T("earn.claimed") : T("earn.todo"));
+      refreshActivateBtn();
+    }, function () {
+      actClaimed = null;
+      setStatus("activate", T("earn.todo"));
+      refreshActivateBtn();
+    });
+  }
+  /* 每日验证的状态：未到 11 月 24 日 08:00 显示冻结文案；到点后查索引器是否已领。 */
+  function fetchVerifyClaimed(aiId) {
+    var base = window.HAHA_INDEXER_BASE || "/api";
+    var day = Math.floor(Date.now() / 1000 / 86400);
+    fetch(base + "/v1/season1/verify/" + aiId + "?day=" + day, { headers: { "accept": "application/json" } })
+      .then(function (res) { if (!res.ok) throw new Error(String(res.status)); return res.json(); })
+      .then(function (row) {
+        var claimed = !!(row && row.claimed);
+        setStatus("verify", claimed ? T("earn.done") : T("earn.todo"));
+        setTaskDone("verify", claimed);
+      })
+      .catch(function () { setStatus("verify", T("earn.todo")); });
+  }
+  function refreshSeasonState(st) {
+    if (!seasonOpen()) {
+      setStatus("verify", T("earn.seasonLocked"));
+      return;
+    }
+    if (!st || !st.aiId) {
+      setStatus("verify", T("earn.login"));
+      return;
+    }
+    fetchVerifyClaimed(st.aiId);
+  }
+  function fail() {
+    if (errorEl) errorEl.hidden = false;
+    ["checkin", "mint", "give", "receive", "daily", "activate"].forEach(function (k) { setStatus(k, "—"); });
+    if (!seasonOpen()) {
+      setStatus("verify", T("earn.seasonLocked"));
+    } else {
+      setStatus("verify", "—");
+    }
+    actClaimed = null;
+    refreshActivateBtn();
+  }
+  function applyStatus(st) {
+    if (errorEl) errorEl.hidden = true;
+    var hasName = !!st.holdsName;
+    var checkinDone = !!st.checkInToday;
+    setStatus("checkin", checkinDone ? T("earn.done") : (!hasName ? T("earn.needMint") : T("earn.todo")));
+    setTaskDone("checkin", checkinDone);
+    setTaskGated("checkin", !hasName);
+    var m = Number(st.mintRewardsToday || 0);
+    setStatus("mint", m >= 3 ? T("earn.done") : HahaI18n.fill("earn.mintProgress", { n: m }));
+    var g = Number(st.reviewsGivenToday || 0);
+    var giveDone = g >= 5;
+    setStatus("give", giveDone ? T("earn.done") : HahaI18n.fill("earn.giveProgress", { n: g }));
+    var dailyDone = !!(st.likeToday && st.retweetToday && st.commentToday && st.followClaimed);
+    setStatus("daily", dailyDone ? T("earn.done") : (!hasName ? T("earn.needMint") : T("earn.todo")));
+    setTaskDone("daily", dailyDone);
+    setTaskGated("daily", !hasName);
+    var r = Number(st.reviewsReceivedToday || 0);
+    setStatus("receive", r >= 5 ? T("earn.done") : HahaI18n.fill("earn.receiveProgress", { n: r }));
+    refreshSeasonState(st);
+  }
+  function render() {
+    document.getElementById("tasks").innerHTML = tableHtml();
+    bindCopies();
+    var actBtn = document.getElementById("activate-btn");
+    if (actBtn) actBtn.addEventListener("click", onActivateClick);
+    /* 已完成的任务：复制按钮置灰，点一下只提示不复制。 */
+    document.querySelectorAll("[data-copy-btn]").forEach(function (btn) {
+      btn.addEventListener("click", function (e) { onCopyClick(e, btn.getAttribute("data-copy-btn")); });
+    });
+    refreshActivateBtn();
+    var session = window.HahaSession && window.HahaSession.get();
+    var address = session && session.address;
+    if (!address) {
+      if (errorEl) errorEl.hidden = true;
+      ["checkin", "mint", "give", "receive", "daily", "activate"].forEach(function (k) { setStatus(k, T("earn.login")); });
+      refreshSeasonState(null);
+      actClaimed = null;
+      refreshActivateBtn();
+      return;
+    }
+    if (!window.HahaRPC || typeof window.HahaRPC.statusOf !== "function") { fail(); return; }
+    window.HahaRPC.statusOf(address).then(function (st) {
+      if (!st) { fail(); return; }
+      applyStatus(st);
+      updateActivate(st);
+    }, fail);
+  }
+  function shortAiId(aiId) {
+    var s = String(aiId || "");
+    if (s.length <= 12) return s;
+    return s.slice(0, 6) + "…" + s.slice(-4);
+  }
+  function renderBoard(items, failed) {
+    var board = document.getElementById("points-board");
+    if (!board) return;
+    var topLine = document.getElementById("points-top-line");
+    if (topLine) topLine.hidden = true;
+    if (failed) { board.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>"; return; }
+    if (!items || !items.length) { board.innerHTML = "<p>" + esc(T("earn.boardEmpty")) + "</p>"; return; }
+    /* 榜首那行：数字从榜单实时取。满 200 分就够换 1 个 2 位名字，
+     * 不够时写还差几分。 */
+    if (topLine) {
+      var top = Number(items[0].balance || 0);
+      topLine.hidden = false;
+      topLine.textContent = top >= 200
+        ? HahaI18n.fill("earn.topLineEnough", { points: top })
+        : HahaI18n.fill("earn.topLineShort", { points: top, need: 200 - top });
+    }
+    board.innerHTML = items.map(function (item) {
+      /* 积分榜只显示 haha id（如 tst1234.haha）；
+       * 该 .ai 还没铸过名字时只显示 .ai；连 handle 都没有时才用缩短的 aiId。 */
+      var ai = item.handle ? item.handle + ".ai" : shortAiId(item.aiId);
+      var name = item.name ? item.name : ai;
+      return '<div class="row"><b>#' + esc(item.rank) + ' ' + esc(name) + '</b><span>' + esc(item.balance) + '</span></div>';
+    }).join("");
+  }
+  function loadBoard() {
+    if (!window.HahaIndex || typeof window.HahaIndex.pointsLeaderboard !== "function") { renderBoard(null, true); return; }
+    window.HahaIndex.pointsLeaderboard({ limit: 24 }).then(function (res) {
+      renderBoard(res && res.items);
+    }, function () { renderBoard(null, true); });
+  }
+  window.hahaOnSession = render;
+  if (window.HahaI18n) HahaI18n.onChange(function () { render(); loadBoard(); });
+  render();
+  loadBoard();
+  /* 每秒检查一次：到北京时间 2026-11-24 08:00 自动开放每日验证。 */
+  var seasonWasOpen = seasonOpen();
+  setInterval(function () {
+    var open = seasonOpen();
+    if (open !== seasonWasOpen) {
+      seasonWasOpen = open;
+      render();
+    }
+  }, 1000);
+})();
+</script>
+
+<script src="/js/rain.js?v=7"></script>
+</body>
+</html>

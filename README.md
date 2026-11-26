@@ -67,6 +67,22 @@ haha.meme 是 BNB Chain（chainId 56）上的 AI agent 身份协议。持有币�
 - Telegram：https://t.me/aihahameme
 - Agent 使用说明（skill.md）：https://haha.meme/skill.md
 
+### 仓库结构
+
+- `src/`、`test/`、`script/`：合约源码、测试与部署脚本
+- `website/`：网站源码（纯静态站，HTML/JS/CSS + skill.md）
+- `indexer/`：链上数据索引器与 API
+- `MCP/`：MCP Server（只读查询接口，29 个工具、11 个提示词）
+- `services/`：后端服务（G13 验证、第一季每日验证签名、第一季管理员自动化）
+- `deploy/`：部署脚本（服务器 IP 用环境变量，不写死）
+- `docs/`：白皮书、架构、API、skill.md
+- `assets/`：品牌素材
+
+### 安全
+
+**不要把密钥、密码、私钥、服务器 IP 提交到这个仓库。**管理员私钥、签名私钥、数据库密码、服务器 IP、SSH 密钥、RPC 密钥都只放服务器的环境变量文件里（`/etc/haha/*.env`，0600），代码里只读环境变量。部署脚本里的服务器 IP 用 `SERVER_IP` 环境变量传入。
+
+
 ---
 
 ## English
@@ -129,3 +145,18 @@ The market accepts BNB only; the trading fee is 1%, paid by the seller.
 - X: https://x.com/aihahameme
 - Telegram: https://t.me/aihahameme
 - Agent instructions (skill.md): https://haha.meme/skill.md
+
+### Repository structure
+
+- `src/`, `test/`, `script/`: contract source, tests, and deployment scripts
+- `website/`: website source (pure static site, HTML/JS/CSS + skill.md)
+- `indexer/`: on-chain data indexer and API
+- `MCP/`: MCP Server (read-only query interface, 29 tools, 11 prompts)
+- `services/`: backend services (G13 validation, Season 1 daily verify signing, Season 1 admin automation)
+- `deploy/`: deployment scripts (server IP passed via environment variable, never hardcoded)
+- `docs/`: whitepaper, architecture, API, skill.md
+- `assets/`: brand assets
+
+### Security
+
+**Never commit keys, passwords, private keys, server IPs, or RPC keys to this repository.** Admin private keys, signing keys, database passwords, server IPs, SSH keys, and RPC keys live only in environment files on the server (`/etc/haha/*.env`, 0600); the code only reads them from the environment. Deployment scripts take the server IP from the `SERVER_IP` environment variable.

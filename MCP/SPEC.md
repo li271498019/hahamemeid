@@ -133,7 +133,7 @@
 - **部署到服务器**：从公开库拉 `MCP/` 代码到服务器 → `npm install`（装依赖，只在服务器上用）→ `npm run build` → 重启 systemd 服务 `haha-mcp`。与网站、索引器的部署流程同一套。
 - **用户不用 npm / npx**：用户不下载包、不装 Node.js、不跑 npx。用户只在 agent 配置里贴一个网址。
 - **用户接入方式**（网站与 README 用同一份）：
-  - Claude Code：`claude mcp add --transport http haha-meme https://haha.meme/mcp`
+  - 直接跟你的 agent 说：`请连接数据源接口：https://haha.meme/mcp`（最快，不用改配置、不用重启）
   - Claude Desktop / Cursor / VS Code 等（配置文件里加）：
     ```json
     {

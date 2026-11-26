@@ -12,10 +12,10 @@ Any MCP-compatible agent (Claude Desktop, Claude Code, Cursor, VS Code, Windsurf
 
 The public server is at **`https://haha.meme/mcp`**. Add it to your agent — no install, no API key.
 
-**Claude Code:**
+Just tell your agent:
 
-```sh
-claude mcp add --transport http haha-meme https://haha.meme/mcp
+```
+Connect to the data source: https://haha.meme/mcp
 ```
 
 **Claude Desktop / Cursor / VS Code / others** — add this to the MCP config

@@ -37,8 +37,28 @@ Then ask your agent: *“Use haha-meme to get the stats.”*
 
 ```sh
 curl https://haha.meme/mcp/health
-# {"ok":true,"service":"haha-meme-mcp","version":"1.0.0","tools":29}
+# {"ok":true,"service":"haha-meme-mcp","version":"1.1.0","tools":29}
 ```
+
+## Usage stats (v1.1.0)
+
+`GET https://haha.meme/mcp/stats` returns aggregates (no raw IPs):
+
+```json
+{
+  "ok": true,
+  "service": "haha-meme-mcp",
+  "version": "1.1.0",
+  "online": { "sessions": 2, "list": [ { "id": "a1b2c3d4", "since": "...", "lastSeen": "...", "client": "node", "requests": 12, "toolCalls": 4, "topTool": "get_stats" } ] },
+  "today": { "date": "2026-11-26", "dau": 3, "sessions": 4, "requests": 60, "toolCalls": 25, "topTools": [["get_stats", 10]] },
+  "history": [ { "date": "2026-11-26", "dau": 3, "sessions": 4, "requests": 60, "toolCalls": 25 } ]
+}
+```
+
+- **DAU** (`today.dau`) = distinct client IPs on that UTC day (one IP ≈ one user; a reconnect from the same IP counts once).
+- **sessions** = distinct MCP session ids that day (a reconnect = a new session).
+- **online** = sessions connected right now. A session idle for 30 minutes is expired automatically (the client SDK's `close()` sends no DELETE, so the server cannot rely on disconnect notifications); a client that comes back re-initializes as a new session.
+- Data is persisted to `data/daily-stats.json` (kept 90 days) so restarts don't lose the day's counts. Env: `HAHA_MCP_STATS_FILE`, `HAHA_MCP_SESSION_IDLE_MS` (default 30 min).
 
 Or use the MCP Inspector:
 

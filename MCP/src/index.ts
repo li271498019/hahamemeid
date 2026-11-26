@@ -106,7 +106,9 @@ async function main(): Promise<void> {
         await handleMcp(req, res);
         return;
       }
-      if (req.method === "GET" && url.pathname === "/health") {
+      if (req.method === "GET" && (url.pathname === "/health" || url.pathname === "/mcp/health")) {
+        // /mcp/health: nginx proxies the full /mcp prefix through, so the
+        // public health URL arrives as /mcp/health. Accept both.
         res.writeHead(200, { "content-type": "application/json" });
         res.end(
           JSON.stringify({

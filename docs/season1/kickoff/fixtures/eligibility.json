@@ -1,0 +1,43 @@
+{
+  "fixture": "eligibility",
+  "note": "文档样本。balance 是快照余额，balanceNow 是当前余额",
+  "aiId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+  "dayIndex": 20781,
+  "cases": [
+    {
+      "id": "reserved",
+      "status": "reserved",
+      "reason": null,
+      "balance": "400",
+      "balanceNow": "400"
+    },
+    {
+      "id": "boundary",
+      "status": "boundary",
+      "reason": null,
+      "balance": "200",
+      "balanceNow": "200"
+    },
+    {
+      "id": "below-cutoff",
+      "status": "excluded",
+      "reason": "below-cutoff",
+      "balance": "190",
+      "balanceNow": "190"
+    },
+    {
+      "id": "pending",
+      "status": "excluded",
+      "reason": "pending",
+      "balance": "400",
+      "balanceNow": "200"
+    },
+    {
+      "id": "fulfilled",
+      "status": "excluded",
+      "reason": "fulfilled",
+      "balance": "400",
+      "balanceNow": "200"
+    }
+  ]
+}

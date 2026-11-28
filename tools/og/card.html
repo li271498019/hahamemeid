@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: "OG Hei";
+    src: url("file:///usr/share/fonts/truetype/wqy/wqy-microhei.ttc") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: block;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1200px; height: 630px; background: #000; }
+  .card {
+    width: 1200px;
+    height: 630px;
+    background: #000;
+    color: #f6f1e7;
+    font-family: "OG Hei", "WenQuanYi Micro Hei", "Droid Sans Fallback", sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 56px;
+    padding: 72px 76px;
+    position: relative;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 28px;
+    border: 1px solid rgba(245, 197, 66, 0.45);
+    border-radius: 28px;
+    pointer-events: none;
+  }
+  .mark {
+    width: 320px;
+    height: 320px;
+    flex: none;
+  }
+  .mark img { width: 100%; height: 100%; display: block; }
+  .copy { min-width: 0; flex: 1; padding-right: 8px; }
+  .kicker {
+    margin: 0;
+    color: #f5c542;
+    font-size: 22px;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+  }
+  h1 {
+    margin: 18px 0 0;
+    font-size: 72px;
+    line-height: 1.12;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: #f7f2ea;
+    white-space: pre-line;
+  }
+  .sub {
+    margin: 22px 0 0;
+    font-size: 32px;
+    line-height: 1.35;
+    color: #f0e2c4;
+  }
+  .en {
+    margin: 14px 0 0;
+    font-size: 24px;
+    line-height: 1.35;
+    color: #b7a48a;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  .bar {
+    margin-top: 28px;
+    width: 84px;
+    height: 4px;
+    background: #f5c542;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="mark"><img id="logo" alt=""></div>
+    <div class="copy">
+      <p class="kicker" id="kicker"></p>
+      <h1 id="title"></h1>
+      <p class="sub" id="sub"></p>
+      <p class="en" id="en"></p>
+      <div class="bar"></div>
+    </div>
+  </div>
+</body>
+</html>

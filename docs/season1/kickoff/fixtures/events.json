@@ -1,0 +1,23 @@
+{
+  "fixture": "events",
+  "note": "文档样本。topic0 由 D 在 handoff.json 里按真实 ABI 填。这里只固定事件名和字段，不是链上日志",
+  "season1": [
+    "DayRootSet",
+    "Redeemed",
+    "FulfillmentAttested",
+    "Verified",
+    "FindingCommitted",
+    "CanonicalAssigned",
+    "FindingPaid",
+    "ValidatorSet",
+    "RewardSignerSet",
+    "TaskPackSet",
+    "AccidentDeclared",
+    "AccidentRefunded",
+    "AccidentCompensationDeferred",
+    "AccidentCompensated"
+  ],
+  "existing": ["PointsChanged", "NameMinted", "Transfer"],
+  "fulfillmentAttestedFields": ["orderId", "tokenId", "recipient", "mintTxHash"],
+  "doNotEmit": ["MintConfirmed"]
+}

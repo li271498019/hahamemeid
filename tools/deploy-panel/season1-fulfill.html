@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Season1 铸造发放面板</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Season1 铸造发放面板</div>
+    <div class="meta">
+      <span id="meta-solc">adminMint → Registrar</span>
+    </div>
+    <div class="wallet-box">
+      <span id="net-badge" class="badge badge-gray">未连接</span>
+      <span id="addr" class="addr">—</span>
+      <span id="balance" class="balance">—</span>
+      <button id="btn-connect" class="btn btn-primary">连接 MetaMask</button>
+      <button id="btn-connect-okx" class="btn btn-primary">连接 OKX</button>
+    </div>
+  </header>
+
+  <div id="net-warning" class="net-warning hidden">
+    当前网络不是目标网络，请切换。
+    <button id="btn-switch-net" class="btn btn-warn">一键切换</button>
+  </div>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h3>固定参数（不可改）</h3>
+      <dl class="params">
+        <dt>管理员</dt><dd id="p-admin">—</dd>
+        <dt>Season1 模块</dt><dd id="p-season1">—</dd>
+        <dt>Registrar</dt><dd id="p-registrar">—</dd>
+        <dt>adminMint selector</dt><dd id="p-selector">0x65f5a090</dd>
+      </dl>
+      <h3>模式</h3>
+      <div class="mode-switch">
+        <button id="btn-mainnet" class="btn btn-outline">BSC 主网 (56)</button>
+        <button id="btn-testnet" class="btn btn-outline">BSC 测试网 (97)</button>
+      </div>
+      <h3>进度</h3>
+      <div class="progress-actions">
+        <button id="btn-export" class="btn btn-outline">导出发放进度</button>
+        <button id="btn-import" class="btn btn-outline">导入发放进度</button>
+        <input type="file" id="import-file" accept="application/json" class="hidden" />
+      </div>
+      <p class="hint">发放进度按 chainId 隔离。每名字单独签名，无「全部签名」。</p>
+    </aside>
+
+    <section class="content">
+      <h2>发放说明（既定订单铸造，非空投）</h2>
+      <p class="hint">
+        这是对 Season1 里已 <code>Pending</code> 兑换订单的既定 <code>adminMint</code> 铸造发放，不新增空投规则。
+        每条订单一个名字，逐笔单独签名；不提供「全部自动签名」。管理员私钥不进本面板、不进服务器，由浏览器钱包逐笔签名。
+      </p>
+
+      <h2 class="mt">选取兑换订单（只读核对）</h2>
+      <div class="verify-box" style="max-width:680px">
+        <p class="hint" style="margin:0 0 8px">
+          输入 orderId（来自 <code>Redeemed</code> 事件 / A 的只读 API <code>/v1/season1/orders</code>），面板读链上
+          <code>order(orderId)</code> 核对原收件人与域名，并用 <code>registrar.isMinted(namehash)</code> 查重。
+        </p>
+        <div style="display:flex;gap:8px">
+          <input id="order-id" type="text" placeholder="orderId（数字）" style="flex:1" />
+          <button id="btn-load-order" class="btn btn-primary">读订单</button>
+        </div>
+        <div id="order-detail" class="sr-result"></div>
+      </div>
+
+      <h2 class="mt">铸造发放（逐笔签名）</h2>
+      <div class="verify-box" style="max-width:680px">
+        <div id="fulfill-actions" class="sr-actions">
+          <button id="btn-simulate" class="btn btn-outline">① 模拟 adminMint（eth_call）</button>
+          <button id="btn-mint" class="btn btn-primary">② 签名并广播 adminMint</button>
+          <button id="btn-verify-receipt" class="btn btn-outline">③ 核对回执与铸造事件</button>
+          <button id="btn-attest" class="btn btn-outline">④ 见证发放 attestFulfillment</button>
+        </div>
+        <div id="fulfill-result" class="sr-result"></div>
+      </div>
+
+      <h2 class="mt">本批发放状态</h2>
+      <div id="fulfill-list" class="steps"></div>
+    </section>
+  </main>
+
+  <script src="/vendor/ethers.umd.min.js"></script>
+  <script type="module" src="season1-fulfill.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>第一季发放（仅本机）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<p>这个页面只应通过 127.0.0.1 打开。私钥留在管理员钱包里，页面不接收私钥。测试注入的 EIP-1193 不是管理员真实钱包，不能把它的签名写成已经上链。</p>
+<p id="wallet"></p>
+<button id="connect" type="button">连接钱包</button>
+<div id="orders"></div>
+<script src="/app.js"></script>
+<script>
+var account = null;
+var chainId = null;
+document.getElementById("connect").onclick = async function () {
+  if (!window.ethereum) { document.getElementById("wallet").textContent = "没有 EIP-1193 钱包"; return; }
+  var accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+  account = accounts[0];
+  chainId = Number(await window.ethereum.request({ method: "eth_chainId" }));
+  document.getElementById("wallet").textContent = account + " chain " + chainId;
+  await refresh();
+};
+async function refresh() {
+  var res = await fetch("/api/orders");
+  var body = await res.json();
+  var root = document.getElementById("orders");
+  root.textContent = "";
+  body.orders.forEach(function (order) {
+    var p = document.createElement("p");
+    p.textContent = order.orderId + " " + order.label + " " + order.recipient + " " + (order.local ? order.local.status : "idle") + " " + (order.local && order.local.hash ? order.local.hash : "");
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = "签名这一笔";
+    b.onclick = function () { sendOne(order); };
+    p.appendChild(b);
+    var note = document.createElement("span");
+    note.textContent = " 退款：" + order.accident.reason;
+    p.appendChild(note);
+    root.appendChild(p);
+  });
+}
+async function sendOne(order) {
+  var preparedRes = await fetch("/api/prepare", { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ orderId: order.orderId, chainId: chainId, account: account }) });
+  var prepared = await preparedRes.json();
+  if (!preparedRes.ok) { alert(prepared.error); return; }
+  var gate = canSend({ chainId: chainId, account: account, prepared: prepared, localStatus: order.local && order.local.status });
+  if (gate) { alert(gate); return; }
+  var tx = walletRequest(prepared);
+  var hash;
+  try {
+    hash = await window.ethereum.request({ method: "eth_sendTransaction", params: [tx] });
+  } catch (err) {
+    document.getElementById("wallet").textContent = "未签名，没有广播：" + (err && err.message ? err.message : "rejected");
+    return;
+  }
+  await fetch("/api/submitted", { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ orderId: order.orderId, hash: hash }) });
+  var receipt = await window.ethereum.request({ method: "eth_getTransactionReceipt", params: [hash] });
+  if (!receipt) {
+    document.getElementById("wallet").textContent = "已提交仍 pending：" + hash;
+    await refresh();
+    return;
+  }
+  var logs = receipt.logs || [];
+  await fetch("/api/receipt", { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ orderId: order.orderId, receipt: receipt, logs: logs }) });
+  await refresh();
+}
+</script>
+</body>
+</html>

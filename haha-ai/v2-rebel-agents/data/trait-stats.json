@@ -1,0 +1,70 @@
+{
+ "type": {
+  "human": 429,
+  "alien": 54,
+  "android": 143,
+  "hologram": 76,
+  "ape": 96,
+  "zombie": 78,
+  "skull": 36,
+  "dog": 88
+ },
+ "head": {
+  "cap": 65,
+  "thirdeye": 34,
+  "long": 66,
+  "cables": 55,
+  "hood": 92,
+  "spiky": 43,
+  "none": 189,
+  "beanie": 85,
+  "wild": 60,
+  "halo": 33,
+  "headphones": 71,
+  "antenna": 27,
+  "short": 94,
+  "mohawk": 72,
+  "crown": 14
+ },
+ "eyes": {
+  "shades": 115,
+  "normal": 471,
+  "laser": 101,
+  "visor": 90,
+  "patch": 51,
+  "cybereye": 54,
+  "angry": 57,
+  "3d": 61
+ },
+ "mouth": {
+  "none": 532,
+  "cigarette": 97,
+  "teeth": 74,
+  "vape": 71,
+  "bandana": 80,
+  "pipe": 59,
+  "smile": 87
+ },
+ "clothes": {
+  "none": 1000
+ },
+ "facial_hair": {
+  "beard": 49,
+  "goatee": 40,
+  "mustache": 41
+ },
+ "earring": {
+  "True": 88
+ },
+ "chain": {
+  "True": 118
+ },
+ "hair": {
+  "spiky": 35,
+  "long": 21,
+  "short": 25
+ },
+ "glitch": {
+  "True": 21
+ }
+}

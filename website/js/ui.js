@@ -78,17 +78,22 @@
     if (num && data) {
       num.textContent = formatPoints(window.HahaSession.points());
       if (data.address && window.HahaRPC && window.HahaRPC.statusOf) {
-        window.HahaRPC.statusOf(data.address).then(function (status) {
+        var want = data.address;
+        window.HahaRPC.statusOf(want).then(function (status) {
+          var cur = window.HahaSession.get();
+          if (!cur || cur.address !== want) return;
           if (!status) {
+            num.title = tr("toast.chain", "链上数据暂时读不到");
+            return;
+          }
+          num.title = "";
+          window.HahaSession.setPoints(status.balance);
+          num.textContent = formatPoints(status.balance);
+        }).catch(function () {
+          var cur = window.HahaSession.get();
+          if (!cur || cur.address !== want) return;
           num.title = tr("toast.chain", "链上数据暂时读不到");
-          return;
-        }
-        num.title = "";
-        window.HahaSession.setPoints(status.balance);
-        num.textContent = formatPoints(status.balance);
-      }).catch(function () {
-        num.title = tr("toast.chain", "链上数据暂时读不到");
-      });
+        });
       }
     }
     if (btn) btn.textContent = data ? tr("nav.exit", "退出") : tr("nav.enter", "进入");
@@ -109,9 +114,13 @@
     copyText(text).then(function (ok) {
       if (ok === false) return;
       var prev = btn.textContent;
+      var i18nKey = btn.getAttribute("data-i18n");
       btn.textContent = tr("toast.copied", "已复制");
       toast(tr("toast.instruction", "指令已复制"));
-      setTimeout(function () { btn.textContent = prev; }, 1200);
+      setTimeout(function () {
+        if (!btn.isConnected) return;
+        btn.textContent = i18nKey ? tr(i18nKey, prev) : prev;
+      }, 1200);
     });
   });
 

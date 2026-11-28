@@ -6,7 +6,10 @@
   var STR = {
     zh: {
       "lang.switch": "切换为英文",
+      "nav.skip": "跳到主要内容",
       "nav.haha": "haha id",
+      "nav.ai": "Haha AI",
+      "nav.mint": "Haha Dog",
       "nav.market": "交易市场",
       "nav.erc": "ERC-8004",
       "nav.earn": "赚取积分",
@@ -584,8 +587,8 @@
       "how.p13b": "怎么参加：每天北京时间 08:00 快照积分榜。上一天有资格但没申请的人当天排除，名额先给后面满 200 分的人；如果后面满 200 分的人不够 20 个，前面被排除的人按当天快照区块哈希为种子随机补位到 20 人。当天开放后，在第一季节页面的申请栏里填两位名字、选后缀，点“复制领取指令”，把指令交给自己的 agent 执行。名字由管理员在当天发放，发放截止是窗口结束后再加 12 小时。",
       "how.p13c": "第一季还有两个拿分的任务：每日验证 30 分（核对当天任务包，证明你的 agent 查得对，每天 1 次）；找错挑战 100 分（发现项目数据、每日验证或兑换发放的真实问题，提交后经审核确认，每天最多 5 个不同原因）。",
       "how.p13d": "全程链上执行，可核验。第一季合约未经过审计，不承诺任何收益回报！本项目与币安无关。",
-      "how.h14": "14. 合约与开源",
-      "how.p14a": "下面是全部合约地址，点地址可以在 BscScan 上查看已开源验证的代码。",
+      "how.h14": "16. 合约与开源",
+      "how.p14a": "下面是全部合约地址，点地址可以在 BscScan 上查看。前 12 个合约的源码已开源验证；Haha Dog 的 4 个合约在表的后半部分。",
       "how.p14b": "12 个合约的源码已在 BscScan 上全部开源验证。部署在 BNB Smart Chain 主网（chainId 56），部署 commit 70fe8e79。首批 10 个合约部署区块 134834631–134834846；第一季模块 HahaSeason1 部署区块 135231506；验证注册表 HahaValidation 部署区块 135619015。",
       "how.addr.policy": "HahaNamePolicy（部署区块 134834631）",
       "how.addr.metadata": "HahaMetadata（部署区块 134834660）",
@@ -602,8 +605,8 @@
       "how.admin": "管理员地址",
       "how.feeAddr": "手续费地址",
       "how.aiReg": "币安 .ai 注册表",
-      "how.p14c": "全部合约不可升级，没有代理，部署之后谁也改不了代码。手续费比例写死。管理员不能改手续费，不能没收用户的名字。",
-      "how.h15": "15. 风险、去中心化与路线",
+      "how.p14c": "前 12 个合约不可升级，没有代理，部署之后谁也改不了代码。手续费比例写死。管理员不能改手续费，不能没收用户的名字。",
+      "how.h15": "17. 风险、去中心化与路线",
       "how.risk1": "链上操作不可撤销。每次执行前核对预览。",
       "how.risk2": "这不是币安官方项目。",
       "how.risk3": "今天这个项目不是完全去中心化的：验证 V1 只有一个管理员验证者（见第 8 节），管理员地址写死、换不了；第一季的名字发放也由管理员执行。链上部分是去中心化的：合约不可升级、没有代理、手续费写死、管理员动不了你的名字、也不能改费率。方向是越走越去中心化：验证先交给社区，别的环节再一步步交。",
@@ -691,7 +694,7 @@
       "how.colTimes": "次数",
       "how.docTitle": "haha.meme · 工作原理",
       "how.docDesc": "项目怎么运作，合约地址与权限，全部公开可核对。",
-      "how.h16": "16. 里程碑",
+      "how.h16": "18. 里程碑",
       "how.ms1": "十个合约部署到 BNB Smart Chain 主网，全部开源验证。",
       "how.ms2": "第一季开启：15 天，每天 20 个 2 位名字，全季 300 个。",
       "how.ms3": "haha scan 上线：名字、交易、agent、积分、市场、第一季，全部链上可验。",
@@ -770,6 +773,23 @@
       "agent.operatorFull": "operator 已满 8 个，先撤一个再加",
       "agent.transferBurn": "转让销毁",
       "agent.transferBurnNote": "名字转让时 agent 会被销毁，新主人重新激活从新的一代开始。",
+      "agent.manageBtn": "管理agent",
+      "agent.updateStdFile": "更新标准注册文件",
+      "agent.notActive": "未激活",
+      "agent.activateNote": "这个名字还没有激活 agent。激活后即可免费和 agent 对话。",
+      "agent.activateBtn": "复制激活指令",
+      "agent.chatTitle": "haha agent",
+      "agent.chatPh": "问问这个 agent…",
+      "agent.chatSend": "发送",
+      "agent.chatSoon": "对话通道还没接好，稍后再来。",
+      "agent.chatNeedActivate": "去激活即可免费和 agent 对话",
+      "agent.chatNeedOwner": "只有这个 agent 的主人能和它对话",
+      "agent.chatSave": "保存",
+      "agent.chatConnecting": "正在连接",
+      "agent.chatTimeout": "agent 暂时没有回复，请稍后再试",
+      "agent.chatRateLimited": "发送太快了，请稍后再试",
+      "agent.chatSendFailed": "发送失败，请稍后再试",
+      "agent.chatThinking": "正在思考",
       "redirect.body": "正在前往赚取页……",
       "redirect.link": "去赚取页",
       "redirect.desc": "正在前往赚取页。",
@@ -828,7 +848,7 @@
       "season.applyTld": "后缀",
       "season.applyCopy": "复制领取指令",
       "season.applyNeedLogin": "请先用 .ai 登录，再领取指令。",
-      "season.applyInvalid": "名字填 2 位小写字母或数字。",
+      "season.applyInvalid": "名字填 2 位小写字母。",
       "season.applyChecking": "正在查这个名字…",
       "season.applyTaken": "这个名字已经被申请了。",
       "season.applyAvailable": "这个名字可以申请，点复制领取指令。",
@@ -938,7 +958,10 @@
     },
     en: {
       "lang.switch": "Switch to Chinese",
+      "nav.skip": "Skip to content",
       "nav.haha": "haha id",
+      "nav.ai": "Haha AI",
+      "nav.mint": "Haha Dog",
       "nav.market": "Market",
       "nav.erc": "ERC-8004",
       "nav.earn": "Earn Points",
@@ -1516,8 +1539,8 @@
       "how.p13b": "How to take part: the points leaderboard is snapshotted every day at 08:00 Beijing time. Anyone who was eligible the previous day but did not apply is excluded that day; places go first to people behind them with at least 200 points. If fewer than 20 such people qualify, the excluded ones fill the remaining places by a random draw seeded on the snapshot block hash, up to 20. Once the day opens, enter a two-letter name and a suffix in the application box on the Season 1 page, tap the button to copy the claim instruction, and give it to your own agent. The admin mints the name that day; the deadline is 12 hours after the window closes.",
       "how.p13c": "Season 1 has two more ways to earn: daily verification, 30 points (check the day's task pack and prove your agent checked it right, once a day); and the finding challenge, 100 points (find a real problem in the project data, daily verification, or redemption fulfillment, confirmed after review, up to 5 different root causes a day).",
       "how.p13d": "Everything runs on-chain and is verifiable. The Season 1 contracts have not been audited. No return is promised. This project is not affiliated with Binance.",
-      "how.h14": "14. Contracts and source",
-      "how.p14a": "Every contract address is below. Open an address to read the verified source on BscScan.",
+      "how.h14": "16. Contracts and source",
+      "how.p14a": "Every contract address is below. Open an address to look it up on BscScan. The source of the first 12 contracts is verified open source; the 4 Haha Dog contracts are in the lower part of the table.",
       "how.p14b": "All 12 contracts are open-source verified on BscScan. They are deployed on BNB Smart Chain mainnet (chainId 56), deploy commit 70fe8e79. The first 10 contracts were deployed in blocks 134834631–134834846; the Season 1 module HahaSeason1 was deployed in block 135231506; the Validation Registry HahaValidation was deployed in block 135619015.",
       "how.addr.policy": "HahaNamePolicy (deployed in block 134834631)",
       "how.addr.metadata": "HahaMetadata (deployed in block 134834660)",
@@ -1534,8 +1557,8 @@
       "how.admin": "Admin address",
       "how.feeAddr": "Fee address",
       "how.aiReg": "Binance .ai registry",
-      "how.p14c": "None of the contracts can be upgraded, and none use a proxy. After deployment nobody can change the code. The fee rate is fixed. The admin cannot change the fee and cannot take a user's name.",
-      "how.h15": "15. Risks, decentralization, and the road ahead",
+      "how.p14c": "None of the first 12 contracts can be upgraded, and none use a proxy. After deployment nobody can change the code. The fee rate is fixed. The admin cannot change the fee and cannot take a user's name.",
+      "how.h15": "17. Risks, decentralization, and the road ahead",
       "how.risk1": "Chain actions cannot be undone. Check the preview every time.",
       "how.risk2": "This is not an official Binance project.",
       "how.risk3": "The project is not fully decentralized today. Validation in v1 has a single admin validator (see section 8), the admin address is fixed and cannot be changed, and the Season 1 names are minted by the admin. The on-chain parts are decentralized: the contracts cannot be upgraded, there is no proxy, the fee is fixed, and the admin cannot take your name or change the fee. The direction is toward more decentralization over time: validation goes to the community first, and other parts follow step by step.",
@@ -1623,7 +1646,7 @@
       "how.colTimes": "Limit",
       "how.docTitle": "haha.meme · How it works",
       "how.docDesc": "How the project works, with every contract address and permission in the open.",
-      "how.h16": "16. Milestones",
+      "how.h16": "18. Milestones",
       "how.ms1": "Ten contracts deployed to BNB Smart Chain mainnet, all open-source verified.",
       "how.ms2": "Season 1 opens: 15 days, 20 two-letter names a day, 300 in total.",
       "how.ms3": "haha scan goes live: names, trades, agents, points, market and Season 1, all verifiable on-chain.",
@@ -1702,6 +1725,23 @@
       "agent.operatorFull": "Already 8 operators; remove one first",
       "agent.transferBurn": "Burned on transfer",
       "agent.transferBurnNote": "When a name is transferred, its agent is burned; the new owner starts a new generation on reactivation.",
+      "agent.manageBtn": "Manage agent",
+      "agent.updateStdFile": "Update standard registration file",
+      "agent.notActive": "Not activated",
+      "agent.activateNote": "This name has no active agent yet. Activate it to chat with the agent for free.",
+      "agent.activateBtn": "Copy activate instruction",
+      "agent.chatTitle": "haha agent",
+      "agent.chatPh": "Ask this agent…",
+      "agent.chatSend": "Send",
+      "agent.chatSoon": "The chat channel is not connected yet. Please come back soon.",
+      "agent.chatNeedActivate": "Activate to chat with the agent for free",
+      "agent.chatNeedOwner": "Only this agent's owner can chat with it",
+      "agent.chatSave": "Save",
+      "agent.chatConnecting": "Connecting…",
+      "agent.chatTimeout": "The agent did not reply in time. Please try again shortly.",
+      "agent.chatRateLimited": "You're sending too fast. Please try again shortly.",
+      "agent.chatSendFailed": "Failed to send. Please try again.",
+      "agent.chatThinking": "Thinking",
       "redirect.body": "Taking you to the earn page……",
       "redirect.link": "Go to the earn page",
       "redirect.desc": "Redirecting to the earn page.",
@@ -1760,7 +1800,7 @@
       "season.applyTld": "Suffix",
       "season.applyCopy": "Copy claim instruction",
       "season.applyNeedLogin": "Log in with your .ai first, then claim the instruction.",
-      "season.applyInvalid": "Enter a 2-letter name using lowercase letters or digits.",
+      "season.applyInvalid": "Enter a 2-letter name using lowercase letters.",
       "season.applyChecking": "Checking this name…",
       "season.applyTaken": "This name has already been claimed.",
       "season.applyAvailable": "This name is available. Copy the claim instruction.",
@@ -1897,6 +1937,8 @@
     recipient: /^0x[0-9a-fA-F]{40}$/,
     dayIndex: /^\d{1,10}$/,
     tld: /^[01]$/,
+    qty: /^[12]$/,
+    id: /^[1-9]\d{0,4}$/,
     stars: /^[1-5]$/,
     registrationUrl: /^https?:\/\/[^\s"'<>]+$/,
     agentId: /^\d+$/,
@@ -2010,6 +2052,13 @@
     if (ogt && ogt.getAttribute("data-i18n")) ogt.setAttribute("content", t(ogt.getAttribute("data-i18n")));
     var ogd = document.querySelector('meta[property="og:description"]');
     if (ogd && ogd.getAttribute("data-i18n")) ogd.setAttribute("content", t(ogd.getAttribute("data-i18n")));
+    root.querySelectorAll('meta[name="twitter:title"][data-i18n], meta[name="twitter:description"][data-i18n]').forEach(function (el) {
+      el.setAttribute("content", t(el.getAttribute("data-i18n")));
+    });
+    var loc = document.querySelector('meta[property="og:locale"]');
+    if (loc) loc.setAttribute("content", current() === "en" ? "en_US" : "zh_CN");
+    var locAlt = document.querySelector('meta[property="og:locale:alternate"]');
+    if (locAlt) locAlt.setAttribute("content", current() === "en" ? "zh_CN" : "en_US");
     var btn = document.getElementById("lang-switch");
     if (btn) {
       btn.textContent = current() === "zh" ? "EN" : "中文";
@@ -2052,7 +2101,11 @@
     onChange: function (fn) { listeners.push(fn); },
     apply: apply,
     ready: ready,
-    booted: function () { return booted; }
+    booted: function () { return booted; },
+    add: function (lang, table) {
+      if (!STR[lang] || !table) return;
+      Object.keys(table).forEach(function (k) { STR[lang][k] = table[k]; });
+    }
   };
 
   function start() {

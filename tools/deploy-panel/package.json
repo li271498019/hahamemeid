@@ -1,0 +1,16 @@
+{
+  "name": "haha-deploy-panel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "haha.meme 本地部署面板（纯本地，不碰私钥）",
+  "type": "module",
+  "scripts": {
+    "deploy-panel": "node server.mjs",
+    "generate": "node generate-artifacts.mjs && node generate-standard-input.mjs",
+    "verify": "node verify-dryrun.mjs",
+    "test-logic": "node test-fulfill-logic.mjs"
+  },
+  "dependencies": {
+    "ethers": "^6.13.4"
+  }
+}

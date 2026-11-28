@@ -1,0 +1,126 @@
+{
+  "kind": "haha-dog-handoff",
+  "specCommit": "7ddcaab",
+  "compiler": "0.8.28",
+  "viaIr": true,
+  "optimizerRuns": 200,
+  "evmVersion": "cancun",
+  "contracts": [
+    {
+      "name": "HahaDogModel",
+      "source": "src/hahadog/HahaDogModel.sol:HahaDogModel",
+      "ctorTypes": [],
+      "hasConstructorArgs": false,
+      "bytecodeBytes": 14647,
+      "abiPath": "tools/deploy-panel/public/dog/HahaDogModel.abi.json",
+      "bytecodePath": "tools/deploy-panel/public/dog/HahaDogModel.bytecode.json",
+      "events": []
+    },
+    {
+      "name": "HahaDogRenderer",
+      "source": "src/hahadog/HahaDogRenderer.sol:HahaDogRenderer",
+      "ctorTypes": [
+        "address"
+      ],
+      "hasConstructorArgs": true,
+      "bytecodeBytes": 14156,
+      "abiPath": "tools/deploy-panel/public/dog/HahaDogRenderer.abi.json",
+      "bytecodePath": "tools/deploy-panel/public/dog/HahaDogRenderer.bytecode.json",
+      "events": []
+    },
+    {
+      "name": "HahaDog",
+      "source": "src/hahadog/HahaDog.sol:HahaDog",
+      "ctorTypes": [
+        "address",
+        "address",
+        "address",
+        "address",
+        "address"
+      ],
+      "hasConstructorArgs": true,
+      "bytecodeBytes": 8333,
+      "abiPath": "tools/deploy-panel/public/dog/HahaDog.abi.json",
+      "bytecodePath": "tools/deploy-panel/public/dog/HahaDog.bytecode.json",
+      "events": [
+        {
+          "name": "Approval",
+          "signature": "Approval(address,address,uint256)",
+          "topic0": "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"
+        },
+        {
+          "name": "ApprovalForAll",
+          "signature": "ApprovalForAll(address,address,bool)",
+          "topic0": "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31"
+        },
+        {
+          "name": "Committed",
+          "signature": "Committed(uint256,uint256,uint256)",
+          "topic0": "0xe183b513852ad4cc9928ad69cec247a1f702df2e2237e4e239ac2815e1a6b3be"
+        },
+        {
+          "name": "Snapshot",
+          "signature": "Snapshot(uint256,bytes32)",
+          "topic0": "0x83a771e24d020accb2c7e843758c832db46bb4d5ab4ab1e3715c1ce2fd730c3e"
+        },
+        {
+          "name": "Transfer",
+          "signature": "Transfer(address,address,uint256)",
+          "topic0": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+        }
+      ]
+    },
+    {
+      "name": "HahaDogMarket",
+      "source": "src/hahadog/HahaDogMarket.sol:HahaDogMarket",
+      "ctorTypes": [
+        "address",
+        "address"
+      ],
+      "hasConstructorArgs": true,
+      "bytecodeBytes": 4095,
+      "abiPath": "tools/deploy-panel/public/dog/HahaDogMarket.abi.json",
+      "bytecodePath": "tools/deploy-panel/public/dog/HahaDogMarket.bytecode.json",
+      "events": [
+        {
+          "name": "Cancelled",
+          "signature": "Cancelled(uint256,address)",
+          "topic0": "0x26deca31ff8139a06c52453ce8985d34f7648a6d9af1d283c4063d052c355a0f"
+        },
+        {
+          "name": "Listed",
+          "signature": "Listed(uint256,address,uint256,uint256)",
+          "topic0": "0x98868c46d49b200d82c273c9f28d73265826ca6567690262736450563dfff64c"
+        },
+        {
+          "name": "PriceUpdated",
+          "signature": "PriceUpdated(uint256,address,uint256,uint256)",
+          "topic0": "0x592a032e7884ba506196d55a5fc14b6dd3f8f1a70beaf433d32006136a513758"
+        },
+        {
+          "name": "Sold",
+          "signature": "Sold(uint256,address,address,uint256,uint256,uint256)",
+          "topic0": "0x2938a0a3a4a7c19c3a1fe6ef25340b7acd26dfac11de87836084d42fccc18656"
+        },
+        {
+          "name": "StaleCleared",
+          "signature": "StaleCleared(uint256,address,address)",
+          "topic0": "0x76d4769119f989ab2c9d4da108574aff020af2755019e6afe9c4c37ee347ac98"
+        },
+        {
+          "name": "Withdrawn",
+          "signature": "Withdrawn(address,uint256)",
+          "topic0": "0x7084f5476618d8e60b11ef0d7d3f06914655adb8793e28ff7f018d4c76d505d5"
+        }
+      ]
+    }
+  ],
+  "defaults": {
+    "aiRegistry": "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F",
+    "registrar": "0x43426E37a31AafDaba851858e34B81DC300650F8",
+    "feeReceiver": "0x57A76124bC919F7509bEb54924E8448258De90df",
+    "blockHistory": "0x0000F90827F1C53a10cb7A02335B175320002935"
+  },
+  "weightsFileHash": "0x1d2239644b5273c4f1925c489d32900a564262bce6597f94a929489cfbe58078",
+  "modelDataHash": "0x72f92c628a64bc0d5652d285c6789fa0f84cb462d328604cf3dcff224704f8da"
+}

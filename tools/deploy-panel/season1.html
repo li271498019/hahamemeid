@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Season1 部署授权面板</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Season1 部署授权面板</div>
+    <div class="meta">
+      <span id="meta-commit">commit: —</span>
+      <span id="meta-solc">solc: 0.8.28</span>
+    </div>
+    <div class="wallet-box">
+      <span id="net-badge" class="badge badge-gray">未连接</span>
+      <span id="addr" class="addr">—</span>
+      <span id="balance" class="balance">—</span>
+      <button id="btn-connect" class="btn btn-primary">连接 MetaMask</button>
+      <button id="btn-connect-okx" class="btn btn-primary">连接 OKX</button>
+    </div>
+  </header>
+
+  <div id="net-warning" class="net-warning hidden">
+    当前网络不是目标网络，请切换。
+    <button id="btn-switch-net" class="btn btn-warn">一键切换</button>
+  </div>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h3>固定参数（不可改）</h3>
+      <dl class="params">
+        <dt>管理员</dt><dd id="p-admin">—</dd>
+        <dt>Points</dt><dd id="p-points">—</dd>
+        <dt>Registrar</dt><dd id="p-registrar">—</dd>
+        <dt>Identity</dt><dd id="p-identity">—</dd>
+        <dt>.ai 注册表</dt><dd id="p-ai">—</dd>
+        <dt>快照确认深度</dt><dd id="p-conf">15</dd>
+      </dl>
+      <h3>模式</h3>
+      <div class="mode-switch">
+        <button id="btn-mainnet" class="btn btn-outline">BSC 主网 (56)</button>
+        <button id="btn-testnet" class="btn btn-outline">BSC 测试网 (97)</button>
+      </div>
+      <h3>进度</h3>
+      <div class="progress-actions">
+        <button id="btn-export" class="btn btn-outline">导出进度</button>
+        <button id="btn-import" class="btn btn-outline">导入进度</button>
+        <input type="file" id="import-file" accept="application/json" class="hidden" />
+      </div>
+    </aside>
+
+    <section class="content">
+      <h2>链上状态总览（只读，实时读链）</h2>
+      <div id="overview" class="overview"></div>
+
+      <h2 class="mt">部署步骤（每步一笔交易，点一次签一次）</h2>
+      <p class="hint">前 9 步是部署授权。业务发放（adminMint）在<a href="season1-fulfill.html" style="color:var(--accent)">「铸造发放」面板</a>，本页不做发放。第 10/11 步是开关，验收门通过后才可点。</p>
+      <div id="steps" class="steps"></div>
+
+      <h2 class="mt">验收门确认（解锁第 10/11 步开关）</h2>
+      <div class="verify-box" style="max-width:640px">
+        <label class="gate-label">
+          <input id="gate-passed" type="checkbox" />
+          <span>验收门已通过：09 测试全绿、A 复算 root 与 Merkle 向量一致、索引器能重建订单、网站申请按 root 一致出现。</span>
+        </label>
+        <p class="hint" style="margin:6px 0 0">
+          勾选前请确认：第一天 manifest 已公开且复算 root 一致，并已用下方「setDayRoot」设置第一天 root。
+          开关保持关闭时日期不顺延、不补窗口（L 在 <code>00</code> 已批准）。
+        </p>
+      </div>
+
+      <h2 class="mt">日奖公钥（setValidator）</h2>
+      <div class="verify-box" style="max-width:480px">
+        <input id="validator-addr" type="text" placeholder="服务器日奖公钥地址（未填则第 7 步不可用）" />
+        <p class="hint" style="margin:4px 0 0">私钥不进面板。公钥由服务器离线签名钱包公开，只填地址。</p>
+      </div>
+
+      <h2 class="mt">setDayRoot 快照窗口（每日运营，管理员）</h2>
+      <div class="verify-box" style="max-width:680px">
+        <div id="launch-countdown" class="launch-countdown"></div>
+        <p class="hint" style="margin:0 0 8px">
+          快照块有效窗口：<strong>最近 256 块内、且至少有 15 块确认</strong>（即深度 15 ~ 255 块）。
+          超窗会明确拒绝，<strong>不回退快照块、不自动顺延赛季</strong>，请换一个窗口内的快照块。
+          snapshotBlockHash 由面板自动读链上区块哈希，无需手填。
+        </p>
+        <p class="hint" style="margin:0 0 8px">
+          时间门禁：北京时间 <strong>2026-11-24 08:00</strong>（UTC <code>2026-11-24T00:00:00Z</code>，链上
+          <code>block.timestamp &gt;= 1795478400</code>）前，<strong>禁止生成首日正式快照与发布交易</strong>。
+          页面展示与提交交易都会校验链上时间，不是只禁用按钮。过去日界的预演会独立标识，不能直接用于正式发布。
+        </p>
+        <div class="sr-grid">
+          <label>dayIndex <input id="sr-day" type="number" placeholder="20781" /></label>
+          <label>snapshotBlock（快照块号）<input id="sr-block" type="number" placeholder="区块号" /></label>
+          <label>merkleRoot <input id="sr-root" type="text" placeholder="0x…" /></label>
+          <label>reservedCount <input id="sr-reserved" type="number" value="0" /></label>
+          <label>remainingSlots <input id="sr-remaining" type="number" value="0" /></label>
+        </div>
+        <div class="sr-actions">
+          <button id="btn-sr-precheck" class="btn btn-outline">预检窗口</button>
+          <button id="btn-sr-submit" class="btn btn-primary">提交 setDayRoot</button>
+        </div>
+        <div id="sr-result" class="sr-result"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/vendor/ethers.umd.min.js"></script>
+  <script type="module" src="season1.js"></script>
+</body>
+</html>

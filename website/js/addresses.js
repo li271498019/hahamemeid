@@ -14,5 +14,12 @@ window.HAHA_ADDRESSES = {
   deployer: "0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601",
   aiRegistry: "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F",
   admin: "0x083A467259f12602E9053bBAe2b3Fd5B62976Ef7",
-  feeReceiver: "0x57A76124bC919F7509bEb54924E8448258De90df"
+  feeReceiver: "0x57A76124bC919F7509bEb54924E8448258De90df",
+  /* Haha Dog (v1.0, BSC mainnet). Not part of the 12-contract haha id set. */
+  dogModel: "0x3277990797Ed8B15B3674ee0C557011F5a1eCCC9",
+  dogRenderer: "0xCA760D9D3E76DcDC7AC6bcc55D53346b8a2c107E",
+  dog: "0x26f88A5db4925e9aFa35B1096FdD6DBa09f056c6",
+  dogMarket: "0xD7F5502Bd7a52E17959bF4b7F1180f6e3611fd49"
 };
+/* Block of the HahaDog deployment, the earliest block with Haha Dog logs. */
+window.HAHA_DOG_DEPLOY_BLOCK = 136153154;

@@ -1,0 +1,164 @@
+{
+ "args": {
+  "data": "data/dataset.npz",
+  "out": "out_ot48",
+  "hidden": 48,
+  "epochs": 1500,
+  "beta": 1.0,
+  "lr": 0.003,
+  "seed": 0,
+  "snap_weight": 0.0,
+  "ot_rounds": 150,
+  "ot_epochs": 10,
+  "vae_weight": 0.3,
+  "ot_lr": 0.001,
+  "qat_start": 2.0,
+  "snap_start": 0.4
+ },
+ "log": [
+  {
+   "epoch": 0,
+   "rec": 540.842,
+   "kl": 33.71,
+   "cell_acc": 0.0707,
+   "exact_dogs": 0.0,
+   "sec": 0
+  },
+  {
+   "epoch": 500,
+   "rec": 14.108,
+   "kl": 17.8,
+   "cell_acc": 0.9764,
+   "exact_dogs": 0.062,
+   "sec": 16
+  },
+  {
+   "epoch": 1000,
+   "rec": 9.11,
+   "kl": 18.1,
+   "cell_acc": 0.9846,
+   "exact_dogs": 0.161,
+   "sec": 34
+  },
+  {
+   "epoch": 1499,
+   "rec": 8.215,
+   "kl": 18.14,
+   "cell_acc": 0.9858,
+   "exact_dogs": 0.176,
+   "sec": 53
+  },
+  {
+   "ot_round": 0,
+   "matched_cell_acc": 0.8266,
+   "matched_exact": 0.0,
+   "qat": false,
+   "sec": 53
+  },
+  {
+   "ot_round": 10,
+   "matched_cell_acc": 0.8484,
+   "matched_exact": 0.0,
+   "qat": false,
+   "sec": 59
+  },
+  {
+   "ot_round": 20,
+   "matched_cell_acc": 0.8506,
+   "matched_exact": 0.0,
+   "qat": false,
+   "sec": 65
+  },
+  {
+   "ot_round": 30,
+   "matched_cell_acc": 0.8556,
+   "matched_exact": 0.002,
+   "qat": false,
+   "sec": 71
+  },
+  {
+   "ot_round": 40,
+   "matched_cell_acc": 0.8588,
+   "matched_exact": 0.0,
+   "qat": false,
+   "sec": 77
+  },
+  {
+   "ot_round": 50,
+   "matched_cell_acc": 0.8638,
+   "matched_exact": 0.0,
+   "qat": false,
+   "sec": 83
+  },
+  {
+   "ot_round": 60,
+   "matched_cell_acc": 0.8651,
+   "matched_exact": 0.0,
+   "qat": false,
+   "sec": 89
+  },
+  {
+   "ot_round": 70,
+   "matched_cell_acc": 0.866,
+   "matched_exact": 0.0,
+   "qat": false,
+   "sec": 96
+  },
+  {
+   "ot_round": 80,
+   "matched_cell_acc": 0.8678,
+   "matched_exact": 0.0,
+   "qat": false,
+   "sec": 102
+  },
+  {
+   "ot_round": 90,
+   "matched_cell_acc": 0.868,
+   "matched_exact": 0.0,
+   "qat": false,
+   "sec": 107
+  },
+  {
+   "ot_round": 100,
+   "matched_cell_acc": 0.87,
+   "matched_exact": 0.0,
+   "qat": false,
+   "sec": 113
+  },
+  {
+   "ot_round": 110,
+   "matched_cell_acc": 0.8698,
+   "matched_exact": 0.0,
+   "qat": true,
+   "sec": 119
+  },
+  {
+   "ot_round": 120,
+   "matched_cell_acc": 0.8724,
+   "matched_exact": 0.0,
+   "qat": true,
+   "sec": 126
+  },
+  {
+   "ot_round": 130,
+   "matched_cell_acc": 0.8709,
+   "matched_exact": 0.0,
+   "qat": true,
+   "sec": 132
+  },
+  {
+   "ot_round": 140,
+   "matched_cell_acc": 0.874,
+   "matched_exact": 0.0,
+   "qat": true,
+   "sec": 138
+  },
+  {
+   "ot_round": 149,
+   "matched_cell_acc": 0.8785,
+   "matched_exact": 0.001,
+   "qat": true,
+   "sec": 144
+  }
+ ]
+}

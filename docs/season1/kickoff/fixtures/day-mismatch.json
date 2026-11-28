@@ -1,0 +1,17 @@
+{
+  "fixture": "day-root-mismatch",
+  "note": "文档样本。root 不一致时网站不放出申请指令",
+  "dayIndex": 20781,
+  "merkleRoot": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "recomputedRoot": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "rootMatch": false,
+  "snapshotBlock": 140000000,
+  "snapshotBlockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "confirmationsRequired": 15,
+  "confirmationsSeen": 15,
+  "reservedCount": 18,
+  "remainingSlots": 2,
+  "reservedFilled": 0,
+  "boundaryFilled": 0,
+  "opened": false
+}

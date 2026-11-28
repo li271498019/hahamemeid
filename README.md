@@ -60,6 +60,19 @@ haha.meme 是 BNB Chain（chainId 56）上的 AI agent 身份协议。持有币�
 
 市场只收 BNB，交易手续费 1%，卖家支付。
 
+### Haha AI / Haha Dog
+
+Haha AI 是写进合约字节码的小型神经网络。Haha Dog 是 BSC 主网上限量 10,000 的 ERC-721：图片不放服务器、也不走 IPFS，`tokenURI` 在一次只读调用里跑模型、画出 SVG，并算出特征和稀有度。
+
+| 合约 | 地址 |
+|---|---|
+| HahaDogModel | `0x3277990797Ed8B15B3674ee0C557011F5a1eCCC9` |
+| HahaDogRenderer | `0xCA760D9D3E76DcDC7AC6bcc55D53346b8a2c107E` |
+| HahaDog | `0x26f88A5db4925e9aFa35B1096FdD6DBa09f056c6` |
+| HahaDogMarket | `0xD7F5502Bd7a52E17959bF4b7F1180f6e3611fd49` |
+
+权重文件 `haha-ai/weights-int8.json`（与 `haha-dog/model/weights-int8.json` 字节相同）的 keccak256 是 `0x1d2239644b5273c4f1925c489d32900a564262bce6597f94a929489cfbe58078`。规格、稀有度和部署说明在 `haha-dog/`；完整训练工程（训练代码、数据、原图、实验、权重和测试向量）在 `haha-ai/`。
+
 ### 链接
 
 - 网站：https://haha.meme
@@ -75,8 +88,11 @@ haha.meme 是 BNB Chain（chainId 56）上的 AI agent 身份协议。持有币�
 - `MCP/`：MCP Server（只读查询接口，29 个工具、11 个提示词）
 - `services/`：后端服务（G13 验证、第一季每日验证签名、第一季管理员自动化）
 - `deploy/`：部署脚本（服务器 IP 用环境变量，不写死）
-- `docs/`：白皮书、架构、API、skill.md
+- `docs/`：白皮书、架构、API、skill.md，以及规格、稀有度、索引器、积分、第一季和网站规划
+- `haha-dog/`：Haha Dog 规格、稀有度、部署、链上参考实现和发布用模型
+- `haha-ai/`：Haha AI 完整训练工程（代码、数据、原图、实验、权重、测试向量）
 - `assets/`：品牌素材
+- `web/prototype/`：早期网站原型
 
 ### 安全
 
@@ -139,6 +155,19 @@ Season 1 is live: 08:00 2026-11-24 to 08:00 2026-12-09 (Beijing time), 15 days. 
 
 The market accepts BNB only; the trading fee is 1%, paid by the seller.
 
+### Haha AI / Haha Dog
+
+Haha AI is a small neural network that lives in contract bytecode. Haha Dog is a 10,000-piece ERC-721 on BSC mainnet: nothing is stored on a server or on IPFS. `tokenURI` runs the model, draws the SVG, and computes traits and rarity inside one read-only call.
+
+| Contract | Address |
+|---|---|
+| HahaDogModel | `0x3277990797Ed8B15B3674ee0C557011F5a1eCCC9` |
+| HahaDogRenderer | `0xCA760D9D3E76DcDC7AC6bcc55D53346b8a2c107E` |
+| HahaDog | `0x26f88A5db4925e9aFa35B1096FdD6DBa09f056c6` |
+| HahaDogMarket | `0xD7F5502Bd7a52E17959bF4b7F1180f6e3611fd49` |
+
+The keccak256 of `haha-ai/weights-int8.json` (byte-for-byte the same file as `haha-dog/model/weights-int8.json`) is `0x1d2239644b5273c4f1925c489d32900a564262bce6597f94a929489cfbe58078`. Spec, rarity, and deployment notes are in `haha-dog/`. The full training project (code, data, source images, experiments, weights, and test vectors) is in `haha-ai/`.
+
 ### Links
 
 - Website: https://haha.meme
@@ -154,8 +183,11 @@ The market accepts BNB only; the trading fee is 1%, paid by the seller.
 - `MCP/`: MCP Server (read-only query interface, 29 tools, 11 prompts)
 - `services/`: backend services (G13 validation, Season 1 daily verify signing, Season 1 admin automation)
 - `deploy/`: deployment scripts (server IP passed via environment variable, never hardcoded)
-- `docs/`: whitepaper, architecture, API, skill.md
+- `docs/`: whitepaper, architecture, API, skill.md, plus specs, rarity, indexer, points, Season 1, and the website plan
+- `haha-dog/`: Haha Dog spec, rarity, deployment, on-chain reference implementation, and the release model
+- `haha-ai/`: full Haha AI training project (code, data, source images, experiments, weights, test vectors)
 - `assets/`: brand assets
+- `web/prototype/`: early website prototype
 
 ### Security
 

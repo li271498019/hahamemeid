@@ -1,0 +1,96 @@
+/* Haha Dog mint page and market tab. Uses the site tokens from site.css and haha-ai.css. */
+.dog-counter {
+  display: flex; flex-direction: column; gap: 10px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 22px 20px;
+}
+.dog-count { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.dog-count b { font-size: clamp(2.4rem, 6vw, 3.4rem); line-height: 1; color: var(--gold-2); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.dog-count span { color: var(--muted); font-size: 1.1rem; font-weight: 700; }
+.dog-bar { height: 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line-soft); overflow: hidden; }
+.dog-bar i { display: block; height: 100%; width: 0; min-width: 4px; background: linear-gradient(90deg, var(--gold), var(--gold-2)); border-radius: 999px; transition: width 0.6s ease; }
+.dog-rules { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; counter-reset: rule; }
+.dog-rules li {
+  position: relative; display: flex; flex-direction: column; gap: 6px; min-width: 0; counter-increment: rule;
+  background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: 14px; padding: 14px 14px 14px 52px;
+}
+.dog-rules li::before {
+  content: counter(rule); position: absolute; left: 14px; top: 14px; width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 800; font-size: 13px; color: var(--ink);
+  background: linear-gradient(180deg, var(--gold-2), var(--gold));
+}
+.dog-rules b { color: var(--text); font-size: 15px; }
+.dog-rules span { color: var(--muted); font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.dog-fn { margin: 12px 0 0; overflow-wrap: anywhere; }
+.dog-fn code { color: var(--text); }
+.dog-gallery { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.dog-gallery button b { color: var(--text); font-size: 14px; }
+.dog-art { aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--surface); }
+.dog-art svg { border-radius: 0; }
+.dog-wait {
+  width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  text-align: center; padding: 8px; border: 1px dashed var(--line); border-radius: inherit; background: var(--surface-2);
+}
+.dog-wait b { color: var(--gold-2); font-size: 15px; }
+.dog-wait span { color: var(--faint); font-size: 12px; }
+.dog-more { margin-top: 12px; }
+#view-out { margin-top: 16px; }
+#view-out .ai-traits td:first-child { width: 36%; }
+#quota-addr, #view-id { font-family: var(--mono); }
+.ai-gen-art .btn:disabled { opacity: 0.5; }
+
+/* market tab */
+.mk-tabs { display: flex; gap: 8px; margin: 0 0 14px; flex-wrap: wrap; }
+.mk-tabs button {
+  padding: 8px 18px; border-radius: 999px; font-weight: 750; font-size: 15px; cursor: pointer;
+  background: var(--surface); color: var(--muted); border: 1px solid var(--line-soft);
+}
+.mk-tabs button[aria-selected="true"] { background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: var(--ink); border-color: var(--gold); }
+.mk-rules { margin: 8px 0 0; padding-left: 1.3em; }
+.mk-rules li { margin: 8px 0; }
+.dog-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dog-card .dog-art { margin-bottom: 8px; }
+.dog-card h3 { margin: 0 4px; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.dog-card h3 small { font-size: 12px; font-weight: 750; }
+.dog-card h3 .t1 { color: #8fe3ff; } .dog-card h3 .t2 { color: #e3a6ff; } .dog-card h3 .t3 { color: var(--gold-2); }
+.dog-card .seller { margin: 2px 4px 0; font-size: 12px; color: var(--faint); }
+.dog-card .bad-mark { margin: 4px; font-size: 13px; font-weight: 700; }
+.dog-card .actions { margin-top: auto; padding-top: 8px; }
+.dog-card.invalid .dog-art { opacity: 0.45; }
+@media (max-width: 980px) {
+  .dog-gallery { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dog-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 800px) {
+  .dog-rules { grid-template-columns: 1fr; }
+  .dog-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dog-counter { max-width: 340px; width: 100%; }
+}
+.ai-contract { margin: 0 0 6px; overflow-wrap: anywhere; }
+.ai-contract b { display: inline-block; min-width: 9.5em; color: var(--gold); }
+.ai-contract code { color: var(--text); }
+.ai-verdict-row { margin: 10px 0 0; }
+@media (max-width: 800px) { .ai-contract b { display: block; min-width: 0; } }
+.dog-stats .stat b { font-size: 1.05rem; white-space: nowrap; }
+.dog-info td:first-child { width: 26%; }
+.dog-info code { color: var(--text); }
+.dog-art svg { display: block; width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
+.dog-card .ai-verdict, #dog-hit .ai-verdict { font-weight: 750; color: var(--text); }
+@media (max-width: 800px) { .dog-stats .stat b { white-space: normal; } .dog-info td:first-child { width: 32%; } }
+.dog-card .bad-mark, #dog-hit .bad-mark { color: var(--bad); }
+.dog-card .seller a { font-weight: 650; }
+
+/* my dogs (reroll cards on the mint page, my dogs on the market tab) */
+.dog-mine-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 10px 0 12px; min-height: 40px; }
+.dog-mine-head .btn { padding: 8px 16px; }
+.dog-mine { margin-top: 0; }
+.dog-mine .dog-art, .dog-art.dog-open { display: block; width: 100%; padding: 0; border: 0; cursor: pointer; font: inherit; color: inherit; }
+.dog-art.dog-open:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 2px; }
+.dog-mine .dog-card .actions .btn { width: 100%; justify-content: center; }
+.dog-empty {
+  grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  padding: 28px 16px; border: 1px dashed var(--line); border-radius: var(--radius); background: var(--surface-2);
+}
+.dog-empty b { color: var(--text); font-size: 17px; }
+.dog-empty p { margin: 0; color: var(--muted); max-width: 46ch; line-height: 1.6; }
+.dog-empty .actions { justify-content: center; margin-top: 6px; }

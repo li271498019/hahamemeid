@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<script src="/js/boot.js?v=9"></script>
+<script src="/js/config.js?v=9"></script>
+<script src="/js/rain.js?v=9" defer></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<title data-i18n-title="dog.docTitle">haha.meme · Haha Dog 铸造：链上 AI 像素狗，免费铸造</title>
+<meta name="description" data-i18n="dog.docDesc" content="Haha Dog：由链上运行的 Haha AI 大模型现场画出的像素狗。免费铸造，总量 10,000，持有 .ai 即可，铸造后约 4 个区块自动出图，可免费重铸。">
+<link rel="canonical" href="https://haha.meme/mint">
+<link rel="icon" href="/assets/logo/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/logo/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/logo/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/logo/favicon-180.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:title" data-i18n="dog.docTitle" content="haha.meme · Haha Dog 铸造：链上 AI 像素狗，免费铸造">
+<meta property="og:description" data-i18n="dog.docDesc" content="Haha Dog：由链上运行的 Haha AI 大模型现场画出的像素狗。免费铸造，总量 10,000，持有 .ai 即可，铸造后约 4 个区块自动出图，可免费重铸。">
+<meta property="og:url" content="https://haha.meme/mint">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="haha.meme">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:image" content="https://haha.meme/assets/og/og-default.png">
+<meta property="og:image:secure_url" content="https://haha.meme/assets/og/og-default.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="haha.meme：Haha Dog">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@aihahameme">
+<meta name="twitter:creator" content="@aihahameme">
+<meta name="twitter:title" data-i18n="dog.docTitle" content="haha.meme · Haha Dog 铸造：链上 AI 像素狗，免费铸造">
+<meta name="twitter:description" data-i18n="dog.docDesc" content="Haha Dog：由链上运行的 Haha AI 大模型现场画出的像素狗。免费铸造，总量 10,000，持有 .ai 即可，铸造后约 4 个区块自动出图，可免费重铸。">
+<meta name="twitter:image" content="https://haha.meme/assets/og/og-default.png">
+<meta name="twitter:image:alt" content="haha.meme：Haha Dog">
+<link rel="stylesheet" href="/css/site.css?v=32">
+<link rel="stylesheet" href="/css/haha-ai.css?v=1">
+<link rel="stylesheet" href="/css/haha-dog.css?v=2">
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="wrap">
+<header class="nav">
+  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40" decoding="async" fetchpriority="high">haha.meme</a>
+    <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/ai.html"><span data-i18n="nav.ai">Haha AI</span></a><a href="/mint.html" aria-current="page"><span data-i18n="nav.mint">Haha Dog</span></a><a href="/market.html"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html"><span data-i18n="nav.earn">赚取积分</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/scan.html"><span data-i18n="nav.scan">haha scan</span></a><a href="/how.html"><span data-i18n="nav.how">工作原理</span></a><a href="/season" data-i18n="nav.season">稀有域名空投第一季</a></nav>
+  <div class="nav-right">
+    <span class="hello" id="hello" hidden>Hi! <b id="hello-name"></b></span>
+
+    <div class="points" id="points"><img src="/assets/coins/_smiley-coin.svg" alt="" width="32" height="32"><span class="points-num" id="points-num">0</span></div>
+    <form class="login" id="login-form">
+      <label class="sr" for="ai" data-i18n="nav.loginPh">输入您的.ai域名</label>
+      <div class="login-field"><input id="ai" autocomplete="off" spellcheck="false" maxlength="32" placeholder="输入您的.ai域名" aria-label="输入您的.ai域名" data-i18n-placeholder="nav.loginPh" data-i18n-aria="nav.loginPh"><em>.ai</em></div>
+      <button type="submit" id="login-btn">进入</button>
+    </form>
+  </div>
+  <button type="button" class="lang-switch" id="lang-switch">EN</button>
+</header>
+<main><section class="page" id="dog-page">
+
+  <div class="ai-hero dog-hero">
+    <div class="ai-hero-copy">
+      <p class="kicker">HAHA DOG</p>
+      <h1><span class="ai-brand">Haha Dog</span><br><span data-i18n="dog.h1">链上 AI 像素狗，免费铸造</span></h1>
+      <p class="lede" data-i18n="dog.lede">每一只 Haha Dog 都由链上运行的 Haha AI 大模型现场画出。免费铸造，图在铸造后约 4 个区块自动出现，不用揭示。不满意可以免费重铸，不限次数。</p>
+      <div class="actions ai-cta">
+        <a class="btn" href="#mint" data-i18n="dog.ctaMint">马上铸造</a>
+        <a class="btn light" href="#rules" data-i18n="dog.ctaRules">先看规则</a>
+        <a class="btn light" href="/market.html#dog" data-i18n="dog.ctaMarket">去交易市场</a>
+      </div>
+    </div>
+    <div class="dog-counter" aria-live="polite">
+      <span class="muted" data-i18n="dog.minted">已铸造</span>
+      <div class="dog-count"><b id="dog-count">–</b><span>/ 10,000</span></div>
+      <div class="dog-bar" role="progressbar" aria-valuemin="0" aria-valuemax="10000" id="dog-bar"><i id="dog-bar-fill"></i></div>
+      <span class="muted" id="dog-left"></span>
+    </div>
+  </div>
+
+  <div class="stats five ai-stats">
+    <div class="stat"><b data-i18n="dog.sFreeB">免费</b><span data-i18n="dog.sFree">只付 gas，没有铸造费</span></div>
+    <div class="stat"><b>10,000</b><span data-i18n="dog.sSupply">总量</span></div>
+    <div class="stat"><b data-i18n="dog.sOpenB">2026-11-28 10:47</b><span data-i18n="dog.sOpen">开始时间 (UTC+8)</span></div>
+    <div class="stat"><b>1 + 1</b><span data-i18n="dog.sQuota">每个 .ai 最多 2 只</span></div>
+    <div class="stat"><b>≈ 4</b><span data-i18n="dog.sBlocks">个区块后自动出图</span></div>
+  </div>
+
+  <div class="panel" id="rules">
+    <div class="section-head"><h2 data-i18n="dog.rulesTitle">铸造规则</h2><span class="muted" data-i18n="dog.rulesSub">规则写在合约里，页面只是说明</span></div>
+    <ol class="dog-rules">
+      <li><b data-i18n="dog.r1t">免费，现在就能铸</b><span data-i18n="dog.r1">铸造不收费，只付 gas，没有押金。开始时间：2026-11-28 10:47 (UTC+8)，也就是合约部署的时间，现在已经开放。总量 10,000 只，铸完为止。</span></li>
+      <li><b data-i18n="dog.r2t">必须持有 .ai</b><span data-i18n="dog.r2">发起铸造的钱包要持有币安 .ai 域名。.ai 不可转让、一人一个，所以额度只按 .ai 算，不按钱包算，换钱包也不会多铸。</span></li>
+      <li><b data-i18n="dog.r3t">每个 .ai 最多 2 只</b><span data-i18n="dog.r3">持有 .ai 可以铸 1 只；同时持有 haha id（.haha 或 .meme 名字）再加 1 只。合计最多 2 只，可以一次铸，也可以分两次铸。</span></li>
+      <li><b data-i18n="dog.r4t">约 4 个区块后自动出图</b><span data-i18n="dog.r4">没有揭示这一步。图由第 N+4 个区块的哈希决定：种子 = keccak256(abi.encode(blockhash(N+4), tokenId, 重铸次数))。铸造时没人知道结果，包括我们。</span></li>
+      <li><b data-i18n="dog.r5t">哈希双重保险</b><span data-i18n="dog.r5">合约把这个哈希存进自己的存储：铸造、重铸、转让时自动存，任何人也可以免费调用存一下，我们另有脚本定时存。万一没存上，还能用 EIP-2935 回看 8191 个区块。所以图可以长期保留，不会过期。</span></li>
+      <li><b data-i18n="dog.r6t">取不到哈希就显示“出图中”</b><span data-i18n="dog.r6">两道保险都落空的极端情况下，这只狗显示“出图中”，持有人可以免费重铸。永远不会有替代图或兜底图。</span></li>
+      <li><b data-i18n="dog.r7t">重铸：免费、不限次数、只有持有人</b><span data-i18n="dog.r7">重铸会重新抽一张图，旧图不保留。已经挂单的狗重铸后，挂单自动失效。</span></li>
+    </ol>
+    <p class="note" data-i18n="dog.rulesNote">这个页面不连钱包，也不发交易。铸造和重铸都是复制指令，交给你自己的 agent，在你的钱包预览确认后执行。</p>
+  </div>
+
+  <div class="panel" id="mint">
+    <div class="section-head"><h2 data-i18n="dog.mintTitle">铸造</h2><span class="muted" data-i18n="dog.mintSub">复制指令，交给你的 agent</span></div>
+    <p data-i18n="dog.mintP">先查一下额度，再复制铸造指令发给 agent。agent 会读 skill.md，先给你看交易预览，你确认后才会发送。</p>
+    <form class="toolbar" id="quota-form">
+      <label class="sr" for="quota-addr" data-i18n="dog.quotaLabel">钱包地址</label>
+      <input id="quota-addr" autocomplete="off" spellcheck="false" maxlength="42" placeholder="钱包地址 0x…（登录后自动填入）" data-i18n-placeholder="dog.quotaPh">
+      <button class="btn light" type="submit" data-i18n="dog.quotaBtn">查额度</button>
+    </form>
+    <p class="ai-verdict" id="quota-out" aria-live="polite"></p>
+    <div class="actions">
+      <button class="btn" type="button" data-dog-mint="1" data-i18n="dog.copyMint1">复制铸造指令（1 只）</button>
+      <button class="btn light" type="button" data-dog-mint="2" data-i18n="dog.copyMint2">复制铸造指令（2 只）</button>
+    </div>
+    <p class="muted dog-fn">HahaDog <code class="dog-addr" data-addr="dog"></code> · <code>mint(uint256 quantity)</code> · <code>0xa0712d68</code> · value 0</p>
+    <p class="note" data-i18n="dog.mintNote">铸造成功后，约 4 个区块图就会出现。登录后，下面“重铸”一栏会直接显示你持有的 Haha Dog，不用记编号。</p>
+  </div>
+
+  <div class="panel" id="reroll">
+    <div class="section-head"><h2 data-i18n="dog.rerollTitle">重铸</h2><span class="muted" data-i18n="dog.rerollSub">免费 · 不限次数 · 只有持有人</span></div>
+    <p data-i18n="dog.rerollP">登录后，这里会显示你持有的 Haha Dog。点一只狗下面的“重铸”，就复制这只狗的重铸指令，发给你的 agent。重铸后约 4 个区块出新图，旧图不会保留。如果这只狗正在市场挂单，重铸后挂单会失效。</p>
+    <div class="dog-mine-head"><span class="muted" id="mine-count" aria-live="polite"></span><button class="btn light" type="button" id="mine-refresh" data-i18n="dog.mineRefresh">刷新</button></div>
+    <div class="grid dog-grid dog-mine" id="mine-grid" aria-live="polite"></div>
+    <p class="muted dog-fn">HahaDog <code class="dog-addr" data-addr="dog"></code> · <code>reroll(uint256 tokenId)</code> · <code>0x1c19c215</code> · value 0</p>
+  </div>
+
+  <div class="panel" id="view">
+    <div class="section-head"><h2 data-i18n="dog.viewTitle">查看 Haha Dog</h2><span class="muted" data-i18n="dog.viewSub">按编号读链上状态</span></div>
+    <form class="toolbar" id="view-form">
+      <label class="sr" for="view-id" data-i18n="dog.idLabel">编号</label>
+      <input id="view-id" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="Haha Dog 编号，比如 1" data-i18n-placeholder="dog.idPh">
+      <button class="btn" type="submit" data-i18n="dog.viewBtn">查看</button>
+    </form>
+    <div class="ai-gen" id="view-out" hidden>
+      <div class="ai-gen-art">
+        <div class="ai-dog" id="view-art"></div>
+        <div class="actions">
+          <button class="btn light" type="button" id="view-chain" data-i18n="dog.chainCheck">链上核对 tokenURI</button>
+          <button class="btn light" type="button" id="view-dl" data-i18n="ai.dlSvg">下载 SVG</button>
+        </div>
+        <p class="muted" id="view-src"></p>
+      </div>
+      <div class="ai-gen-info">
+        <div class="ai-tier-line"><span class="ai-tier" id="view-tier"></span><span class="muted"><span data-i18n="ai.score">稀有度分数</span> <b id="view-score"></b></span></div>
+        <table class="addr ai-traits" id="view-table"></table>
+        <p class="ai-verdict" id="view-verdict" aria-live="polite"></p>
+      </div>
+    </div>
+    <p class="note" id="view-msg" hidden></p>
+  </div>
+
+  <div class="panel" id="all">
+    <div class="section-head"><h2 data-i18n="dog.allTitle">已铸造的 Haha Dog</h2><span class="muted" data-i18n="dog.allSub">最新的在前，图由浏览器按链上种子现场算出</span></div>
+    <div class="ai-gallery dog-gallery" id="dog-gallery"></div>
+    <div class="actions dog-more"><button class="btn light" type="button" id="dog-more" data-i18n="dog.more" hidden>再看 12 只</button></div>
+  </div>
+
+  <div class="panel" id="contracts">
+    <h2 data-i18n="dog.contractsTitle">合约</h2>
+    <table class="addr ai-info" id="dog-contracts"></table>
+    <p class="muted"><span data-i18n="dog.contractsNote">4 个合约都已在 BscScan 开源验证。想自己核对出图，去 Haha AI 页面点“链上核对”：</span> <a href="/ai.html#gen" data-i18n="dog.contractsLink">Haha AI 页面</a></p>
+  </div>
+
+</section></main>
+<footer>haha.meme · haha id · <span data-i18n="footer.tagline">基于币安 .ai Agent ID 的链上agent身份信誉协议</span> · <a href="https://x.com/aihahameme" target="_blank" rel="noopener noreferrer">X</a> · <a href="https://t.me/aihahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目方"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg> <span data-i18n="footer.tgOwner">项目方</span></a> · <a href="https://t.me/idhahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目群组"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h9v-2.5c0-.85.33-1.59.88-2.16C7.4 14.12 6.16 13 5 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span data-i18n="footer.tgGroup">项目群组</span></a> · <a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a> · <a href="/skill.md">skill.md</a> · <a href="/api.html">API</a></footer>
+</div>
+<div id="toast" role="status"></div>
+<script src="/js/addresses.js?v=9"></script>
+<script src="/js/rpc.js?v=18"></script>
+<script src="/js/i18n.js?v=72"></script>
+<script src="/js/haha-ai-i18n.js?v=2"></script>
+<script src="/js/haha-dog-i18n.js?v=2"></script>
+<script src="/js/instructions.js?v=12"></script>
+<script src="/js/session.js?v=8"></script>
+<script src="/js/ui.js?v=9"></script>
+<script src="/js/haha-ai-model.js?v=1"></script>
+<script src="/js/haha-dog.js?v=3"></script>
+<script src="/js/haha-dog-mint.js?v=2"></script>
+</body>
+</html>

@@ -392,6 +392,8 @@
     call: ethCall,
     batch: ethBatch,
     tokenIdOf: tokenIdOf,
+    /* keccak256（不是 NIST SHA3）算一个字符串的 0x 哈希。agent 对话框用它算 aiId = keccak256(.ai 名字，不带后缀）。 */
+    keccak256Str: function (s) { return bytesTo0x(keccak256Bytes(utf8Bytes(String(s)))); },
     probeRpc: probeRpc,
     rpcStatus: function () {
       var all = fastUrls();

@@ -17,3 +17,5 @@
 | `ops.py` / `ops_book.py` | 运营操作与台账 |
 
 密钥一律从 env 文件读（`signer_env.py`），不写进代码。
+
+同一目录下还有：`deploy-panel/`（本地部署面板，API key 只从浏览器或环境变量读）、`validator-service/`、`g13-tests/`、`og/`，以及生成 SVG 字面量、名单和哈希复核的脚本。服务器地址用 `SERVER_IP`，不写进仓库。

@@ -1,0 +1,19 @@
+{
+  "fixture": "failures",
+  "note": "文档样本。实现前这些错误还不会从链或 API 返回",
+  "cases": [
+    {"id": "bad-nonce", "where": "chain", "error": "BadNonce"},
+    {"id": "revoked-validator", "where": "chain", "error": "BadSignature"},
+    {"id": "verify-after-end", "where": "chain", "error": "BadTime", "dayIndex": 20796},
+    {"id": "finding-claim-inside-publicity", "where": "chain", "error": "BadTime"},
+    {"id": "earn-zero-verify", "where": "chain", "error": "EarnNotPaid", "verifiedStaysFalse": true, "nonceUnchanged": true},
+    {"id": "double-refund", "where": "chain", "error": "AlreadyClaimed"},
+    {"id": "name-check-failed", "where": "chain", "error": "NameCheckFailed"},
+    {"id": "snapshot-too-fresh", "where": "chain", "error": "SnapshotTooFresh"},
+    {"id": "root-frozen", "where": "chain", "error": "RootFrozen"},
+    {"id": "http-403-not-unminted", "where": "indexer", "simError": "name-check-failed", "mustNotBroadcast": true},
+    {"id": "name-taken", "where": "indexer", "simError": "name-taken", "mustNotChangeLabel": true},
+    {"id": "empty-orders", "where": "api", "http": 200, "orders": []},
+    {"id": "unknown-order", "where": "api", "http": 404, "error": "not_found"}
+  ]
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>haha.meme 部署面板</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">haha.meme 部署面板</div>
+    <div class="meta">
+      <span id="meta-commit">commit: —</span>
+      <span id="meta-solc">solc: —</span>
+    </div>
+    <div class="wallet-box">
+      <span id="net-badge" class="badge badge-gray">未连接</span>
+      <span id="addr" class="addr">—</span>
+      <span id="balance" class="balance">—</span>
+      <button id="btn-connect" class="btn btn-primary">连接 MetaMask</button>
+      <button id="btn-connect-okx" class="btn btn-primary">连接 OKX</button>
+    </div>
+  </header>
+
+  <div id="net-warning" class="net-warning hidden">
+    当前网络不是目标网络，请切换。
+    <button id="btn-switch-net" class="btn btn-warn">一键切换</button>
+  </div>
+
+  <main class="layout">
+    <!-- 左侧：固定参数 -->
+    <aside class="sidebar">
+      <h3>固定参数（不可改）</h3>
+      <dl class="params">
+        <dt>管理员</dt><dd id="p-admin">—</dd>
+        <dt>手续费接收</dt><dd id="p-fee">—</dd>
+        <dt>.ai 注册表</dt><dd id="p-ai">—</dd>
+        <dt>chainId</dt><dd id="p-chain">—</dd>
+      </dl>
+      <p><a href="season1.html" style="color:var(--accent);font-size:13px">→ Season1 部署授权面板</a></p>
+      <p><a href="validation.html" style="color:var(--accent);font-size:13px">→ HahaValidation 部署面板（G13）</a></p>
+      <p><a href="dog.html" style="color:var(--accent);font-size:13px">→ Haha Dog 部署面板（4 合约）</a></p>
+      <p><a href="season1-fulfill.html" style="color:var(--accent);font-size:13px">→ Season1 铸造发放面板</a></p>
+      <h3>模式</h3>
+      <div class="mode-switch">
+        <button id="btn-mainnet" class="btn btn-outline">BSC 主网 (56)</button>
+        <button id="btn-testnet" class="btn btn-outline">BSC 测试网 (97)</button>
+      </div>
+      <h3>进度</h3>
+      <div class="progress-actions">
+        <button id="btn-export" class="btn btn-outline">导出进度</button>
+        <button id="btn-import" class="btn btn-outline">导入进度</button>
+        <input type="file" id="import-file" accept="application/json" class="hidden" />
+      </div>
+      <h3>开源验证</h3>
+      <div class="verify-box">
+        <input id="verify-key" type="password" placeholder="Etherscan API Key（仅内存，V2 多链）" />
+        <button id="btn-verify" class="btn btn-outline">一键验证</button>
+      </div>
+      <pre id="verify-results" class="verify-results hidden"></pre>
+    </aside>
+
+    <!-- 右侧：步骤清单 -->
+    <section class="content">
+      <h2>部署步骤</h2>
+      <p class="hint">只能点当前一步。管理员步骤需切换到管理员钱包。每步确认后自动读链上核对。</p>
+      <div id="steps" class="steps"></div>
+
+      <h2 id="selfcheck-title" class="mt">最终自检</h2>
+      <button id="btn-selfcheck" class="btn btn-primary" disabled>运行最终自检</button>
+      <div id="selfcheck" class="selfcheck"></div>
+
+      <h2 class="mt">回执</h2>
+      <button id="btn-receipt-copy" class="btn btn-outline" disabled>复制回执</button>
+      <button id="btn-receipt-download" class="btn btn-outline" disabled>下载 deployment-&lt;chainId&gt;.json</button>
+      <button id="btn-receipt-md" class="btn btn-outline" disabled>复制 Markdown 回执</button>
+      <pre id="receipt" class="receipt hidden"></pre>
+    </section>
+  </main>
+
+  <script src="/vendor/ethers.umd.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

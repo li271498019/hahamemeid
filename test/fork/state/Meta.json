@@ -1,0 +1,10 @@
+{
+  "chainId": 56,
+  "address": "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F",
+  "frozenAtBlock": 134734030,
+  "frozenAt": "2026-11-20T17:19:39.104274+00:00",
+  "rpc": "https://bsc-dataseed.bnbchain.org",
+  "codeSize": 8756,
+  "codeHash": "0xc4006e6e6ffaaf6996116617392beabe4f5f0a0795841322f91c2ceac34d6ace",
+  "note": "\u533a\u5757 134683411 \u5728\u516c\u5171 RPC \u4e0a\u8fd4\u56de missing trie node\uff0c\u56e0\u6b64\u4ece latest \u51bb\u7ed3\u3002`.ai` \u4e0d\u53ef\u5347\u7ea7\uff0c\u5b57\u8282\u7801\u54c8\u5e0c\u4e0e SPEC 4 \u4e00\u81f4\u3002"
+}

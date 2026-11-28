@@ -1,0 +1,16 @@
+{
+  "fixture": "order-log-mismatch",
+  "note": "文档样本。管理员已声明，日志里的接收人不符。网站不得显示已发放",
+  "orderId": "1",
+  "aiId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+  "applicant": "0x2222222222222222222222222222222222222222",
+  "recipient": "0x3333333333333333333333333333333333333333",
+  "label": "ab",
+  "tld": 0,
+  "tier": "Reserved",
+  "status": "Fulfilled",
+  "mintTx": "0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "tokenId": "12345",
+  "simError": null,
+  "logCheck": "mismatch"
+}

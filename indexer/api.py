@@ -7,7 +7,9 @@ here have NO /api prefix: /health, /v1/listings, /v1/trades, /v1/agents,
 /v1/leaderboard/points, /v1/stats, /v1/owners/{address}/primary,
 /v1/names/{fullName}/image.svg, /v1/names/{fullName}/metadata,
 /v1/names, /v1/events, /v1/agents/{agentId}/validations,
-/v1/validations/{requestHash}.
+/v1/validations/{requestHash}, /v1/dog/stats, /v1/dog/tokens,
+/v1/dog/tokens/{id}, /v1/dog/owners/{address}/tokens, /v1/dog/listings,
+/v1/dog/trades, /v1/dog/activity (Haha Dog).
 
 Conventions (per V1-INDEXER-SPEC.md): uint256 as decimal strings,
 addresses lowercase 0x, times UTC ISO-8601 with Z, opaque cursors
@@ -35,7 +37,7 @@ import psycopg2
 import psycopg2.extras
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from common import (CHAIN_ID, CONTRACTS, EVENTS, decode_log,
+from common import (CHAIN_ID, CONFIRMATIONS, CONTRACTS, EVENTS, ZERO_ADDRESS as ZERO, decode_log,
                     get_config, RpcClient, keccak256, season1_module,
                     topic0)
 from svg import build_svg_only
@@ -1858,6 +1860,377 @@ def h_validations_upload(body):
 
 
 
+# ---------------------------------------------------------------- Haha Dog (2026-11-28)
+# /v1/dog/*: HahaDog NFT + HahaDogMarket, read from the dog_* tables that
+# dog_store.py fills. Same conventions as above: uint256 as decimal strings,
+# lowercase addresses, ISO times, opaque cursors, limit default 24 / max 50.
+# `status` is derived: "ready" (seed known), "generating" (target block not yet
+# confirmed), "check" (target is behind us but the indexer has no hash: ask the
+# chain, dogOf(tokenId); the contract may still have it via EIP-2935).
+
+DOG_SUPPLY_CAP = 10000
+DOG_START_TIME = "2026-11-28T02:47:48Z"   # block 136153154 (HahaDog deployment)
+DOG_SEED_DELAY = 4
+_DOG_STATS_CACHE = {"ts": 0.0, "body": None}
+_DOG_STATS_TTL = 10
+
+
+def _safe_block():
+    with db().cursor() as cur:
+        cur.execute("SELECT safe_block FROM checkpoint WHERE id = 1")
+        row = cur.fetchone()
+    return row[0] if row else 0
+
+
+def _dog_status(seed, commit_block, safe):
+    if seed is not None:
+        return "ready"
+    if safe + CONFIRMATIONS <= commit_block + DOG_SEED_DELAY:
+        return "generating"
+    return "check"
+
+
+_DOG_COLS = ("d.token_id, d.owner, d.mint_block, d.mint_time, d.mint_tx,"
+             " d.commit_block, d.rerolls, d.seed")
+
+
+def _dog_item(r, safe):
+    return {
+        "tokenId": dec(r["token_id"]),
+        "owner": hexb(r["owner"]),
+        "status": _dog_status(r["seed"], r["commit_block"], safe),
+        "commitBlock": r["commit_block"],
+        "targetBlock": r["commit_block"] + DOG_SEED_DELAY,
+        "rerolls": r["rerolls"],
+        "seed": hexb(r["seed"]),
+        "mintedAt": iso(r["mint_time"]),
+        "mintBlock": r["mint_block"],
+        "mintTx": hexb(r["mint_tx"]),
+    }
+
+
+def _dog_token_id(text):
+    t = unquote(text).strip()
+    if not re.fullmatch(r"[1-9][0-9]{0,4}", t) or int(t) > DOG_SUPPLY_CAP:
+        raise ApiError(400, {"error": "invalid_token_id"})
+    return int(t)
+
+
+def h_dog_stats():
+    global _DOG_STATS_CACHE
+    now = time.time()
+    if _DOG_STATS_CACHE["body"] is not None and now - _DOG_STATS_CACHE["ts"] < _DOG_STATS_TTL:
+        return _DOG_STATS_CACHE["body"]
+    safe = _safe_block()
+    with db().cursor() as cur:
+        cur.execute("SELECT COUNT(*), COALESCE(SUM(rerolls), 0), COUNT(DISTINCT owner),"
+                    " COUNT(*) FILTER (WHERE seed IS NOT NULL) FROM dogs")
+        minted, rerolls, holders, with_seed = cur.fetchone()
+        # Active listings only: a listing whose seller no longer holds the dog, or whose dog was
+        # rerolled, cannot be bought (clearStale accepts it), so it is not part of the floor.
+        cur.execute("SELECT COUNT(*), MIN(l.price_wei) FROM dog_listings l"
+                    " JOIN dogs d ON d.token_id = l.token_id"
+                    " WHERE l.seller = d.owner AND l.rerolls = d.rerolls")
+        listings, floor_wei = cur.fetchone()
+        cur.execute("SELECT price_wei FROM dog_trades"
+                    " ORDER BY block_number DESC, log_index DESC LIMIT 1")
+        row = cur.fetchone()
+        latest = row[0] if row else None
+        cur.execute("SELECT COUNT(*), COALESCE(SUM(price_wei), 0), COALESCE(SUM(fee_wei), 0)"
+                    " FROM dog_trades")
+        sales, volume, fees = cur.fetchone()
+        cur.execute("SELECT COALESCE(SUM(price_wei), 0), COUNT(*) FROM dog_trades"
+                    " WHERE block_time >= NOW() - INTERVAL '24 hours'")
+        vol24, sales24 = cur.fetchone()
+        cur.execute("SELECT COUNT(*) FROM raw_logs WHERE address = %s"
+                    " AND topic0 = %s", (bytes.fromhex(CONTRACTS["dog"][2:]),
+                                         bytes.fromhex(topic0("Committed(uint256,uint256,uint256)")[2:])))
+        commits = cur.fetchone()[0]
+    body = {
+        "supplyCap": DOG_SUPPLY_CAP,
+        "minted": int(minted),
+        "remaining": DOG_SUPPLY_CAP - int(minted),
+        "holders": int(holders),
+        "rerolls": int(rerolls),
+        "commits": int(commits),
+        "withSeed": int(with_seed),
+        "startTime": DOG_START_TIME,
+        "market": {
+            "listings": int(listings),
+            "floorPriceWei": dec(floor_wei) if floor_wei is not None else None,
+            "latestTradePriceWei": dec(latest) if latest is not None else None,
+            "sales": int(sales),
+            "volumeWei": dec(volume),
+            "feesWei": dec(fees),
+            "sales24h": int(sales24),
+            "volume24hWei": dec(vol24),
+        },
+        "safeBlock": safe,
+    }
+    _DOG_STATS_CACHE = {"ts": now, "body": body}
+    return body
+
+
+def h_dog_tokens(q):
+    limit = parse_limit(q)
+    sort = parse_sort(q, ("id_desc", "id_asc"), "id_desc")
+    cursor = q.get("cursor", [None])[0]
+    where, args = [], []
+    if cursor:
+        (ct,) = decode_cursor(cursor, ("numstr",))
+        where.append("d.token_id %s %%s" % ("<" if sort == "id_desc" else ">"))
+        args.append(ct)
+    sql = ("SELECT " + _DOG_COLS + " FROM dogs d"
+           + (" WHERE " + " AND ".join(where) if where else "")
+           + " ORDER BY d.token_id " + ("DESC" if sort == "id_desc" else "ASC") + " LIMIT %s")
+    args.append(limit + 1)
+    safe = _safe_block()
+    with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(sql, args)
+        rows = cur.fetchall()
+    items, nxt = page(rows, limit, lambda r: [dec(r["token_id"])])
+    return {"items": [_dog_item(r, safe) for r in items], "nextCursor": nxt}
+
+
+def h_dog_token(id_text):
+    tid = _dog_token_id(id_text)
+    safe = _safe_block()
+    with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute("SELECT " + _DOG_COLS + ", l.seller AS l_seller, l.price_wei AS l_price,"
+                    " l.rerolls AS l_rerolls, l.listed_time AS l_time"
+                    " FROM dogs d LEFT JOIN dog_listings l ON l.token_id = d.token_id"
+                    " WHERE d.token_id = %s", (tid,))
+        r = cur.fetchone()
+    if r is None:
+        return {"tokenId": str(tid), "minted": False}
+    item = _dog_item(r, safe)
+    item["minted"] = True
+    item["listing"] = None
+    if r["l_seller"] is not None:
+        item["listing"] = {
+            "seller": hexb(r["l_seller"]), "priceWei": dec(r["l_price"]),
+            "listedAt": iso(r["l_time"]),
+            "stale": bool(r["owner"] is None or bytes(r["owner"]) != bytes(r["l_seller"])
+                          or r["rerolls"] != r["l_rerolls"]),
+        }
+    return item
+
+
+def h_dog_owner_tokens(address):
+    address = unquote(address).strip()
+    if not ADDR_RE.fullmatch(address):
+        raise ApiError(400, {"error": "invalid_address"})
+    safe = _safe_block()
+    with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute("SELECT " + _DOG_COLS + ", l.price_wei AS l_price, l.seller AS l_seller,"
+                    " l.rerolls AS l_rerolls"
+                    " FROM dogs d LEFT JOIN dog_listings l ON l.token_id = d.token_id"
+                    " WHERE d.owner = %s ORDER BY d.token_id DESC LIMIT 200",
+                    (bytes.fromhex(address[2:]),))
+        rows = cur.fetchall()
+        cur.execute("SELECT COALESCE(SUM(amount_wei), 0) AS w FROM dog_withdrawals WHERE account = %s",
+                    (bytes.fromhex(address[2:]),))
+        withdrawn = cur.fetchone()["w"]
+    items = []
+    for r in rows:
+        it = _dog_item(r, safe)
+        it["listing"] = None
+        if r["l_seller"] is not None:
+            it["listing"] = {"priceWei": dec(r["l_price"]),
+                             "stale": bool(bytes(r["l_seller"]) != bytes(r["owner"])
+                                           or r["rerolls"] != r["l_rerolls"])}
+        items.append(it)
+    return {"owner": address.lower(), "count": len(items), "items": items,
+            "withdrawnWei": dec(withdrawn)}
+
+
+def h_dog_listings(q):
+    limit = parse_limit(q)
+    sort = parse_sort(q, ("price_asc", "price_desc", "id_asc", "listed_desc"), "price_asc")
+    cursor = q.get("cursor", [None])[0]
+    where, args = [], []
+    if sort == "price_asc":
+        order = "l.price_wei ASC, l.token_id ASC"
+        if cursor:
+            cp, ct = decode_cursor(cursor, ("numstr", "numstr"))
+            where.append("(l.price_wei > %s OR (l.price_wei = %s AND l.token_id > %s))")
+            args += [cp, cp, ct]
+        mk = lambda r: [dec(r["l_price"]), dec(r["token_id"])]
+    elif sort == "price_desc":
+        order = "l.price_wei DESC, l.token_id ASC"
+        if cursor:
+            cp, ct = decode_cursor(cursor, ("numstr", "numstr"))
+            where.append("(l.price_wei < %s OR (l.price_wei = %s AND l.token_id > %s))")
+            args += [cp, cp, ct]
+        mk = lambda r: [dec(r["l_price"]), dec(r["token_id"])]
+    elif sort == "id_asc":
+        order = "l.token_id ASC"
+        if cursor:
+            (ct,) = decode_cursor(cursor, ("numstr",))
+            where.append("l.token_id > %s")
+            args.append(ct)
+        mk = lambda r: [dec(r["token_id"])]
+    else:
+        order = "l.listed_block DESC, l.token_id DESC"
+        if cursor:
+            cb, ct = decode_cursor(cursor, ("int", "numstr"))
+            where.append("(l.listed_block < %s OR (l.listed_block = %s AND l.token_id < %s))")
+            args += [cb, cb, ct]
+        mk = lambda r: [r["l_block"], dec(r["token_id"])]
+    sql = ("SELECT " + _DOG_COLS + ", l.seller AS l_seller, l.price_wei AS l_price,"
+           " l.rerolls AS l_rerolls, l.listed_time AS l_time, l.listed_block AS l_block,"
+           " l.tx_hash AS l_tx, l.log_index AS l_log"
+           " FROM dog_listings l JOIN dogs d ON d.token_id = l.token_id"
+           + (" WHERE " + " AND ".join(where) if where else "")
+           + " ORDER BY " + order + " LIMIT %s")
+    args.append(limit + 1)
+    safe = _safe_block()
+    with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(sql, args)
+        rows = cur.fetchall()
+    items, nxt = page(rows, limit, mk)
+    out = []
+    for r in items:
+        it = _dog_item(r, safe)
+        it.update({
+            "seller": hexb(r["l_seller"]), "priceWei": dec(r["l_price"]),
+            "listedAt": iso(r["l_time"]), "listedBlock": r["l_block"],
+            "txHash": hexb(r["l_tx"]), "logIndex": r["l_log"],
+            # Same test as HahaDogMarket.clearStale. Approval is not indexed: the
+            # buy button still calls isValid() on chain before it enables.
+            "stale": bool(r["owner"] is None or bytes(r["owner"]) != bytes(r["l_seller"])
+                          or r["rerolls"] != r["l_rerolls"]),
+        })
+        out.append(it)
+    return {"items": out, "nextCursor": nxt}
+
+
+def h_dog_trades(q):
+    limit = parse_limit(q)
+    cursor = q.get("cursor", [None])[0]
+    where, args = [], []
+    if cursor:
+        cb, cl = decode_cursor(cursor, ("int", "int"))
+        where.append("(t.block_number < %s OR (t.block_number = %s AND t.log_index < %s))")
+        args += [cb, cb, cl]
+    sql = ("SELECT t.token_id, t.seller, t.buyer, t.price_wei, t.fee_wei, t.proceeds_wei,"
+           " t.block_number, t.block_time, t.tx_hash, t.log_index FROM dog_trades t"
+           + (" WHERE " + " AND ".join(where) if where else "")
+           + " ORDER BY t.block_number DESC, t.log_index DESC LIMIT %s")
+    args.append(limit + 1)
+    with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(sql, args)
+        rows = cur.fetchall()
+    items, nxt = page(rows, limit, lambda r: [r["block_number"], r["log_index"]])
+    return {"items": [{
+        "tokenId": dec(r["token_id"]), "seller": hexb(r["seller"]), "buyer": hexb(r["buyer"]),
+        "priceWei": dec(r["price_wei"]), "feeWei": dec(r["fee_wei"]),
+        "proceedsWei": dec(r["proceeds_wei"]), "tradedAt": iso(r["block_time"]),
+        "blockNumber": r["block_number"], "txHash": hexb(r["tx_hash"]), "logIndex": r["log_index"],
+    } for r in items], "nextCursor": nxt}
+
+
+_DOG_ACTIVITY_TYPES = {
+    "Transfer": "transfer", "Committed": "reroll", "Listed": "list",
+    "PriceUpdated": "price", "Cancelled": "cancel", "StaleCleared": "clear",
+    "Sold": "sale", "Withdrawn": "withdraw",
+}
+
+
+def h_dog_activity(q):
+    """Newest first. type: mint, reroll, transfer, list, price, cancel, clear, sale, withdraw.
+    Filters: tokenId=, address= (any topic carrying it, e.g. seller/buyer/owner), type=."""
+    limit = parse_limit(q)
+    cursor = q.get("cursor", [None])[0]
+    want = q.get("type", [None])[0]
+    tid = q.get("tokenId", [None])[0]
+    address = q.get("address", [None])[0]
+    if want is not None and want != "mint" and want not in _DOG_ACTIVITY_TYPES.values():
+        raise ApiError(400, {"error": "invalid_type"})
+    dog = bytes.fromhex(CONTRACTS["dog"][2:])
+    mkt = bytes.fromhex(CONTRACTS["dogmarket"][2:])
+    t0 = {name: bytes.fromhex(topic0(sig)[2:]) for name, sig in (
+        ("Transfer", "Transfer(address,address,uint256)"),
+        ("Committed", "Committed(uint256,uint256,uint256)"),
+        ("Listed", "Listed(uint256,address,uint256,uint256)"),
+        ("PriceUpdated", "PriceUpdated(uint256,address,uint256,uint256)"),
+        ("Cancelled", "Cancelled(uint256,address)"),
+        ("StaleCleared", "StaleCleared(uint256,address,address)"),
+        ("Sold", "Sold(uint256,address,address,uint256,uint256,uint256)"),
+        ("Withdrawn", "Withdrawn(address,uint256)"))}
+    zero_word = bytes(32)
+    where = ["r.address = ANY(%s)"]
+    args = [[dog, mkt]]
+    # Committed with rerolls = 0 is the mint's own commit; the mint row covers it.
+    where.append("r.topic0 = ANY(%s)")
+    args.append(list(t0.values()))
+    where.append("NOT (r.topic0 = %s AND substring(r.data from 1 for 32) = %s)")
+    args += [t0["Committed"], zero_word]
+    if want:
+        zero_topic = "0x" + "00" * 32
+        if want == "mint":
+            where.append("(r.topic0 = %s AND r.topics->>1 = %s)")
+            args += [t0["Transfer"], zero_topic]
+        elif want == "transfer":
+            where.append("(r.topic0 = %s AND r.topics->>1 <> %s)")
+            args += [t0["Transfer"], zero_topic]
+        else:
+            name = [k for k, v in _DOG_ACTIVITY_TYPES.items() if v == want][0]
+            where.append("r.topic0 = %s")
+            args.append(t0[name])
+    if tid is not None:
+        n = _dog_token_id(tid)
+        where.append("r.topics @> %s::jsonb")
+        args.append(json.dumps(["0x" + format(n, "064x")]))
+    if address is not None:
+        a = address.strip().lower()
+        if not ADDR_RE.fullmatch(a):
+            raise ApiError(400, {"error": "invalid_address"})
+        where.append("r.topics @> %s::jsonb")
+        args.append(json.dumps(["0x" + "00" * 12 + a[2:]]))
+    if cursor:
+        cb, ct, cl = decode_cursor(cursor, ("int", "int", "int"))
+        where.append("(r.block_number < %s OR (r.block_number = %s AND"
+                     " (r.tx_index < %s OR (r.tx_index = %s AND r.log_index < %s))))")
+        args += [cb, cb, ct, ct, cl]
+    sql = ("SELECT r.block_number, r.block_time, r.tx_hash, r.tx_index, r.log_index,"
+           " r.address, r.topics, r.data FROM raw_logs r WHERE " + " AND ".join(where)
+           + " ORDER BY r.block_number DESC, r.tx_index DESC, r.log_index DESC LIMIT %s")
+    args.append(limit + 1)
+    with db().cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(sql, args)
+        rows = cur.fetchall()
+    items, nxt = page(rows, limit, lambda r: [r["block_number"], r["tx_index"], r["log_index"]])
+    out = []
+    for r in items:
+        try:
+            name, p = decode_log(hexb(r["address"]), r["topics"] or [], bytes(r["data"]))
+        except Exception:
+            name, p = None, {}
+        if name is None:
+            continue
+        kind = _DOG_ACTIVITY_TYPES.get(name, name)
+        if name == "Transfer" and p.get("from") == ZERO:
+            kind = "mint"
+        row = {"type": kind, "event": name, "tokenId": dec(p.get("tokenId")),
+               "blockNumber": r["block_number"], "blockTime": iso(r["block_time"]),
+               "txHash": hexb(r["tx_hash"]), "logIndex": r["log_index"]}
+        for k_out, k_in in (("from", "from"), ("to", "to"), ("seller", "seller"), ("buyer", "buyer"),
+                            ("account", "account"), ("currentOwner", "currentOwner")):
+            if k_in in p:
+                row[k_out] = p[k_in]
+        for k_out, k_in in (("priceWei", "price"), ("oldPriceWei", "oldPrice"),
+                            ("newPriceWei", "newPrice"), ("feeWei", "fee"),
+                            ("amountWei", "amount"), ("rerolls", "rerolls")):
+            if k_in in p:
+                row[k_out] = dec(p[k_in])
+        if name == "Sold" and "price" in p:
+            row["priceWei"] = dec(p["price"])
+        out.append(row)
+    return {"items": out, "nextCursor": nxt}
+
+
+
 ROUTES = [
     (re.compile(r"^/v1/season1/days/([0-9]+)$"),
      lambda q, m: (h_season_day(m.group(1)), "no-store")),
@@ -1912,6 +2285,14 @@ ROUTES = [
     (re.compile(r"^/v1/leaderboard/points$"),
      lambda q, m: (h_points(q), LIST_CACHE)),
     (re.compile(r"^/v1/stats$"), lambda q, m: (h_stats(), LIST_CACHE)),
+    (re.compile(r"^/v1/dog/stats$"), lambda q, m: (h_dog_stats(), LIST_CACHE)),
+    (re.compile(r"^/v1/dog/tokens$"), lambda q, m: (h_dog_tokens(q), LIST_CACHE)),
+    (re.compile(r"^/v1/dog/tokens/([^/]+)$"), lambda q, m: (h_dog_token(m.group(1)), LIST_CACHE)),
+    (re.compile(r"^/v1/dog/owners/(0x[0-9a-fA-F]{40})/tokens$"),
+     lambda q, m: (h_dog_owner_tokens(m.group(1)), LIST_CACHE)),
+    (re.compile(r"^/v1/dog/listings$"), lambda q, m: (h_dog_listings(q), LIST_CACHE)),
+    (re.compile(r"^/v1/dog/trades$"), lambda q, m: (h_dog_trades(q), LIST_CACHE)),
+    (re.compile(r"^/v1/dog/activity$"), lambda q, m: (h_dog_activity(q), LIST_CACHE)),
 ]
 
 

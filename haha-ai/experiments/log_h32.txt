@@ -1,0 +1,9 @@
+[train] {'epoch': 0, 'rec': 865.135, 'kl': 31.14, 'cell_acc': 0.1544, 'exact_dogs': 0.0, 'sec': 0}
+[train] {'epoch': 500, 'rec': 16.18, 'kl': 23.47, 'cell_acc': 0.9698, 'exact_dogs': 0.077, 'sec': 28}
+[train] {'epoch': 1000, 'rec': 12.161, 'kl': 19.83, 'cell_acc': 0.9769, 'exact_dogs': 0.093, 'sec': 60}
+[train] {'epoch': 1500, 'rec': 10.641, 'kl': 18.81, 'cell_acc': 0.982, 'exact_dogs': 0.175, 'sec': 92}
+[train] {'epoch': 2000, 'rec': 22.301, 'kl': 15.97, 'cell_acc': 0.9645, 'exact_dogs': 0.031, 'sec': 169}
+[train] {'epoch': 2500, 'rec': 19.495, 'kl': 16.24, 'cell_acc': 0.9721, 'exact_dogs': 0.064, 'sec': 550}
+[train] {'epoch': 3000, 'rec': 18.022, 'kl': 16.28, 'cell_acc': 0.9737, 'exact_dogs': 0.089, 'sec': 635}
+[train] {'epoch': 3500, 'rec': 17.912, 'kl': 15.98, 'cell_acc': 0.9748, 'exact_dogs': 0.095, 'sec': 717}
+[train] {'epoch': 3999, 'rec': 19.258, 'kl': 16.22, 'cell_acc': 0.975, 'exact_dogs': 0.097, 'sec': 799}

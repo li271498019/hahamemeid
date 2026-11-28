@@ -27,7 +27,7 @@ import psycopg2.extras
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import (AI_REGISTRY, ALL_ADDRESSES, CHAIN_ID, CONFIRMATIONS,
-                    CONTRACTS, MAX_RANGE, MIN_RANGE, RpcClient, RpcError,
+                    CONTRACTS, DOG_ADDRESSES, MAX_RANGE, MIN_RANGE, RpcClient, RpcError,
                     START_BLOCK, ZERO_ADDRESS, ZERO_BYTES32, decode_handleof_return,
                     decode_log, get_config, keccak256, topic0, _mask_url)
 
@@ -105,6 +105,10 @@ def apply_log(cur, addr, event, p, meta, resolver):
     (block_number, block_time, tx_hash_bytes, tx_index, log_index)."""
     bn, bt, txh, _txi, li = meta
     if event is None:
+        return
+    if addr in DOG_ADDRESSES:
+        from dog_store import apply_dog_event
+        apply_dog_event(cur, addr, event, p, meta)
         return
     if event == "NameMinted":
         tld = p["tld"]
@@ -325,7 +329,9 @@ class Syncer:
             for t in ("names", "listings", "trades", "agents", "reviews", "points",
                       "season1_days", "season1_orders", "season1_verifications",
                       "season1_findings", "season1_task_packs", "season1_entries",
-                      "season1_validators", "season1_reward_signer"):
+                      "season1_validators", "season1_reward_signer",
+                      "dogs", "dog_snapshots", "dog_listings", "dog_trades",
+                      "dog_withdrawals"):
                 cur.execute("TRUNCATE %s" % t)
             cur.execute(
                 "SELECT block_number, block_time, tx_hash, tx_index, log_index,"
@@ -446,7 +452,17 @@ class Syncer:
             log("synced to", to)
             self.range_blocks = min(MAX_RANGE, self.range_blocks + 250)
             nxt = to + 1
+        self.resolve_dog_seeds(nxt - 1)
         return nxt - 1
+
+    def resolve_dog_seeds(self, safe_block):
+        """Haha Dog: fill seeds that became known (see dog_store.resolve_seeds)."""
+        if safe_block is None or safe_block < 0:
+            return
+        from dog_store import resolve_seeds
+        n = resolve_seeds(self.conn, self.rpc, safe_block, log)
+        if n:
+            log("dog seeds resolved:", n)
 
     def run_forever(self):
         while not self.stop:

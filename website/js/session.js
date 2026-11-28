@@ -53,7 +53,11 @@
       write(data);
       return data;
     },
-    logout: function () { write(null); },
+    logout: function () {
+      write(null);
+      /* 积分是全站一份缓存。退出时清掉，避免下一位登录者先看到别人的数字。 */
+      try { localStorage.removeItem(POINTS_KEY); } catch (err) {}
+    },
     setPoints: function (n) {
       try { localStorage.setItem(POINTS_KEY, String(Number(n) || 0)); } catch (err) {}
     },

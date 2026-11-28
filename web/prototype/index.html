@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F7931A">
+<title>haha.meme · haha id</title>
+<link rel="icon" href="../site/assets/logo/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="../site/assets/logo/favicon-32.png">
+<link rel="apple-touch-icon" href="../site/assets/logo/favicon-180.png">
+<meta property="og:image" content="/assets/logo/haha-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/logo/haha-logo.png">
+<style>
+  :root {
+    --sun: #FFC21A;
+    --btc: #F7931A;
+    --deep: #FF7A1A;
+    --ink: #9A3412;
+    --ink-deep: #7C2D12;
+    --white: #fff;
+    --shadow: 0 18px 40px rgba(122, 42, 0, 0.22);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    color: var(--white);
+    font-family: Inter, "WenQuanYi Micro Hei", "Droid Sans Fallback", "Noto Sans", sans-serif;
+    font-weight: 700;
+    background:
+      radial-gradient(900px 480px at 8% -10%, #ffe59a 0%, transparent 58%),
+      radial-gradient(700px 520px at 110% 0%, #ff9d45 0%, transparent 52%),
+      linear-gradient(180deg, #FFC21A 0%, #F7931A 46%, #FF7A1A 100%);
+    overflow-x: hidden;
+  }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+  .sr {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); border: 0;
+  }
+  #fx {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,0.22) 1.1px, transparent 1.2px);
+    background-size: 16px 16px;
+    mix-blend-mode: overlay;
+    opacity: 0.45;
+  }
+  .wrap { position: relative; z-index: 3; }
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 22px;
+    background: rgba(232, 98, 16, 0.94);
+    border-bottom: 2px solid rgba(255,255,255,0.45);
+    box-shadow: 0 8px 24px rgba(140, 50, 0, 0.18);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+  }
+  .logo img { width: 40px; height: 40px; display: block; }
+  .links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+  .links a {
+    padding: 8px 10px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .links a[aria-current="page"] {
+    background: #fff;
+    color: #E4570E;
+  }
+  .links a:hover { background: rgba(255,255,255,0.18); }
+  .links a[aria-current="page"]:hover { background: #fff; }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+  .points {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    color: #C2410C;
+    border-radius: 999px;
+    padding: 4px 12px 4px 4px;
+    box-shadow: 0 4px 0 rgba(122, 40, 0, 0.25);
+  }
+  .points[hidden] { display: none; }
+  .points img {
+    width: 32px;
+    height: 32px;
+    flex: none;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+  .points-num { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; }
+  .login { display: flex; align-items: center; gap: 8px; }
+  .login-field {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 0 12px 0 14px;
+    box-shadow: 0 4px 0 rgba(122, 40, 0, 0.25);
+  }
+  .login-field input {
+    width: 128px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--ink);
+    font-weight: 800;
+    padding: 10px 0;
+  }
+  .login-field input::placeholder { color: #E0A070; font-weight: 700; }
+  .login-field em { font-style: normal; color: #E4570E; font-weight: 800; }
+  .login button, .ghost, .copy, .market, .demo button, .toggles button {
+    border: 0;
+    border-radius: 999px;
+    font-weight: 800;
+  }
+  .login button {
+    background: #fff;
+    color: #E4570E;
+    padding: 10px 14px;
+    box-shadow: 0 4px 0 rgba(122, 40, 0, 0.25);
+  }
+  main { padding: 28px 20px 64px; }
+  .hero { max-width: 980px; margin: 0 auto; text-align: center; }
+  .kicker {
+    display: inline-block;
+    margin: 0 0 10px;
+    padding: 6px 12px;
+    border: 2px solid rgba(255,255,255,0.85);
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  h1 {
+    margin: 0;
+    font-size: 68px;
+    line-height: 0.96;
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    text-shadow: 0 3px 0 rgba(180, 60, 0, 0.35), 0 14px 30px rgba(150, 40, 0, 0.22);
+  }
+  h1 .pop {
+    display: inline-block;
+    background: #fff;
+    color: #E4570E;
+    padding: 0 0.16em 0.02em;
+    border-radius: 0.18em;
+    transform: rotate(-2deg);
+    text-shadow: none;
+  }
+  .lede {
+    margin: 14px auto 0;
+    max-width: 640px;
+    font-size: 18px;
+    line-height: 1.45;
+    font-weight: 700;
+    text-shadow: 0 2px 0 rgba(160, 50, 0, 0.28);
+  }
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px auto 0;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.55);
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .status i {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #fff; display: inline-block;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.28);
+  }
+  .card {
+    margin-top: 22px;
+    background: #fff;
+    color: var(--ink-deep);
+    border-radius: 32px;
+    padding: 18px;
+    text-align: left;
+    box-shadow: var(--shadow), 0 8px 0 rgba(194, 65, 12, 0.18);
+  }
+  .search {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: #FFF6EA;
+    border-radius: 22px;
+    padding: 8px;
+    border: 2px solid #FFD7A8;
+  }
+  .search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--ink-deep);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    padding: 8px 12px;
+  }
+  .search input::placeholder { color: #E7B48A; }
+  .toggles { display: flex; gap: 6px; }
+  .toggles button {
+    background: transparent;
+    color: #E4570E;
+    border: 2px solid #F0B080;
+    padding: 12px 16px;
+    font-size: 18px;
+    min-width: 92px;
+  }
+  .toggles button[aria-pressed="true"] {
+    background: #FF7A1A;
+    color: #fff;
+    border-color: #FF7A1A;
+    box-shadow: 0 4px 0 #C2410C;
+  }
+  .hint {
+    margin: 10px 4px 0;
+    color: #C2410C;
+    font-size: 13px;
+    font-weight: 700;
+    min-height: 1.2em;
+  }
+  .demo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 4px 4px;
+  }
+  .demo span { font-size: 13px; color: #C2410C; font-weight: 800; }
+  .demo button {
+    background: #FFF1E4;
+    color: #C2410C;
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+  .demo button[aria-pressed="true"] {
+    background: #E4570E;
+    color: #fff;
+  }
+  .result {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 18px;
+    align-items: center;
+    background: #FFF8F1;
+    border-radius: 24px;
+    padding: 16px;
+  }
+  .badge {
+    display: inline-block;
+    margin: 0 0 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #FFE2C6;
+    color: #C2410C;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+  .badge.bad { background: #FFE4E6; color: #9F1239; }
+  .badge.taken { background: #FEF3C7; color: #92400E; }
+  .badge.ok { background: #DCFCE7; color: #166534; }
+  h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    color: #C2410C;
+  }
+  .detail, .who { margin: 0 0 8px; font-size: 15px; line-height: 1.45; font-weight: 700; color: #9A3412; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .copy, .market {
+    background: #FF7A1A;
+    color: #fff;
+    padding: 12px 18px;
+    font-size: 17px;
+    box-shadow: 0 5px 0 #C2410C;
+  }
+  .copy:active, .market:active, .toggles button[aria-pressed="true"]:active, .login button:active {
+    transform: translateY(2px);
+    box-shadow: 0 3px 0 #C2410C;
+  }
+  .market { background: #fff; color: #E4570E; border: 2px solid #F0B080; box-shadow: none; }
+  .peek {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #fff;
+    color: #9A3412;
+    font-family: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    max-height: 6.4em;
+    overflow: hidden;
+  }
+  .preview { position: relative; }
+  .nft-frame {
+    background: #fff;
+    padding: 8px;
+    border-radius: 22px;
+    transform: rotate(-2.4deg);
+    box-shadow: 8px 12px 0 rgba(194, 65, 12, 0.2);
+  }
+  .nft-frame svg { display: block; width: 100%; height: auto; border-radius: 14px; }
+  .stamp {
+    position: absolute;
+    right: 22px;
+    top: 22px;
+    transform: rotate(-8deg);
+    border: 4px solid #C2410C;
+    color: #C2410C;
+    background: rgba(255,255,255,0.92);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 2px 10px;
+    border-radius: 10px;
+    pointer-events: none;
+  }
+  .mascot {
+    background: #fff;
+    border-radius: 22px;
+    padding: 18px 12px 12px;
+    text-align: center;
+    transform: rotate(2deg);
+    box-shadow: 8px 12px 0 rgba(194, 65, 12, 0.2);
+  }
+  .mascot svg { width: 150px; height: 150px; }
+  .mascot p { margin: 4px 0 0; color: #C2410C; font-weight: 800; }
+  .cap {
+    margin: 8px 0 0;
+    text-align: center;
+    color: #C2410C;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+  }
+  .steps {
+    max-width: 980px;
+    margin: 22px auto 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .step {
+    background: rgba(255,255,255,0.94);
+    color: var(--ink-deep);
+    border-radius: 22px;
+    padding: 14px 14px 16px;
+    box-shadow: var(--shadow);
+  }
+  .step svg { width: 42px; height: 42px; }
+  .step b { display: block; margin: 6px 0 4px; font-size: 16px; color: #C2410C; }
+  .step span { display: block; font-size: 13px; font-weight: 700; color: #9A3412; line-height: 1.4; }
+  footer {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    padding: 8px 16px 28px;
+    font-size: 13px;
+    font-weight: 700;
+    text-shadow: 0 1px 0 rgba(160, 50, 0, 0.3);
+  }
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%) translateY(12px);
+    background: #fff;
+    color: #C2410C;
+    font-weight: 800;
+    padding: 12px 16px;
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 70;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  :focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .card :focus-visible, .nav-right :focus-visible { outline-color: #C2410C; }
+  @media (max-width: 1100px) {
+    h1 { font-size: 54px; }
+  }
+  @media (max-width: 800px) {
+    .nav { flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
+    .links { order: 3; width: 100%; flex: none; flex-wrap: wrap; overflow: visible; }
+    .links a { padding: 6px 8px; font-size: 13px; }
+    .peek { max-height: none; font-size: 11px; }
+    .nav-right { width: 100%; }
+    .login { flex: 1; }
+    .login-field { flex: 1; }
+    .login-field input { width: 100%; }
+    main { padding: 14px 14px 36px; }
+    .kicker { margin-bottom: 6px; }
+    h1 { font-size: 34px; }
+    .lede { font-size: 15px; margin-top: 8px; }
+    .status { margin-top: 10px; }
+    .card { margin-top: 12px; padding: 12px; }
+    .search { flex-direction: column; align-items: stretch; }
+    .search input { font-size: 24px; }
+    .toggles button { flex: 1; }
+    .result { grid-template-columns: 1fr; padding: 12px; }
+    h2 { font-size: 24px; }
+    .preview { max-width: 260px; margin: 0 auto; }
+    .steps { grid-template-columns: 1fr; margin-top: 14px; }
+    .nft-frame, .mascot { transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #toast { transition: none; }
+    .copy, .market, .toggles button, .login button { transition: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="icon-smile" viewBox="0 0 80 80">
+    <circle cx="40" cy="42" r="28" fill="#E8A31A" opacity="0.28"/>
+    <circle cx="40" cy="38" r="28" fill="#FFD34D" stroke="#8A5A00" stroke-width="3.5"/>
+    <circle cx="40" cy="38" r="21" fill="none" stroke="#E0A020" stroke-width="2"/>
+    <ellipse cx="29" cy="26" rx="9" ry="5.5" fill="#FFF6CC" opacity="0.9"/>
+    <circle cx="30" cy="36" r="3.1" fill="#6A3E00"/>
+    <circle cx="50" cy="36" r="3.1" fill="#6A3E00"/>
+    <path d="M28 44 Q40 56 52 44" fill="none" stroke="#6A3E00" stroke-width="3.2" stroke-linecap="round"/>
+    <ellipse cx="23" cy="44" rx="3.4" ry="2.1" fill="#F09A55" opacity="0.8"/>
+    <ellipse cx="57" cy="44" rx="3.4" ry="2.1" fill="#F09A55" opacity="0.8"/>
+  </symbol>
+  <symbol id="icon-shiba" viewBox="0 0 80 80">
+    <path d="M18 40 L16 14 L34 32 Z" fill="#E8A23A" stroke="#7A4A10" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M62 40 L64 14 L46 32 Z" fill="#E8A23A" stroke="#7A4A10" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M22 22 L30 32 L25 31 Z" fill="#F6C9A0"/>
+    <path d="M58 22 L50 32 L55 31 Z" fill="#F6C9A0"/>
+    <path d="M14 42 Q12 66 40 70 Q68 66 66 42 Q64 28 40 30 Q16 28 14 42Z" fill="#E8A23A" stroke="#7A4A10" stroke-width="3" stroke-linejoin="round"/>
+    <ellipse cx="40" cy="50" rx="16" ry="12" fill="#FFF1D6"/>
+    <ellipse cx="30" cy="46" rx="3.2" ry="4" fill="#3A2A10"/>
+    <path d="M46 43 Q53 46 49 51" fill="none" stroke="#3A2A10" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="40" cy="54" rx="4.2" ry="3.1" fill="#3A2A10"/>
+    <path d="M32 60 Q40 66 48 60" fill="none" stroke="#3A2A10" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M37 61 Q40 68 45 61 Q40 64 37 61Z" fill="#E07A6A"/>
+  </symbol>
+  <symbol id="icon-troll" viewBox="0 0 80 80">
+    <ellipse cx="14" cy="44" rx="6" ry="8" fill="#F6D2A2" stroke="#6B3A12" stroke-width="3"/>
+    <ellipse cx="66" cy="44" rx="6" ry="8" fill="#F6D2A2" stroke="#6B3A12" stroke-width="3"/>
+    <ellipse cx="40" cy="42" rx="26" ry="28" fill="#F6D2A2" stroke="#6B3A12" stroke-width="3"/>
+    <path d="M20 30 Q27 25 33 31" fill="none" stroke="#6B3A12" stroke-width="2.3" stroke-linecap="round"/>
+    <path d="M47 31 Q53 25 60 30" fill="none" stroke="#6B3A12" stroke-width="2.3" stroke-linecap="round"/>
+    <path d="M22 38 Q28 32 34 38" fill="none" stroke="#3A2410" stroke-width="3" stroke-linecap="round"/>
+    <path d="M46 38 Q52 32 58 38" fill="none" stroke="#3A2410" stroke-width="3" stroke-linecap="round"/>
+    <path d="M24 48 Q40 72 56 48 Q40 56 24 48Z" fill="#fff" stroke="#6B3A12" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M32 52 V62 M40 50 V66 M48 52 V62" stroke="#6B3A12" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="icon-doge" viewBox="0 0 80 80">
+    <circle cx="40" cy="40" r="28" fill="#F5C542" stroke="#9A6B00" stroke-width="3.5"/>
+    <circle cx="40" cy="40" r="20" fill="none" stroke="#9A6B00" stroke-width="2"/>
+    <text x="40" y="49" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="28" font-weight="700" fill="#9A6B00">Ð</text>
+  </symbol>
+  <symbol id="icon-btc" viewBox="0 0 80 80">
+    <circle cx="40" cy="40" r="28" fill="#F5C542" stroke="#9A6B00" stroke-width="3.5"/>
+    <circle cx="40" cy="40" r="20" fill="none" stroke="#9A6B00" stroke-width="2"/>
+    <text x="40" y="49" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="26" font-weight="700" fill="#9A6B00">₿</text>
+  </symbol>
+</svg>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="nav">
+    <a class="logo" href="#top" id="top">
+      <img src="../site/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40">
+      haha.meme
+    </a>
+    <nav class="links" aria-label="全站">
+      <a href="#search" aria-current="page">haha id</a>
+      <a href="../site/market.html">交易市场</a>
+      <a href="../site/erc8004.html">ERC-8004</a>
+      <a href="../site/tasks.html">任务</a>
+      <a href="../site/games.html">游戏</a>
+      <a href="../site/how.html">工作原理</a>
+    </nav>
+    <div class="nav-right">
+      <div class="points" id="points">
+        <img src="assets/coins/_smiley-coin.svg" alt="" width="32" height="32">
+        <span class="points-num" id="points-num">1,280</span>
+      </div>
+      <form class="login" id="login-form">
+        <label class="sr" for="ai">.ai 登录</label>
+        <div class="login-field">
+          <input id="ai" name="ai" autocomplete="off" spellcheck="false" maxlength="32" placeholder=".ai 登录" value="satoshi" aria-label=".ai 登录">
+          <em>.ai</em>
+        </div>
+        <button type="submit" id="login-btn">退出</button>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="kicker">HAHA ID · 搜索并铸造</p>
+      <h1>给你的 agent<br>一个<span class="pop">永久</span>的名字</h1>
+      <p class="lede">持有币安 .ai，就能免费铸造 .haha 或 .meme。不续费，不连接钱包。复制指令，交给你自己的 agent。</p>
+      <p class="status" id="status"><i></i><span id="status-text">观察模式 · satoshi.ai · 持有 .ai · 冷却还剩 41:12</span></p>
+
+      <div class="card" id="search">
+        <form class="search" id="search-form">
+          <label class="sr" for="q">名字</label>
+          <input id="q" autocomplete="off" spellcheck="false" maxlength="32" placeholder="输入名字，比如 abc123" value="abc123">
+          <div class="toggles" role="group" aria-label="后缀">
+            <button type="button" id="tld-haha" data-tld="haha" aria-pressed="true">.haha</button>
+            <button type="button" id="tld-meme" data-tld="meme" aria-pressed="false">.meme</button>
+          </div>
+        </form>
+        <p class="hint" id="hint">小写 a–z 和 0–9，3–32 位。大写会自动换成小写。</p>
+        <div class="demo" role="group" aria-label="演示三种结果">
+          <span>看结果</span>
+          <button type="button" data-mode="live" aria-pressed="true">跟随输入</button>
+          <button type="button" data-mode="ok" aria-pressed="false">可铸造</button>
+          <button type="button" data-mode="taken" aria-pressed="false">已铸造</button>
+          <button type="button" data-mode="bad" aria-pressed="false">不可铸造</button>
+        </div>
+
+        <div class="result" aria-live="polite">
+          <div>
+            <p class="badge ok" id="badge">可铸造</p>
+            <h2 id="headline">复制指令，快去找你的agent铸造吧！</h2>
+            <p class="detail" id="detail">abc123.haha · 免费 · 永久 · 只铸给自己</p>
+            <p class="who" id="who" hidden></p>
+            <div class="actions">
+              <button type="button" class="copy" id="copy">复制指令</button>
+              <button type="button" class="market" id="market" hidden>去交易市场</button>
+            </div>
+            <pre class="peek" id="peek"></pre>
+          </div>
+          <div class="preview">
+            <div class="nft-frame" id="nft-frame">
+              <svg id="nft" viewBox="0 0 500 500" role="img" aria-label="名字 NFT 预览">
+                <defs>
+                  <linearGradient id="nftg" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#FFC21A"/>
+                    <stop offset="1" stop-color="#FF7A1A"/>
+                  </linearGradient>
+                </defs>
+                <rect width="500" height="500" fill="url(#nftg)"/>
+                <g opacity="0.34">
+                  <use href="#icon-doge" x="28" y="404" width="68" height="68"/>
+                  <use href="#icon-shiba" x="112" y="400" width="78" height="78"/>
+                  <use href="#icon-smile" x="206" y="406" width="68" height="68"/>
+                  <use href="#icon-troll" x="292" y="402" width="74" height="74"/>
+                  <use href="#icon-btc" x="390" y="410" width="64" height="64"/>
+                </g>
+                <text x="250" y="62" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="30" font-weight="700" fill="#fff">haha.meme</text>
+                <text id="nft-name" x="250" y="284" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="64" font-weight="700" fill="#fff">abc123.haha</text>
+                <text x="250" y="468" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="24" font-weight="700" fill="#fff" letter-spacing="2">agent id</text>
+              </svg>
+              <div class="stamp" id="stamp" hidden>已铸造</div>
+            </div>
+            <div class="mascot" id="mascot" hidden>
+              <svg aria-hidden="true"><use href="#icon-troll"/></svg>
+              <p id="mascot-cap">换一个试试</p>
+            </div>
+            <p class="cap" id="nft-cap">链上 SVG 预览</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="steps" aria-label="怎么铸造">
+      <article class="step">
+        <svg aria-hidden="true"><use href="#icon-smile"/></svg>
+        <b>1. 只读看看</b>
+        <span>输入 .ai 名字。网站只观察，不签名，也不碰私钥。</span>
+      </article>
+      <article class="step">
+        <svg aria-hidden="true"><use href="#icon-shiba"/></svg>
+        <b>2. 复制指令</b>
+        <span>名字和后缀已经填进指令。黑名单和冷却由链上合约判断。</span>
+      </article>
+      <article class="step">
+        <svg aria-hidden="true"><use href="#icon-doge"/></svg>
+        <b>3. 交给 agent</b>
+        <span>先看交易预览，你确认之后才执行。网站自己不发交易。</span>
+      </article>
+    </section>
+  </main>
+  <footer>设计原型 · haha.meme · 不连接钱包，不发送交易</footer>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var mobileQuery = window.matchMedia("(max-width: 800px)");
+
+  var TAKEN = {
+    "pepe.haha": { holder: "0x57A7…90df", sale: "0.50 BNB" },
+    "pepe.meme": { holder: "0x57A7…90df", sale: null },
+    "doge.haha": { holder: "0x083A…Ef7", sale: "1.20 BNB" },
+    "doge.meme": { holder: "0x083A…Ef7", sale: null },
+    "moon.haha": { holder: "0x60B9…022F", sale: null }
+  };
+
+  var state = { tld: "haha", force: null, loggedIn: true, ai: "satoshi", cool: 41 * 60 + 12 };
+
+  var q = document.getElementById("q");
+  var ai = document.getElementById("ai");
+  var hint = document.getElementById("hint");
+  var headline = document.getElementById("headline");
+  var detail = document.getElementById("detail");
+  var who = document.getElementById("who");
+  var badge = document.getElementById("badge");
+  var copyBtn = document.getElementById("copy");
+  var marketBtn = document.getElementById("market");
+  var peek = document.getElementById("peek");
+  var nftName = document.getElementById("nft-name");
+  var nftFrame = document.getElementById("nft-frame");
+  var stamp = document.getElementById("stamp");
+  var mascot = document.getElementById("mascot");
+  var mascotCap = document.getElementById("mascot-cap");
+  var nftCap = document.getElementById("nft-cap");
+  var points = document.getElementById("points");
+  var pointsNum = document.getElementById("points-num");
+  var loginBtn = document.getElementById("login-btn");
+  var statusText = document.getElementById("status-text");
+  var toastEl = document.getElementById("toast");
+  var cursor = document.getElementById("cursor");
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { toastEl.classList.remove("show"); }, 1700);
+  }
+
+  function clean(raw) {
+    return String(raw || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 32);
+  }
+
+  function pointsFor(name) {
+    var h = 0;
+    for (var i = 0; i < name.length; i++) h = (h * 33 + name.charCodeAt(i)) >>> 0;
+    return 320 + (h % 4680);
+  }
+
+  function formatPoints(n) {
+    return n.toLocaleString("zh-Hans");
+  }
+
+  function clock(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  function nftMetrics(label, tld) {
+    var n = label.length + tld.length + 1;
+    var fsz = Math.trunc(420 / n / 0.58);
+    if (fsz > 96) fsz = 96;
+    if (fsz < 18) fsz = 18;
+    var num = fsz * 35;
+    var qq = Math.trunc(num / 100);
+    var r = num % 100;
+    if (r > 50 || (r === 50 && qq % 2 === 1)) qq += 1;
+    return { fsz: fsz, y: 250 + qq };
+  }
+
+  function instruction(full) {
+    return "用我的 Binance Agentic Wallet 执行以下任务。若当前环境没有 Agentic Wallet skill，先安装：\n"
+      + "npx skills add binance/binance-skills-hub --skill binance-agentic-wallet\n"
+      + "若需要登录，我登录完成后会回复「继续」，届时从这里接着执行。\n"
+      + "阅读 https://haha.meme/skill.md，按其中规则在 BNB Chain 上铸造 " + full + "。\n"
+      + "先确认 Developer Mode 已开启，把交易预览给我看，我确认后再执行。";
+  }
+
+  function classify(label) {
+    if (!label) return "empty";
+    if (label.length < 3) return "bad";
+    var full = label + "." + state.tld;
+    if (TAKEN[full]) return "taken";
+    return "ok";
+  }
+
+  function setModeButtons(mode) {
+    document.querySelectorAll(".demo button").forEach(function (btn) {
+      btn.setAttribute("aria-pressed", btn.getAttribute("data-mode") === (state.force || "live") ? "true" : "false");
+    });
+    if (mode) { /* visual state is separate from the switch */ }
+  }
+
+  function renderLogin() {
+    points.hidden = !state.loggedIn;
+    loginBtn.textContent = state.loggedIn ? "退出" : "进入";
+    if (state.loggedIn) {
+      pointsNum.textContent = formatPoints(pointsFor(state.ai));
+      statusText.textContent = "观察模式 · " + state.ai + ".ai · 持有 .ai · 冷却还剩 " + clock(state.cool);
+    } else {
+      statusText.textContent = "还没登录。输入 .ai 只是看看，不会签名。";
+    }
+  }
+
+  function render() {
+    var label = clean(q.value);
+    var mode = state.force || classify(label);
+    if (state.force === "ok") label = "abc123";
+    if (state.force === "taken") label = "pepe";
+    if (state.force === "bad") label = "gm";
+    var full = label ? label + "." + state.tld : "";
+    var kind = state.force || classify(label);
+
+    document.getElementById("tld-haha").setAttribute("aria-pressed", state.tld === "haha" ? "true" : "false");
+    document.getElementById("tld-meme").setAttribute("aria-pressed", state.tld === "meme" ? "true" : "false");
+    setModeButtons(kind);
+
+    badge.className = "badge";
+    copyBtn.hidden = true;
+    marketBtn.hidden = true;
+    who.hidden = true;
+    peek.hidden = true;
+    stamp.hidden = true;
+    mascot.hidden = true;
+    nftFrame.hidden = false;
+    nftCap.hidden = false;
+
+    if (kind === "empty") {
+      badge.textContent = "等你输入";
+      badge.classList.add("taken");
+      headline.textContent = "先输入一个名字";
+      detail.textContent = "3–32 位小写字母或数字。选好 .haha 或 .meme。";
+      nftFrame.hidden = true;
+      nftCap.hidden = true;
+      mascot.hidden = false;
+      mascot.querySelector("use").setAttribute("href", "#icon-shiba");
+      mascotCap.textContent = "柴犬在等名字";
+    } else if (kind === "bad") {
+      badge.textContent = "不可铸造";
+      badge.classList.add("bad");
+      headline.textContent = "该名称不可铸造，换一个试试吧！";
+      detail.textContent = full + " 太短，或落在保留名里。公众名字至少 3 位。";
+      nftFrame.hidden = true;
+      nftCap.hidden = true;
+      mascot.hidden = false;
+      mascot.querySelector("use").setAttribute("href", "#icon-troll");
+      mascotCap.textContent = "换一个试试";
+    } else if (kind === "taken") {
+      var info = TAKEN[full] || { holder: "0x57A7…90df", sale: "0.50 BNB" };
+      badge.textContent = "已铸造";
+      badge.classList.add("taken");
+      headline.textContent = "来晚啦！该名称已经被铸造！";
+      detail.textContent = full;
+      who.hidden = false;
+      who.textContent = info.sale
+        ? "持有人 " + info.holder + " · 在售 " + info.sale
+        : "持有人 " + info.holder + " · 目前没有挂单";
+      if (info.sale) marketBtn.hidden = false;
+      stamp.hidden = false;
+      paintNft(label);
+    } else {
+      badge.textContent = "可铸造";
+      badge.classList.add("ok");
+      headline.textContent = "复制指令，快去找你的agent铸造吧！";
+      detail.textContent = full + " · 免费 · 永久 · 只铸给自己";
+      copyBtn.hidden = false;
+      peek.hidden = false;
+      peek.textContent = instruction(full);
+      paintNft(label);
+    }
+    renderLogin();
+  }
+
+  function paintNft(label) {
+    var m = nftMetrics(label || "name", state.tld);
+    var full = (label || "name") + "." + state.tld;
+    nftName.textContent = full;
+    nftName.setAttribute("font-size", String(m.fsz));
+    nftName.setAttribute("y", String(m.y));
+    nftCap.textContent = "链上 SVG 预览 · " + full;
+  }
+
+  q.addEventListener("input", function () {
+    var next = clean(q.value);
+    if (next !== q.value) {
+      q.value = next;
+      hint.textContent = "只保留了小写字母和数字。";
+    } else {
+      hint.textContent = "小写 a–z 和 0–9，3–32 位。大写会自动换成小写。";
+    }
+    state.force = null;
+    render();
+  });
+
+  document.querySelectorAll("[data-tld]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      state.tld = btn.getAttribute("data-tld");
+      render();
+    });
+  });
+
+  document.querySelectorAll(".demo button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var mode = btn.getAttribute("data-mode");
+      state.force = mode === "live" ? null : mode;
+      if (mode === "ok") { q.value = "abc123"; state.tld = "haha"; }
+      if (mode === "taken") { q.value = "pepe"; state.tld = "haha"; }
+      if (mode === "bad") { q.value = "gm"; state.tld = "haha"; }
+      if (mode === "live") hint.textContent = "小写 a–z 和 0–9，3–32 位。大写会自动换成小写。";
+      render();
+    });
+  });
+
+  document.getElementById("search-form").addEventListener("submit", function (e) { e.preventDefault(); });
+
+  copyBtn.addEventListener("click", function () {
+    var label = state.force === "ok" ? "abc123" : clean(q.value);
+    var text = instruction(label + "." + state.tld);
+    var done = function () {
+      copyBtn.textContent = "已复制";
+      toast("铸造指令已复制");
+      setTimeout(function () { copyBtn.textContent = "复制指令"; }, 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () {
+        fallbackCopy(text); done();
+      });
+    } else {
+      fallbackCopy(text); done();
+    }
+  });
+
+  function fallbackCopy(text) {
+    var t = document.createElement("textarea");
+    t.value = text;
+    document.body.appendChild(t);
+    t.select();
+    try { document.execCommand("copy"); } catch (err) {}
+    t.remove();
+  }
+
+  marketBtn.addEventListener("click", function () {
+    toast("交易市场还在后面的设计稿里");
+  });
+
+  document.querySelectorAll("[data-soon]").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      toast("这一页还在后面的设计稿里");
+    });
+  });
+
+  document.getElementById("login-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (state.loggedIn) {
+      state.loggedIn = false;
+      ai.value = "";
+      toast("已退出观察模式");
+      render();
+      return;
+    }
+    var name = clean(ai.value);
+    ai.value = name;
+    if (name.length < 3) {
+      toast("先输入 3 位以上的 .ai 名字");
+      return;
+    }
+    state.loggedIn = true;
+    state.ai = name;
+    state.cool = 41 * 60 + 12;
+    toast("正在观察 " + name + ".ai");
+    render();
+  });
+
+  ai.addEventListener("input", function () {
+    var next = clean(ai.value);
+    if (next !== ai.value) ai.value = next;
+  });
+
+  if (!reduce) {
+    setInterval(function () {
+      if (!state.loggedIn) return;
+      state.cool = Math.max(0, state.cool - 1);
+      renderLogin();
+    }, 1000);
+  }
+
+  render();
+
+  var canvas = document.getElementById("fx");
+  var ctx = canvas.getContext("2d");
+  var COINS = ["dog-shades","dog-party","dog-wink","cat-scream","cat-smug","frog","hamster","monkey","raccoon","goat","hippo","squirrel","bull","rocket","diamond-hands","moon","lol","haha-smiley"];
+  var images = [];
+  var drops = [];
+  var pointer = { x: -9999, y: -9999, on: false };
+  var raf = 0;
+
+  function isMobile() { return mobileQuery.matches; }
+  function coinCount() { return isMobile() ? 48 : 120; }
+
+  function resize() {
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.floor(window.innerWidth * dpr);
+    canvas.height = Math.floor(window.innerHeight * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  var sparks = [];
+  var smiley = new Image();
+  smiley.src = "assets/coins/_smiley-coin.svg";
+  for (var si = 0; si < 96; si++) sparks.push({ on: false });
+
+  function fallSpeed() {
+    return isMobile()
+      ? 0.85 + Math.random() * 1.35
+      : 1.25 + Math.random() * 2.15;
+  }
+
+  function coinSize() {
+    return isMobile()
+      ? 18 + Math.random() * 14
+      : 22 + Math.random() * 24;
+  }
+
+  function makeCoin() {
+    return {
+      img: null,
+      x: 0, y: 0,
+      vy: 0, size: 24,
+      rot: 0, vr: 0, phase: 0, sway: 0.4,
+      alpha: 0.5,
+      caught: false,
+      holdUntil: 0,
+      popping: false,
+      popT: 0
+    };
+  }
+
+  function armCoin(p, i, n) {
+    var w = Math.max(80, window.innerWidth);
+    var h = Math.max(80, window.innerHeight);
+    var cols = isMobile() ? 8 : 12;
+    var rows = Math.ceil(n / cols);
+    var col = i % cols;
+    var row = Math.floor(i / cols);
+    p.img = images[i % images.length];
+    p.size = coinSize();
+    p.x = (col + 0.12 + Math.random() * 0.76) * (w / cols);
+    p.y = (row + Math.random()) / rows * h;
+    p.vy = fallSpeed();
+    p.rot = Math.random() * Math.PI * 2;
+    p.vr = (Math.random() - 0.5) * 0.03;
+    p.phase = Math.random() * Math.PI * 2;
+    p.sway = 0.22 + Math.random() * 0.55;
+    p.alpha = 0.45 + Math.random() * 0.1;
+    p.caught = false;
+    p.holdUntil = 0;
+    p.popping = false;
+    p.popT = 0;
+  }
+
+  function recycle(p) {
+    var w = Math.max(80, window.innerWidth);
+    p.popping = false;
+    p.popT = 0;
+    p.caught = false;
+    p.holdUntil = 0;
+    p.size = coinSize();
+    p.y = -p.size - Math.random() * 50;
+    p.x = Math.random() * w;
+    p.vy = fallSpeed();
+    p.img = images[Math.floor(Math.random() * images.length)];
+    p.alpha = 0.45 + Math.random() * 0.1;
+    p.rot = Math.random() * Math.PI * 2;
+    p.vr = (Math.random() - 0.5) * 0.03;
+  }
+
+  function fillDrops() {
+    var n = coinCount();
+    while (drops.length < n) drops.push(makeCoin());
+    if (drops.length > n) drops.length = n;
+    for (var i = 0; i < n; i++) armCoin(drops[i], i, n);
+  }
+
+  function hiddenByUi(target) {
+    return target && target.closest && target.closest(".card, .nav, .step, footer");
+  }
+
+  function hit(p, x, y) {
+    var dx = x - p.x;
+    var dy = y - p.y;
+    var r = p.size * (p.caught ? 0.8 : 0.62) + 6;
+    return dx * dx + dy * dy <= r * r;
+  }
+
+  function releaseMouse() {
+    var now = performance.now();
+    for (var i = 0; i < drops.length; i++) {
+      if (drops[i].holdUntil > now) continue;
+      drops[i].caught = false;
+    }
+  }
+
+  function catchAt(x, y) {
+    var hitIndex = -1;
+    for (var i = drops.length - 1; i >= 0; i--) {
+      var p = drops[i];
+      if (p.popping) continue;
+      if (hit(p, x, y)) { hitIndex = i; break; }
+    }
+    for (var j = 0; j < drops.length; j++) {
+      var q = drops[j];
+      if (q.popping) continue;
+      q.caught = j === hitIndex;
+    }
+    return hitIndex >= 0;
+  }
+
+  function emitBurst(x, y) {
+    var kinds = ["dot", "plus", "smile", "dot", "smile", "plus", "dot"];
+    for (var k = 0; k < kinds.length; k++) {
+      var s = null;
+      for (var i = 0; i < sparks.length; i++) if (!sparks[i].on) { s = sparks[i]; break; }
+      if (!s) s = sparks[k % sparks.length];
+      var ang = Math.random() * Math.PI * 2;
+      var sp = 1.4 + Math.random() * 2.6;
+      s.on = true;
+      s.x = x;
+      s.y = y;
+      s.vx = Math.cos(ang) * sp;
+      s.vy = Math.sin(ang) * sp - 1.4;
+      s.life = 1;
+      s.kind = kinds[k];
+    }
+  }
+
+  function popAt(x, y) {
+    for (var i = drops.length - 1; i >= 0; i--) {
+      var p = drops[i];
+      if (p.popping) continue;
+      if (!hit(p, x, y)) continue;
+      p.caught = false;
+      if (reduce) { recycle(p); return true; }
+      p.popping = true;
+      p.popT = 0;
+      emitBurst(p.x, p.y);
+      return true;
+    }
+    return false;
+  }
+
+  function drawCoin(p) {
+    if (!p.img) return;
+    var popping = p.popping;
+    var t = popping ? Math.min(1, p.popT) : 0;
+    var bounce = popping ? 1 + Math.sin(t * Math.PI) * 1.05 : (p.caught ? 1.7 : 1);
+    var flip = popping ? Math.max(0.12, Math.abs(Math.cos(t * Math.PI * 2.5))) : 1;
+    var s = p.size * bounce;
+    ctx.save();
+    ctx.translate(p.x, p.y - (popping ? t * 42 : 0));
+    ctx.rotate(p.rot + (popping ? t * 7 : 0));
+    ctx.scale(flip, 1);
+    ctx.globalAlpha = popping ? 1 : (p.caught ? 1 : p.alpha);
+    if (p.caught) {
+      ctx.beginPath();
+      ctx.arc(0, 0, s * 0.66, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255, 248, 210, 0.95)";
+      ctx.fill();
+      ctx.lineWidth = Math.max(2, s * 0.1);
+      ctx.strokeStyle = "#fff";
+      ctx.stroke();
+    }
+    ctx.drawImage(p.img, -s / 2, -s / 2, s, s);
+    ctx.restore();
+  }
+
+  function drawSparks() {
+    for (var i = 0; i < sparks.length; i++) {
+      var s = sparks[i];
+      if (!s.on) continue;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, s.life);
+      if (s.kind === "plus") {
+        ctx.fillStyle = "#fff";
+        ctx.font = "800 15px Inter, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("+1", s.x, s.y);
+      } else if (s.kind === "smile" && smiley.complete && smiley.naturalWidth) {
+        var d = 14 + (1 - s.life) * 6;
+        ctx.drawImage(smiley, s.x - d / 2, s.y - d / 2, d, d);
+      } else {
+        ctx.fillStyle = "#ffe27a";
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  function paint() {
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    for (var i = 0; i < drops.length; i++) if (!drops[i].caught && !drops[i].popping) drawCoin(drops[i]);
+    for (var j = 0; j < drops.length; j++) if (drops[j].caught || drops[j].popping) drawCoin(drops[j]);
+    drawSparks();
+  }
+
+  function step() {
+    if (!reduce) {
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      for (var i = 0; i < drops.length; i++) {
+        var p = drops[i];
+        if (p.popping) {
+          p.popT += 0.02;
+          if (p.popT >= 1) recycle(p);
+          continue;
+        }
+        if (p.caught) continue;
+        p.phase += 0.025;
+        p.y += p.vy;
+        p.x += Math.sin(p.phase) * p.sway;
+        p.rot += p.vr;
+        if (p.y > h + p.size) recycle(p);
+        else if (p.x < -p.size) p.x = w + p.size * 0.2;
+        else if (p.x > w + p.size) p.x = -p.size * 0.2;
+      }
+      for (var s = 0; s < sparks.length; s++) {
+        var sp = sparks[s];
+        if (!sp.on) continue;
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.vy += 0.05;
+        sp.life -= 0.018;
+        if (sp.life <= 0) sp.on = false;
+      }
+    }
+    paint();
+  }
+
+  function loop() {
+    step();
+    if (!reduce) raf = requestAnimationFrame(loop);
+  }
+
+  function onPointerMove(e) {
+    if (e.pointerType && e.pointerType !== "mouse") return;
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
+    pointer.on = true;
+    if (hiddenByUi(e.target)) releaseMouse();
+    else catchAt(e.clientX, e.clientY);
+    if (reduce) paint();
+  }
+
+  function onPointerDown(e) {
+    if (hiddenByUi(e.target)) return;
+    if (popAt(e.clientX, e.clientY) && reduce) paint();
+  }
+
+  function onPointerLeave() {
+    pointer.on = false;
+    releaseMouse();
+    if (reduce) paint();
+  }
+
+  window.addEventListener("resize", function () {
+    resize();
+    fillDrops();
+    if (reduce) paint();
+  });
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointerleave", onPointerLeave);
+
+  function bootFx() {
+    resize();
+    var jobs = COINS.map(function (name) {
+      return new Promise(function (resolve) {
+        var img = new Image();
+        img.onload = function () { images.push(img); resolve(); };
+        img.onerror = function () { resolve(); };
+        img.src = "assets/coins/" + name + ".webp";
+      });
+    });
+    Promise.all(jobs).then(function () {
+      if (!images.length) return;
+      fillDrops();
+      loop();
+    });
+  }
+  bootFx();
+})();
+</script>
+</body>
+</html>

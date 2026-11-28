@@ -21,7 +21,7 @@
     "season.applyTld": "后缀",
     "season.applyCopy": "复制领取指令",
     "season.applyNeedLogin": "请先用 .ai 登录，再领取指令。",
-    "season.applyInvalid": "名字填 2 位小写字母或数字。",
+    "season.applyInvalid": "名字填 2 位小写字母。",
     "season.applyChecking": "正在查这个名字…",
     "season.applyTaken": "这个名字已经被申请了。",
     "season.applyAvailable": "这个名字可以申请，点复制领取指令。",
@@ -241,7 +241,7 @@
   }
 
   function cleanLabel(raw) {
-    return String(raw || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 2);
+    return String(raw || "").toLowerCase().replace(/[^a-z0-9]/g, "");
   }
 
   function currentAi() {
@@ -325,7 +325,7 @@
     if (liveState !== "open") return;
     var labelEl = $("apply-label");
     var label = cleanLabel(labelEl ? labelEl.value : "");
-    if (label.length !== 2) {
+    if (label.length !== 2 || !/^[a-z]{2}$/.test(label)) {
       availSeq++;
       applyMsgKey = null;
       renderLive();
@@ -352,7 +352,7 @@
     if (liveState !== "open") return;
     var labelEl = $("apply-label");
     var label = cleanLabel(labelEl ? labelEl.value : "");
-    if (label.length !== 2) { setApplyMsg("season.applyInvalid"); return; }
+    if (label.length !== 2 || !/^[a-z]{2}$/.test(label)) { setApplyMsg("season.applyInvalid"); return; }
     var tld = selectedTld === 1 ? 1 : 0;
     if (!currentAi()) { setApplyMsg("season.applyNeedLogin"); return; }
     setApplyMsg("season.applyChecking");

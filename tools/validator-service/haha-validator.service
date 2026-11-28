@@ -1,0 +1,22 @@
+[Unit]
+Description=haha.meme G13 Validation Registry validator service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/haha-validation
+Environment=INDEXER_ENV=/etc/haha/indexer.env
+ExecStart=/opt/haha-season1/venv/bin/python /opt/haha-validation/validator-service.py
+Restart=on-failure
+RestartSec=60
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/haha-validation
+
+[Install]
+WantedBy=multi-user.target

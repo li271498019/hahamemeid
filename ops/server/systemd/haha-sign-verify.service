@@ -1,0 +1,25 @@
+[Unit]
+Description=haha.meme Season 1 daily verification signing service
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/haha-season1
+Environment=SEASON1_SIGNING=on
+Environment=SEASON1_MODULE=0x4B8a35bFe18750c2058fd01e7159728adD345C00
+Environment=SEASON1_SIGNER_ENV=/etc/haha/season1-signer.env
+Environment=INDEXER_ENV=/etc/haha/indexer.env
+ExecStart=/opt/haha-season1/venv/bin/python /opt/haha-season1/signing/sign_verify_service.py
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/haha-season1
+
+[Install]
+WantedBy=multi-user.target

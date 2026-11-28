@@ -64,11 +64,10 @@ print("syncer advanced checkpoint", cp, "->", new_cp)
 d1 = dump(conn)
 print("after forward sync:", {t: len(rows) for t, rows in d1}, digest(d1))
 
-# Pre-existing, unrelated: handle_reorg TRUNCATEs season1_findings, which season1_finding_reports
-# references (FK), so a real reorg fails on production too (see INDEXER-PLAN.md, "found on the way").
-# Drop the FK in this scratch DB only so the dog replay can be tested.
-cur.execute("ALTER TABLE season1_finding_reports DROP CONSTRAINT IF EXISTS season1_finding_reports_report_evidence_hash_fkey")
-conn.commit()
+# The FK from season1_finding_reports to season1_findings was dropped by
+# migration 008 (2026-11-28): it made handle_reorg's TRUNCATE fail and the
+# syncer retry forever. The reorg rebuild below now runs without it, and the
+# reports survive because they are never truncated.
 # forced reorg path: wrong checkpoint hash -> walk back, truncate, replay raw_logs
 cur.execute("UPDATE checkpoint SET safe_hash = %s WHERE id = 1", (b"\x01" * 32,))
 conn.commit()

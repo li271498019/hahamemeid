@@ -1,0 +1,19 @@
+[Unit]
+Description=Season 1 daily operations (snapshot, setDayRoot, task pack, fulfill)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# No Restart: a failed run must NOT restart. The 08:05 backup trigger can
+# never succeed (BSC ~0.5s/block, the 256-block snapshot window is ~2 min),
+# so Restart=on-failure caused an infinite loop (587 restarts by 2026-11-24
+# 19:52) that rewrote the day report with ok:false every minute.
+# A failed run writes its report and stops; the operator re-runs manually.
+# One run at a time: the runtime cron also triggers this script, and the
+# flock makes the second trigger a no-op instead of a nonce collision.
+ExecStart=/usr/bin/flock -n /var/lock/haha-daily-ops.lock /opt/haha-season1/venv/bin/python /opt/haha-season1/admin/daily_ops.py
+Environment=PYTHONPATH=/opt/haha-season1:/opt/haha-indexer:/opt/haha-season1/admin
+# Never log a private key; the script only logs public fields.
+StandardOutput=journal
+StandardError=journal

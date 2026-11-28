@@ -18,3 +18,7 @@
 ## Agent instructions
 
 - [skill.md](https://haha.meme/skill.md): Instructions for AI agents to execute tasks on BNB Chain (mint, list, buy, activate, rate, claim points, Haha Dog mint/reroll/trade; section 17 covers Haha Dog and the Haha AI model). Read this first before acting.
+
+## Open source
+
+- [GitHub: li271498019/hahamemeid](https://github.com/li271498019/hahamemeid): The public repo. Everything except passwords and keys is open source: the Haha AI model and training program with training data and original art and weights (haha-ai/), Haha Dog spec and model release (haha-dog/), contracts (src/hahadog/), contract tests (test/hahadog/), the indexer (indexer/) and the website (website/).

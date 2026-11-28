@@ -99,6 +99,11 @@ def main():
             conn.rollback()
             log("ABORT: checkpoint moved; stop haha-indexer first and run again")
             return 3
+        # Ensure the dog tables exist (first run after deploy): schema.sql is
+        # idempotent (CREATE TABLE IF NOT EXISTS), so this is safe to repeat.
+        # Without it the TRUNCATE below fails with relation "dogs" does not exist.
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema.sql")) as f:
+            cur.execute(f.read())
         for bn, h in headers.items():
             cur.execute("SELECT hash FROM blocks WHERE block_number = %s", (bn,))
             row = cur.fetchone()

@@ -1,0 +1,18 @@
+{
+  "name": "haha-agent-chat",
+  "version": "1.0.0",
+  "description": "haha agent channel service (haha.meme/agent-chat) — frozen spec v1.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "js-sha3": "^0.9.3",
+    "pg": "^8.13.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "Apache-2.0"
+}

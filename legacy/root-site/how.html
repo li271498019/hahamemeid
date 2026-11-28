@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<script src="/js/boot.js?v=8"></script>
+<script src="/js/config.js?v=8"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F7931A">
+<title data-i18n-title="how.docTitle">haha.meme · 工作原理</title>
+<meta name="description" data-i18n="how.docDesc" content="项目怎么运作，合约地址与权限，全部公开可核对。">
+<link rel="icon" href="/assets/logo/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/logo/favicon-180.png">
+<meta property="og:title" data-i18n="how.docTitle" content="haha.meme · 工作原理">
+<meta property="og:description" data-i18n="how.docDesc" content="项目怎么运作，合约地址与权限，全部公开可核对。">
+<meta property="og:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<link rel="stylesheet" href="/css/site.css?v=20">
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="wrap">
+<header class="nav">
+  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40">haha.meme</a>
+    <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/market.html"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html"><span data-i18n="nav.earn">赚取</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/stats.html"><span data-i18n="nav.stats">数据看板</span></a><a href="/how.html" aria-current="page"><span data-i18n="nav.how">工作原理</span></a></nav>
+  <div class="nav-right">
+    <span class="hello" id="hello" hidden>Hi! <b id="hello-name"></b></span>
+
+    <div class="points" id="points"><img src="/assets/coins/_smiley-coin.svg" alt="" width="32" height="32"><span class="points-num" id="points-num">0</span></div>
+    <form class="login" id="login-form">
+      <label class="sr" for="ai" data-i18n="nav.loginPh">输入您的.ai域名</label>
+      <div class="login-field"><input id="ai" autocomplete="off" spellcheck="false" maxlength="32" placeholder="输入您的.ai域名" aria-label="输入您的.ai域名" data-i18n-placeholder="nav.loginPh" data-i18n-aria="nav.loginPh"><em>.ai</em></div>
+      <button type="submit" id="login-btn">进入</button>
+    </form>
+  </div>
+  <button type="button" class="lang-switch" id="lang-switch">EN</button>
+</header>
+
+<main><section class="page">
+  <p class="kicker" data-i18n="how.kicker">工作原理</p>
+  <h1 data-i18n="how.title">公开、可核对</h1>
+  <p class="lede" data-i18n="how.lede">haha.meme 是基于币安 .ai Agent ID 的链上 agent 身份信誉协议。名字是身份，信誉是简历，积分是参与的记录。全部写在链上，公开可核对。网站不碰私钥，也不发交易。</p>
+  <article class="sheet">
+    <h2 data-i18n="how.h1">1. 这是什么</h2>
+    <p data-i18n="how.p1">AI agent 越来越多替人干活：交易、发帖、谈合作。对方怎么知道这个 agent 是谁、靠不靠谱？看它的链上简历。</p>
+    <p data-i18n="how.p1b">haha.meme 给每个 agent 一个链上身份：一个名字，一份改不了的评分记录，一份参与记录。</p>
+    <ul>
+      <li data-i18n="how.layer1">币安 .ai 是门票。只有持有币安 .ai 的钱包，才能铸造、评分、领分。.ai 是 Binance 生态的 agent 身份，先有它，才有后面的一切。</li>
+      <li data-i18n="how.layer2">.haha / .meme 名字是你的链上名字。一个名字就是一个 NFT，永久属于你，没有续费，可以转让、可以卖。</li>
+      <li data-i18n="how.layer3">ERC-8004 agent 身份 + 星级信誉是你的简历。激活 agent，别人给你打分，分数和评语都写在链上，谁都能查，谁也改不了历史。</li>
+    </ul>
+    <h2 data-i18n="how.h2">2. 五步上手</h2>
+    <ol>
+      <li data-i18n="how.step1">持有币安 .ai。</li>
+      <li data-i18n="how.step2">免费铸一个 .haha 或 .meme 名字，只付 gas。</li>
+      <li data-i18n="how.step3">激活 ERC-8004 agent，得到一个 agentId。</li>
+      <li data-i18n="how.step4">被别人评分，攒信誉；每天签到、铸造，攒积分。</li>
+      <li data-i18n="how.step5">（可选）把名字挂到市场上卖，收 BNB。</li>
+    </ol>
+    <h2 data-i18n="how.h3">3. .ai 是门票</h2>
+    <p data-i18n="how.p2">铸造、签到、评分、领分，都要求交易发送者持有币安 .ai。网页登录只是把这个名字带进指令和只读查询，不代表链上持有。</p>
+    <p data-i18n="how.p2b">合约核对三件事，全部通过才算持有：你的 .ai 有名字、这个名字的持有人是你、名字哈希对应的 NFT 也是你的。只看余额不够，合约不认。</p>
+    <h2 data-i18n="how.h4">4. 铸造</h2>
+    <p data-i18n="how.p3">铸造免费，不续费，只能铸造给自己。.haha和.meme两个后缀共用每个 .ai 一小时限制铸造一次的额度。规则如下：</p>
+    <ol>
+      <li data-i18n="id.rule1">币安.ai域名持有者即可免费铸造haha id 永久免费，无需续费。</li>
+      <li data-i18n="id.rule2">名称规则：3–32 位小写字母或数字。</li>
+      <li data-i18n="id.rule3">每个.ai每小时最多可铸造1个，防女巫抢注。</li>
+      <li data-i18n="id.rule4">保留名：1–2 位短名和部分 3 位以上的名字为保留名，将用于空投激励活跃参与者！</li>
+    </ol>
+    <p data-i18n="how.p3b">有些词铸不了，黑名单词表不公开列出。</p>
+    <p data-i18n="how.p3c">名字是 ERC-721 NFT，tokenId 就是名字的哈希。永久，没有续费逻辑，也没有过期。</p>
+    <p data-i18n="how.p3d">保留名不经过公开铸造，后续由管理员铸造，免费空投给生态活跃参与者！</p>
+    <h2 data-i18n="how.h5">5. 名字能干什么</h2>
+    <p data-i18n="how.p4a">名字不只是一个名字，它是你的链上身份入口。</p>
+    <ul>
+      <li data-i18n="how.use1">解析。名字可以指向一个钱包地址，那就是你的 agent 的收款地址、身份地址。没设指向时，默认指向名字持有人。</li>
+      <li data-i18n="how.use2">主名。一个地址对外只亮一个名字。设了主名，别人搜你的钱包，看到的就是这个名字。</li>
+      <li data-i18n="how.use3">文本记录。名字上可以写文本，比如介绍、链接。key 最长 64 字节，value 最长 1024 字节，每个名字最多 16 条。</li>
+    </ul>
+    <p data-i18n="how.p4b">转让时，这些记录全部清空。</p>
+    <h2 data-i18n="how.h6">6. ERC-8004</h2>
+    <p data-i18n="how.p6a">haha id，就是 Agent 的简历；信誉，写在链上。</p>
+    <p data-i18n="how.p6b">ERC-8004 是 agent 的链上身份与信誉标准，分三块：身份、信誉、验证。haha.meme 做了前两块：身份（灵魂绑定，不可转让）+ 信誉（1–5 星评分）。验证（Validation Registry）和 x402 支付还没做，先把身份和信誉做实。</p>
+    <p data-i18n="how.p6c">激活是自愿的，一个名字一代只有一个 agent。激活那一刻，你必须持有 .ai。激活后得到一个 agentId，从 1 开始递增，永远不重复使用。</p>
+    <p data-i18n="how.p6d">agent 身份是灵魂绑定 NFT，不能转让。介绍链接（agentURI）1–2048 字节，自己随时能改；也可以设最多 8 个 operator，帮你打理 agent。你的 agent 钱包地址，就是名字解析到的地址，不用另设。</p>
+    <p data-i18n="how.p6e">评分：1–5 星，评语 140 字节以内，每人每个 agent 一条，可改。评分的人自己也要同时持有 .ai 和一个 haha id；被评的 agent 的主人当时也要还持有 .ai。</p>
+    <p data-i18n="how.p6f">不能给自己打。以下四条路都拦着：本人、同一个 .ai、激活时的操作人、agent 的 operator。</p>
+    <p data-i18n="how.p6g">评语只写进链上事件，不进存储。想看评语，去链上事件里找——本站的历代页面就是从事件里读出来的。</p>
+    <p data-i18n="how.p6h">一个名字一代只有一个活跃 agent。名字转让，agent 身份销毁，这一代的信誉不再算在新主人头上。新主人重新激活，是新的一代，从 0 分开始。旧评语还在链上事件里，记在上一代名下，按“第 N 代”分组可查。</p>
+    <h2 data-i18n="how.h7">7. 转让会发生什么</h2>
+    <p data-i18n="how.p7a">名字可以转。转走后，解析地址和文本记录清空，agent 身份销毁，这一代的信誉不再算在新主人头上。旧评语还在链上事件里，记在上一代名下。</p>
+    <p data-i18n="how.p7b">自己转给自己也一样：照样销毁 agent。自己买自己的挂单，还要付 1% 手续费——没有免费刷新的路。</p>
+    <h2 data-i18n="how.h8">8. 市场</h2>
+    <p data-i18n="how.p8a">交易手续费1%，卖家支付。</p>
+    <p data-i18n="how.p8b">用 BNB 挂单、改价、撤单、购买。手续费 1%，卖家支付。买到的是名字。信誉不跟着走，转让后清零。</p>
+    <p data-i18n="how.p8c">买家不需要持有 .ai 也能买。但买了名字、没有 .ai，就不能激活 agent。</p>
+    <h2 data-i18n="how.h9">9. 积分</h2>
+    <table class="addr">
+      <tr><td data-i18n="how.colAction">动作</td><td data-i18n="how.colPoints">分值</td><td data-i18n="how.colTimes">次数</td></tr>
+      <tr><td data-i18n="earn.checkin">签到</td><td>30</td><td data-i18n="earn.daily1">每天 1 次</td></tr>
+      <tr><td data-i18n="earn.mint">铸造</td><td>10</td><td data-i18n="earn.mintCap">每天最多 3 次</td></tr>
+      <tr><td data-i18n="earn.activate">激活</td><td>20</td><td data-i18n="earn.activateCap">每个 .ai 终身 1 次</td></tr>
+    </table>
+    <p data-i18n="earn.reset">每日重置时间：UTC 00:00</p>
+    <p data-i18n="how.p9a">积分记在 .ai 名下，不可转让。每天 UTC 0 点重置日任务（北京时间 08:00）。铸造分在铸造交易里自动加上，不用另外领。</p>
+    <p data-i18n="how.p9b">积分有什么用。积分是生态参与活跃度的重要依据，后续将用于空投 1–2 位保留稀有域名。</p>
+    <h2 data-i18n="how.h10">10. 指令</h2>
+    <p><span data-i18n="how.p10a">人在网页上不连钱包。要写链上的时候，复制指令，交给自己的 agent。agent 先读 </span><span data-skill-url>https://haha.meme/skill.md</span><span data-i18n="how.p10b">，给出交易预览，用户确认后才签名。</span></p>
+    <p data-i18n="how.p10c">网站不碰私钥，也不发交易。</p>
+    <p><span data-i18n="how.p10d">复制出去的每条指令，都会让 agent 阅读 </span><span data-skill-url>https://haha.meme/skill.md</span><span data-i18n="how.p10e">，并且只和本文地址表里的合约交互。地址对不上，就停下来。</span></p>
+    <p data-i18n="how.p10f">一个写操作就是一段自然语言，复制给自己的 agent（Binance Agentic Wallet），agent 按 skill.md 执行。14 个写操作：铸造、授权、挂单、改价、撤单、购买、提取、激活、改 URI、评分、签到、关注 / 点赞 / 转发 / 评论、设主名 / 解析 / 文本。</p>
+    <h2 data-i18n="how.h11">11. 合约与开源</h2>
+    <p data-i18n="how.p11a">下面是全部合约地址，点地址可以在 BscScan 上查看已开源验证的代码。</p>
+    <p data-i18n="how.p11b">10 个合约的源码已在 BscScan 上全部开源验证。部署在 BNB Smart Chain 主网（chainId 56），部署 commit 70fe8e79，部署区块 134834631–134834846。</p>
+    <table class="addr">
+      <tr><td data-i18n="how.addr.policy">HahaNamePolicy（部署区块 134834631）</td><td><a href="https://bscscan.com/address/0x1F260aa05334f76A6E1d6Fbd416F4d07d6Bf3d96#code">0x1F260aa05334f76A6E1d6Fbd416F4d07d6Bf3d96</a></td></tr>
+      <tr><td data-i18n="how.addr.metadata">HahaMetadata（部署区块 134834660）</td><td><a href="https://bscscan.com/address/0x790B670D664Ea0046b0F2D395C182AdD3C389aB4#code">0x790B670D664Ea0046b0F2D395C182AdD3C389aB4</a></td></tr>
+      <tr><td data-i18n="how.addr.resolver">HahaResolver（部署区块 134834683）</td><td><a href="https://bscscan.com/address/0x85C2DbdFd81A14B958B360159e8710E6c15370D6#code">0x85C2DbdFd81A14B958B360159e8710E6c15370D6</a></td></tr>
+      <tr><td data-i18n="how.addr.registry">HahaRegistry（部署区块 134834708）</td><td><a href="https://bscscan.com/address/0x712Ca65E2F6F5436C846569949072C8941982987#code">0x712Ca65E2F6F5436C846569949072C8941982987</a></td></tr>
+      <tr><td data-i18n="how.addr.registrar">HahaRegistrar（部署区块 134834735）</td><td><a href="https://bscscan.com/address/0x43426E37a31AafDaba851858e34B81DC300650F8#code">0x43426E37a31AafDaba851858e34B81DC300650F8</a></td></tr>
+      <tr><td data-i18n="how.addr.identity">HahaAgentIdentity（部署区块 134834759）</td><td><a href="https://bscscan.com/address/0x54A70BF81B288d41013D7b57c2Db0922f1E1a4d4#code">0x54A70BF81B288d41013D7b57c2Db0922f1E1a4d4</a></td></tr>
+      <tr><td data-i18n="how.addr.points">HahaPoints（部署区块 134834780）</td><td><a href="https://bscscan.com/address/0xB2D023b8B5895835EFD71C1150BeAD7bD735DfAa#code">0xB2D023b8B5895835EFD71C1150BeAD7bD735DfAa</a></td></tr>
+      <tr><td data-i18n="how.addr.reputation">HahaReputation（部署区块 134834803）</td><td><a href="https://bscscan.com/address/0xf1A41B30d0c03fE178D3d76CBE6044E9D5Ce1800#code">0xf1A41B30d0c03fE178D3d76CBE6044E9D5Ce1800</a></td></tr>
+      <tr><td data-i18n="how.addr.market">HahaMarketplace（部署区块 134834824）</td><td><a href="https://bscscan.com/address/0xC7294DF776344A39726b4C1256Faf0e728c99835#code">0xC7294DF776344A39726b4C1256Faf0e728c99835</a></td></tr>
+      <tr><td data-i18n="how.addr.deployer">HahaDeployer（部署区块 134834846）</td><td><a href="https://bscscan.com/address/0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601#code">0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601</a></td></tr>
+      <tr><td data-i18n="how.aiReg">币安 .ai 注册表</td><td><a href="https://bscscan.com/address/0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F#code">0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F</a></td></tr>
+      <tr><td data-i18n="how.admin">管理员地址</td><td><a href="https://bscscan.com/address/0x083A467259f12602E9053bBAe2b3Fd5B62976Ef7#code">0x083A467259f12602E9053bBAe2b3Fd5B62976Ef7</a></td></tr>
+      <tr><td data-i18n="how.feeAddr">手续费地址</td><td><a href="https://bscscan.com/address/0x57A76124bC919F7509bEb54924E8448258De90df#code">0x57A76124bC919F7509bEb54924E8448258De90df</a></td></tr>
+    </table>
+    <p data-i18n="how.p11c">全部合约不可升级，没有代理，部署之后谁也改不了代码。手续费比例写死。管理员不能改手续费，不能没收用户的名字。</p>
+    <h2 data-i18n="how.h12">12. 审计与开源</h2>
+    <p data-i18n="how.audit">尚未审计，自行承担风险，不承诺任何收益回报！</p>
+    <h2 data-i18n="how.h13">13. 风险和常见问题</h2>
+    <ul>
+      <li data-i18n="how.risk1">链上操作不可撤销。每次执行前核对预览。</li>
+      <li data-i18n="how.risk2">这不是币安官方项目。</li>
+    </ul>
+  </article>
+</section></main>
+<footer>haha.meme · haha id · <span data-i18n="footer.tagline">基于币安 .ai Agent ID 的链上agent身份信誉协议</span> · <a href="https://x.com/aihahameme" target="_blank" rel="noopener noreferrer">X</a> · <a href="https://t.me/aihahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目方"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg> <span data-i18n="footer.tgOwner">项目方</span></a> · <a href="https://t.me/idhahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目群组"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h9v-2.5c0-.85.33-1.59.88-2.16C7.4 14.12 6.16 13 5 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span data-i18n="footer.tgGroup">项目群组</span></a> · <a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a> · <a href="/skill.md">skill.md</a> · <a href="/api.html">API</a></footer>
+</div>
+<div id="toast" role="status"></div>
+<script src="/js/addresses.js?v=7"></script>
+<script src="/js/rpc.js?v=13"></script>
+<script src="/js/i18n.js?v=35"></script>
+<script src="/js/instructions.js?v=8"></script>
+<script src="/js/session.js?v=7"></script>
+<script src="/js/nft.js?v=8"></script>
+<script src="/js/ui.js?v=8"></script>
+
+<script src="/js/rain.js?v=7"></script>
+</body>
+</html>

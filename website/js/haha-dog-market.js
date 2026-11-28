@@ -48,7 +48,7 @@
   /* Card. mode: buy | mine. */
   function artHtml(d, r) {
     if (r) return r.svg;
-    return '<div class="dog-wait"><b>' + esc(T("dog.generating")) + "</b><span>" + esc(d && d.status === D.STATUS.stalled ? T("dog.stalledShort") : T("dog.waitShort")) + "</span></div>";
+    return HahaDogWait.html(!!(d && d.status === D.STATUS.stalled));
   }
   function link(id) { return '<a href="/mint.html?id=' + id + '#view">'; }
   function card(it, mode) {

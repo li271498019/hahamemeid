@@ -86,9 +86,11 @@ Haha AI 是写进合约字节码的小型神经网络。Haha Dog 是 BSC 主网�
 - `website/`：网站源码（纯静态站，HTML/JS/CSS + skill.md）
 - `indexer/`：链上数据索引器与 API
 - `MCP/`：MCP Server（只读查询接口，29 个工具、11 个提示词）
-- `services/`：后端服务（G13 验证、第一季每日验证签名、第一季管理员自动化）
+- `services/`：后端服务（G13 验证、第一季每日验证签名、第一季管理员自动化、已停用的 agent-chat）
+- `ops/`：线上运维（systemd、nginx 样例、环境变量名、运行记录）。密钥只出现在 `.example` 里
 - `deploy/`：部署脚本（服务器 IP 用环境变量，不写死）
-- `docs/`：白皮书、架构、API、skill.md，以及规格、稀有度、索引器、积分、第一季和网站规划
+- `docs/`：白皮书、架构、API、skill.md，以及规格、稀有度、索引器、积分、第一季、网站规划和 `docs/ops/`
+- `legacy/`：根目录旧版页面和 2026-11-27 网站备份。现行代码在 `website/`
 - `haha-dog/`：Haha Dog 规格、稀有度、部署、链上参考实现和发布用模型
 - `haha-ai/`：Haha AI 完整训练工程（代码、数据、原图、实验、权重、测试向量）
 - `assets/`：品牌素材
@@ -96,7 +98,7 @@ Haha AI 是写进合约字节码的小型神经网络。Haha Dog 是 BSC 主网�
 
 ### 安全
 
-**不要把密钥、密码、私钥、服务器 IP 提交到这个仓库。**管理员私钥、签名私钥、数据库密码、服务器 IP、SSH 密钥、RPC 密钥都只放服务器的环境变量文件里（`/etc/haha/*.env`，0600），代码里只读环境变量。部署脚本里的服务器 IP 用 `SERVER_IP` 环境变量传入。
+这个仓库是项目的完整公开镜像：代码、文档、运维配置和运行记录都在，**只排除密钥、密码、私钥和服务器 IP**。管理员私钥、签名私钥、数据库密码、服务器 IP、SSH 密钥、RPC 密钥都只放服务器的环境变量文件里（`/etc/haha/*.env`，0600），仓库里只有 `.env.example`。部署脚本和 nginx 样例里的服务器 IP 写成 `<SERVER_IP>`。
 
 
 ---
@@ -181,9 +183,11 @@ The keccak256 of `haha-ai/weights-int8.json` (byte-for-byte the same file as `ha
 - `website/`: website source (pure static site, HTML/JS/CSS + skill.md)
 - `indexer/`: on-chain data indexer and API
 - `MCP/`: MCP Server (read-only query interface, 29 tools, 11 prompts)
-- `services/`: backend services (G13 validation, Season 1 daily verify signing, Season 1 admin automation)
+- `services/`: backend services (G13 validation, Season 1 daily verify signing, Season 1 admin automation, and the retired agent-chat service)
+- `ops/`: production ops (systemd units, nginx examples, env variable names, and run records). Secrets appear only as placeholders in `.example` files
 - `deploy/`: deployment scripts (server IP passed via environment variable, never hardcoded)
-- `docs/`: whitepaper, architecture, API, skill.md, plus specs, rarity, indexer, points, Season 1, and the website plan
+- `docs/`: whitepaper, architecture, API, skill.md, plus specs, rarity, indexer, points, Season 1, the website plan, and `docs/ops/`
+- `legacy/`: old root-site pages and the 2026-11-27 website backup. Current code is in `website/`
 - `haha-dog/`: Haha Dog spec, rarity, deployment, on-chain reference implementation, and the release model
 - `haha-ai/`: full Haha AI training project (code, data, source images, experiments, weights, test vectors)
 - `assets/`: brand assets
@@ -191,4 +195,4 @@ The keccak256 of `haha-ai/weights-int8.json` (byte-for-byte the same file as `ha
 
 ### Security
 
-**Never commit keys, passwords, private keys, server IPs, or RPC keys to this repository.** Admin private keys, signing keys, database passwords, server IPs, SSH keys, and RPC keys live only in environment files on the server (`/etc/haha/*.env`, 0600); the code only reads them from the environment. Deployment scripts take the server IP from the `SERVER_IP` environment variable.
+This repository is a full public mirror of the project: code, docs, ops config, and run records are included. **Only keys, passwords, private keys, and server IPs are left out.** Those live only in environment files on the server (`/etc/haha/*.env`, 0600); the repo has `.env.example` files. Deployment scripts and nginx samples write the server IP as `<SERVER_IP>`.

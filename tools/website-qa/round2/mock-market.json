@@ -1,0 +1,8 @@
+{
+ "/v1/dog/stats": {"supplyCap":10000,"minted":19,"remaining":9981,"holders":17,"rerolls":2,"commits":21,"withSeed":19,"startTime":"2026-11-28T02:47:48Z","market":{"listings":3,"floorPriceWei":"1000000000000000","latestTradePriceWei":"12000000000000000","sales":4,"volumeWei":"60000000000000000","feesWei":"600000000000000","sales24h":4,"volume24hWei":"60000000000000000"},"safeBlock":136170000},
+ "/v1/dog/listings": {"items":[
+  {"tokenId":"9","owner":"0xccfaa6a7dbc37957c262bbf262765d2283d1c3b3","status":"ready","commitBlock":136153400,"targetBlock":136153404,"rerolls":0,"seed":"0x1ca844d7904bb93f930b58f6e4c2cc54e6269a07725e2b8943fc0726a5e31920","seller":"0xccfaa6a7dbc37957c262bbf262765d2283d1c3b3","priceWei":"1000000000000000","stale":false},
+  {"tokenId":"8","owner":"0xccfaa6a7dbc37957c262bbf262765d2283d1c3b3","status":"ready","commitBlock":136153390,"targetBlock":136153394,"rerolls":0,"seed":"0x5e386a8a084739d2ae341eb15055e0924457fb115a9fa27ba4ec12300455135a","seller":"0xccfaa6a7dbc37957c262bbf262765d2283d1c3b3","priceWei":"50000000000000000","stale":false},
+  {"tokenId":"5","owner":"0xe40a0c726fd2f990713ade7380c89800f4e8ac49","status":"ready","commitBlock":136153300,"targetBlock":136153304,"rerolls":0,"seed":"0xdb99c0a6b8345401810bb1bb363a060cd590e7455fd42c05216d86fbad6ec874","seller":"0xe40a0c726fd2f990713ade7380c89800f4e8ac49","priceWei":"120000000000000000","stale":false}
+ ],"nextCursor":null}
+}

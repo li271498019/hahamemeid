@@ -34,6 +34,25 @@ from common import (AI_REGISTRY, ALL_ADDRESSES, CHAIN_ID, CONFIRMATIONS,
 SCHEMA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema.sql")
 HANDLE_TTL = 3600  # seconds
 
+# Derived tables handle_reorg() rebuilds from raw_logs by TRUNCATE + replay.
+# No foreign key may point INTO one of these tables: TRUNCATE would fail and
+# the syncer would retry the same failing reorg forever (see the FK guard in
+# handle_reorg). Tables holding user-published data that raw_logs cannot
+# rebuild (e.g. season1_finding_reports) must stay OUT of this list.
+DERIVED_TABLES_TO_TRUNCATE = (
+    "names", "listings", "trades", "agents", "reviews", "points",
+    "season1_days", "season1_orders", "season1_verifications",
+    "season1_findings", "season1_task_packs", "season1_entries",
+    "season1_validators", "season1_reward_signer",
+    "dogs", "dog_snapshots", "dog_listings", "dog_trades", "dog_withdrawals",
+    "dog_approvals", "dog_operators",
+)
+
+# Exit after this many consecutive identical sync errors, so a stuck syncer
+# (e.g. a reorg that cannot be rebuilt) restarts via systemd instead of
+# retrying silently forever with no alert.
+MAX_CONSECUTIVE_ERRORS = 20
+
 
 def log(*args):
     print(datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -311,6 +330,19 @@ class Syncer:
             n -= 1
         chain_hash = h2b(self.chain_block(n)["hash"])
         log("REORG: rolling back to block", n)
+        with self.conn.cursor() as cur:
+            # Guard: a foreign key pointing into a derived table makes the
+            # TRUNCATEs below fail and the syncer retry forever. Fail loudly
+            # instead of looping silently (run_forever exits after N repeats).
+            cur.execute(
+                "SELECT conname, conrelid::regclass::text, confrelid::regclass::text"
+                " FROM pg_constraint WHERE contype = 'f'"
+                " AND confrelid::regclass::text = ANY(%s)",
+                (list(DERIVED_TABLES_TO_TRUNCATE),))
+            bad = cur.fetchall()
+            if bad:
+                raise RuntimeError(
+                    "FK points into a derived table; reorg rebuild would fail: %r" % (bad,))
         # Pre-resolve handles for the surviving PointsChanged logs.
         with self.conn.cursor() as cur:
             # topics[2] is the indexed `user` of PointsChanged
@@ -326,12 +358,7 @@ class Syncer:
         with self.conn.cursor() as cur:
             cur.execute("DELETE FROM raw_logs WHERE block_number > %s", (n,))
             cur.execute("DELETE FROM blocks WHERE block_number > %s", (n,))
-            for t in ("names", "listings", "trades", "agents", "reviews", "points",
-                      "season1_days", "season1_orders", "season1_verifications",
-                      "season1_findings", "season1_task_packs", "season1_entries",
-                      "season1_validators", "season1_reward_signer",
-                      "dogs", "dog_snapshots", "dog_listings", "dog_trades",
-                      "dog_withdrawals"):
+            for t in DERIVED_TABLES_TO_TRUNCATE:
                 cur.execute("TRUNCATE %s" % t)
             cur.execute(
                 "SELECT block_number, block_time, tx_hash, tx_index, log_index,"
@@ -465,22 +492,42 @@ class Syncer:
             log("dog seeds resolved:", n)
 
     def run_forever(self):
+        # Exit after MAX_CONSECUTIVE_ERRORS identical errors so systemd
+        # restarts (and alerts fire) instead of retrying silently forever.
+        last_err = None
+        err_count = 0
         while not self.stop:
             try:
                 self.run_once()
             except RpcError as e:
+                last_err, err_count = self._note_error(last_err, err_count, repr(e))
                 log("sync error:", e, "- retrying in 5s")
                 time.sleep(5)
                 continue
             except Exception as e:
                 self.conn.rollback()
+                last_err, err_count = self._note_error(last_err, err_count, repr(e))
                 log("sync error:", repr(e), "- retrying in 5s")
                 time.sleep(5)
                 continue
+            last_err, err_count = None, 0
             for _ in range(30):
                 if self.stop:
                     break
                 time.sleep(0.1)
+
+    @staticmethod
+    def _note_error(last_err, err_count, err_repr):
+        """Count consecutive identical errors; exit when stuck on one."""
+        if err_repr == last_err:
+            err_count += 1
+        else:
+            last_err, err_count = err_repr, 1
+        if err_count >= MAX_CONSECUTIVE_ERRORS:
+            log("ERROR: same sync error %d times in a row, exiting for restart: %s"
+                % (err_count, err_repr))
+            sys.exit(1)
+        return last_err, err_count
 
 
 def main():

@@ -1,0 +1,81 @@
+{
+  "ok": true,
+  "dayIndex": 20783,
+  "boundaryTs": 1795651200,
+  "retryDeadlineTs": 1795651800,
+  "retryDeadlineBeijing": "08:10",
+  "startedAt": "2026-11-26T00:00:30.475127+00:00",
+  "stages": {
+    "snapshot": {
+      "ok": true,
+      "dayIndex": 20783,
+      "boundaryTs": 1795651200,
+      "snapshotBlock": 135747012,
+      "snapshotBlockHash": "0xd09115d8285f05d5c0ad66d147e3e79885a1dd0f549f7960164ee4e64f203a53",
+      "snapshotTimestamp": 1795651200,
+      "head": 135747102,
+      "confirmations": 15,
+      "precheck": {
+        "ok": true,
+        "reason": null,
+        "remainingBlocks": 166,
+        "confirmationsReady": true
+      },
+      "root": "0x521f7a2eae5716e17c0392ccce944b72897e9322c110095d7efe755c191bb50e",
+      "manifestHash": "0xabe4d5edc8f8cc881a0d31562c1ee1975bd6d96cff6717a890c8662594642ec5",
+      "reservedCount": 14,
+      "remainingSlots": 0,
+      "entryCount": 14,
+      "freshCount": 1,
+      "expiredCount": 13,
+      "randomFilled": 13,
+      "randomSeed": "0xd09115d8285f05d5c0ad66d147e3e79885a1dd0f549f7960164ee4e64f203a53",
+      "previouslyQualified": 17,
+      "pointsLogsReplayed": 1171,
+      "ordersExcluded": 1,
+      "generatedAt": "2026-11-26T00:00:42.047824+00:00",
+      "outdir": "/opt/haha-season1/day-snapshots/day20783"
+    },
+    "publishRoot": {
+      "ok": true,
+      "dayIndex": 20783,
+      "snapshotBlock": 135747012,
+      "root": "0x521f7a2eae5716e17c0392ccce944b72897e9322c110095d7efe755c191bb50e",
+      "txHash": "0xcf10a2dfbec8628f9d2a9b8f9be5d29f734579da5d9439ae0c4e8a00107f357b",
+      "attempts": 1,
+      "blockNumber": 135747109,
+      "headAtSend": 135747103,
+      "remainingBlocksAtSend": 166
+    },
+    "taskPack": {
+      "ok": true,
+      "dayIndex": 20783,
+      "snapshotBlock": 135747012,
+      "snapshotBlockHash": "0xd09115d8285f05d5c0ad66d147e3e79885a1dd0f549f7960164ee4e64f203a53",
+      "path": "/opt/haha-season1/day-taskpacks/taskpack-day20783.json",
+      "taskPackHash": "0x1f3499d443a0e0d18a1e347bd9ddddb5fd4439a9a1044b4d881c876a4e4fc0bb",
+      "agentId": 29,
+      "agentName": "yuki.haha",
+      "generation": 1,
+      "expectCount": "2",
+      "expectSum": "10",
+      "warnings": []
+    },
+    "publishTaskPack": {
+      "ok": true,
+      "dayIndex": 20783,
+      "taskPackHash": "0x1f3499d443a0e0d18a1e347bd9ddddb5fd4439a9a1044b4d881c876a4e4fc0bb",
+      "txHash": "0xb595f50848bf90fd57aad9b5efcbd66de6f3a7927e89c7849573dfcb106d9da5",
+      "attempts": 1,
+      "blockNumber": 135747121
+    },
+    "fulfillPrevDay": {
+      "ok": true,
+      "dayIndex": 20782,
+      "orders": [],
+      "fulfilled": 0,
+      "stopped": 0
+    }
+  },
+  "finishedAt": "2026-11-26T00:00:53.060514+00:00"
+}

@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "dayIndex": 20783,
+  "boundaryTs": 1795651200,
+  "snapshotBlock": 135747012,
+  "snapshotBlockHash": "0xd09115d8285f05d5c0ad66d147e3e79885a1dd0f549f7960164ee4e64f203a53",
+  "snapshotTimestamp": 1795651200,
+  "head": 135747102,
+  "confirmations": 15,
+  "precheck": {
+    "ok": true,
+    "reason": null,
+    "remainingBlocks": 166,
+    "confirmationsReady": true
+  },
+  "root": "0x521f7a2eae5716e17c0392ccce944b72897e9322c110095d7efe755c191bb50e",
+  "manifestHash": "0xabe4d5edc8f8cc881a0d31562c1ee1975bd6d96cff6717a890c8662594642ec5",
+  "reservedCount": 14,
+  "remainingSlots": 0,
+  "entryCount": 14,
+  "freshCount": 1,
+  "expiredCount": 13,
+  "randomFilled": 13,
+  "randomSeed": "0xd09115d8285f05d5c0ad66d147e3e79885a1dd0f549f7960164ee4e64f203a53",
+  "previouslyQualified": 17,
+  "pointsLogsReplayed": 1171,
+  "ordersExcluded": 1,
+  "generatedAt": "2026-11-26T00:00:42.047824+00:00",
+  "outdir": "/opt/haha-season1/day-snapshots/day20783"
+}

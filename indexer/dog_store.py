@@ -12,7 +12,12 @@ SEED_DELAY = 4            # HahaDog.SEED_DELAY
 LIVE_HASH_WINDOW = 250    # a node always has the hash this close to head
 MAX_BLOCK_FETCH = 30      # RPC block fetches per resolve pass
 
-DOG_TABLES = ("dogs", "dog_snapshots", "dog_listings", "dog_trades", "dog_withdrawals")
+DOG_TABLES = ("dogs", "dog_snapshots", "dog_listings", "dog_trades", "dog_withdrawals",
+              "dog_approvals", "dog_operators")
+
+# HahaDog.dogOf(uint256) -> (commitBlock, targetBlock, rerolls, status, seed).
+DOG_OF_SELECTOR = "0x2f403afd"
+DOG_OF_CALLS_PER_PASS = 30  # eth_call dogOf per resolve pass, at most
 
 
 def h2b(s):
@@ -30,6 +35,9 @@ def apply_dog_event(cur, addr, event, p, meta):
     bn, bt, txh, _txi, li = meta
     if addr == CONTRACTS["dog"]:
         if event == "Transfer":
+            # ERC-721 transfer clears the per-token approval; operator
+            # approvals are per-owner and survive a transfer.
+            cur.execute("DELETE FROM dog_approvals WHERE token_id = %s", (p["tokenId"],))
             if p["from"] == "0x" + "00" * 20:
                 # Mint. Committed comes first in the same tx, so the row may exist.
                 cur.execute(
@@ -47,8 +55,19 @@ def apply_dog_event(cur, addr, event, p, meta):
                 "INSERT INTO dogs (token_id, commit_block, commit_time, rerolls)"
                 " VALUES (%s, %s, %s, %s) ON CONFLICT (token_id) DO UPDATE SET"
                 " commit_block = EXCLUDED.commit_block, commit_time = EXCLUDED.commit_time,"
-                " rerolls = EXCLUDED.rerolls, seed = NULL, seed_block = NULL",
+                " rerolls = EXCLUDED.rerolls, seed = NULL, seed_block = NULL,"
+                " stalled = FALSE",
                 (p["tokenId"], p["commitBlock"], bt, p["rerolls"]))
+        elif event == "Approval":
+            cur.execute(
+                "INSERT INTO dog_approvals (token_id, approved) VALUES (%s, %s)"
+                " ON CONFLICT (token_id) DO UPDATE SET approved = EXCLUDED.approved",
+                (p["tokenId"], h2b(p["approved"])))
+        elif event == "ApprovalForAll":
+            cur.execute(
+                "INSERT INTO dog_operators (owner, operator, approved) VALUES (%s, %s, %s)"
+                " ON CONFLICT (owner, operator) DO UPDATE SET approved = EXCLUDED.approved",
+                (h2b(p["owner"]), h2b(p["operator"]), p["approved"]))
         elif event == "Snapshot":
             cur.execute(
                 "INSERT INTO dog_snapshots (block_number, block_hash) VALUES (%s, %s)"
@@ -89,10 +108,11 @@ def apply_dog_event(cur, addr, event, p, meta):
 def resolve_seeds(conn, rpc, safe_block, log=lambda *a: None):
     """Fill dogs.seed for dogs whose target block (commit+4) is behind the safe
     block. Hash source: a stored Snapshot event, else the node while the target
-    is within LIVE_HASH_WINDOW of head (the contract can read it too). Older
-    targets with no Snapshot stay NULL and the API reports status "check", so
-    clients ask the chain (the contract may still have the hash via EIP-2935).
-    Never raises: a failed RPC just leaves the dog pending until the next pass."""
+    is within LIVE_HASH_WINDOW of head (the contract can read it too). Dogs
+    still without a hash are then asked on-chain via dogOf(): status 2 returns
+    the seed itself, status 3 (hash permanently unrecoverable) marks the dog
+    stalled. Never raises: a failed RPC just leaves the dog pending until the
+    next pass."""
     fetched = 0
     try:
         with conn.cursor() as cur:
@@ -124,14 +144,61 @@ def resolve_seeds(conn, rpc, safe_block, log=lambda *a: None):
                 h = hashes.get(commit_block + SEED_DELAY)
                 if h is None:
                     continue
-                cur.execute("UPDATE dogs SET seed = %s, seed_block = %s"
+                cur.execute("UPDATE dogs SET seed = %s, seed_block = %s, stalled = FALSE"
                             " WHERE token_id = %s AND commit_block = %s AND rerolls = %s"
                             " AND seed IS NULL",
                             (seed_of(h, token_id, rerolls), safe_block, token_id, commit_block, rerolls))
                 done += cur.rowcount
+            # Fallback for dogs still without a hash: ask the chain directly.
+            # dogOf returns the on-chain status and, when generated, the seed
+            # itself. Status 3 means the hash is permanently unrecoverable
+            # (target past the EIP-2935 window, no Snapshot): mark stalled so
+            # the API says so instead of the vague "check". Capped per pass.
+            cur.execute(
+                "SELECT token_id, commit_block, rerolls FROM dogs"
+                " WHERE seed IS NULL AND stalled = FALSE AND commit_block + %s < %s"
+                " ORDER BY commit_block LIMIT %s", (SEED_DELAY, safe_block, DOG_OF_CALLS_PER_PASS))
+            still = cur.fetchall()
+            for token_id, commit_block, rerolls in still:
+                got = _dog_of(rpc, token_id)
+                if got is None:
+                    continue
+                _cb, _tb, on_rerolls, status, on_seed = got
+                if on_rerolls != rerolls or _cb != commit_block:
+                    continue  # re-committed since we read; next pass handles it
+                if status == 2 and on_seed not in (None, b"\x00" * 32):
+                    cur.execute("UPDATE dogs SET seed = %s, seed_block = %s, stalled = FALSE"
+                                " WHERE token_id = %s AND commit_block = %s AND rerolls = %s"
+                                " AND seed IS NULL",
+                                (on_seed, safe_block, token_id, commit_block, rerolls))
+                    done += cur.rowcount
+                elif status == 3:
+                    cur.execute("UPDATE dogs SET stalled = TRUE"
+                                " WHERE token_id = %s AND commit_block = %s AND rerolls = %s"
+                                " AND seed IS NULL",
+                                (token_id, commit_block, rerolls))
+                    if cur.rowcount:
+                        log("dog stalled (status 3, hash unrecoverable):", token_id)
         conn.commit()
         return done
     except Exception as e:  # noqa: BLE001 - best effort, retried next pass
         conn.rollback()
         log("dog seed pass skipped:", repr(e))
         return 0
+
+
+def _dog_of(rpc, token_id):
+    """eth_call HahaDog.dogOf(tokenId) -> (commitBlock, targetBlock, rerolls,
+    status, seed), or None on any failure. Never raises."""
+    try:
+        data = DOG_OF_SELECTOR + int(token_id).to_bytes(32, "big").hex()
+        raw = rpc.eth_call(CONTRACTS["dog"], data)
+        if not raw or raw == "0x":
+            return None
+        b = bytes.fromhex(raw[2:])
+        if len(b) < 160:
+            return None
+        vals = [int.from_bytes(b[i * 32:(i + 1) * 32], "big") for i in range(4)]
+        return (vals[0], vals[1], vals[2], vals[3], b[128:160])
+    except Exception:  # noqa: BLE001
+        return None

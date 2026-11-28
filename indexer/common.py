@@ -497,6 +497,14 @@ _EVENT_DEFS = [
       ("commitBlock", "uint256", False)]),
     ("dog", "Snapshot(uint256,bytes32)",
      [("blockNumber", "uint256", True), ("blockHash", "bytes32", False)]),
+    # Same topic0 as the registrar's Approval events, but a different contract
+    # address, so decode_log (keyed by address + topic0) tells them apart.
+    ("dog", "Approval(address,address,uint256)",
+     [("owner", "address", True), ("approved", "address", True),
+      ("tokenId", "uint256", True)]),
+    ("dog", "ApprovalForAll(address,address,bool)",
+     [("owner", "address", True), ("operator", "address", True),
+      ("approved", "bool", False)]),
     ("dogmarket", "Listed(uint256,address,uint256,uint256)",
      [("tokenId", "uint256", True), ("seller", "address", True),
       ("price", "uint256", False), ("rerolls", "uint256", False)]),

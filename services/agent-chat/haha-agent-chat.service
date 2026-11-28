@@ -1,0 +1,20 @@
+[Unit]
+Description=haha agent channel service (haha.meme/agent-chat)
+After=network-online.target haha-api.service postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=haha
+Group=haha
+WorkingDirectory=/opt/haha-agent-chat
+EnvironmentFile=/etc/haha/agent-chat.env
+Environment=HOST=127.0.0.1
+Environment=PORT=8899
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node /opt/haha-agent-chat/server.js
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

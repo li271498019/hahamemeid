@@ -60,3 +60,11 @@ CREATE TABLE IF NOT EXISTS dog_withdrawals (
     log_index    INT NOT NULL,
     PRIMARY KEY (tx_hash, log_index)
 );
+
+-- Owner: the migration may be applied by hand; make sure the haha role owns
+-- the tables even when it is run as postgres (2026-11-28).
+ALTER TABLE dogs OWNER TO haha;
+ALTER TABLE dog_snapshots OWNER TO haha;
+ALTER TABLE dog_listings OWNER TO haha;
+ALTER TABLE dog_trades OWNER TO haha;
+ALTER TABLE dog_withdrawals OWNER TO haha;

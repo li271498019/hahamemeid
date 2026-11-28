@@ -1,0 +1,436 @@
+{
+  "version": "1.0",
+  "source": "project",
+  "author": "C",
+  "updated": "2026-11-27",
+  "note": "由 C 根据已核实的项目事实编写的答案库, 与 L 的 agent 实采答案库互补。",
+  "questions": [
+    {
+      "n": 1,
+      "q": "haha.meme 是什么",
+      "status": "answered",
+      "answer": "haha.meme 是基于币安 .ai 的链上 agent 身份信誉协议。持有币安 .ai 的钱包可以免费、永久铸造一个 .haha 或 .meme 名字 NFT，在此基础上建立 ERC-8004 agent 身份、链上信誉评分和积分。",
+      "source": "project"
+    },
+    {
+      "n": 2,
+      "q": "什么是 haha id",
+      "status": "answered",
+      "answer": "haha id 就是你的 .haha 或 .meme 名字，比如 ha.haha。它是一个 ERC-721 NFT，也是你的 agent 在链上的身份和简历，信誉写在链上。",
+      "source": "project"
+    },
+    {
+      "n": 3,
+      "q": "haha.meme 是哪个链上的",
+      "status": "answered",
+      "answer": "haha.meme 在 BNB Chain（BSC）上，chainId 是 56。所有合约都部署在 BSC 主网，并且已在 BscScan 上开源验证，不可升级。",
+      "source": "project"
+    },
+    {
+      "n": 4,
+      "q": "haha.meme 安全吗",
+      "status": "answered",
+      "answer": "合约不可升级、无代理、无 Ownable，管理员也动不了你的 NFT、不能暂停、不能改费率。网站本身不接钱包、不发交易，你只输入 .ai 名字做只读登录，写操作是复制一段指令交给自己的 AI agent 去执行。",
+      "source": "project"
+    },
+    {
+      "n": 5,
+      "q": "haha.meme 是谁做的",
+      "status": "answered",
+      "answer": "haha.meme 由 L 牵头，C 负责网站开发和营销，D 负责合约开发、测试和部署。项目参加币安钱包 x BNB Chain 的 Agent ID 黑客松，截止 2026 年 12 月 9 日。",
+      "source": "project"
+    },
+    {
+      "n": 6,
+      "q": "怎么铸造一个名字",
+      "status": "answered",
+      "answer": "先在网站输入你的 .ai 名字登录，然后选一个名字，复制网站给出的指令，交给你的 AI agent（比如币安 Agent 钱包）去执行。铸造免费，只付 gas。",
+      "source": "project"
+    },
+    {
+      "n": 7,
+      "q": "铸造名字要花钱吗",
+      "status": "answered",
+      "answer": "铸造本身免费，只付 gas。名字永久有效，没有续费。",
+      "source": "project"
+    },
+    {
+      "n": 8,
+      "q": "铸造名字需要什么条件",
+      "status": "answered",
+      "answer": "你需要持有币安 .ai。铸造时要三重核对 .ai，防止别人抢注你的名字。同一 .ai 每 1 小时最多铸 1 个，.haha 和 .meme 两个后缀共用这个冷却。",
+      "source": "project"
+    },
+    {
+      "n": 9,
+      "q": "名字有什么规则",
+      "status": "answered",
+      "answer": "公开铸造的名字是 3 到 32 个字符，只能用小写字母和数字。1 到 2 位的名字全部是保留名，不能公开铸造。",
+      "source": "project"
+    },
+    {
+      "n": 10,
+      "q": "1 位和 2 位名字能铸吗",
+      "status": "answered",
+      "answer": "不能公开铸造。1 到 2 位的名字全部保留，2 位纯字母名字只能通过第一季活动用 200 积分兑换，或者由管理员发放。",
+      "source": "project"
+    },
+    {
+      "n": 11,
+      "q": "2 位名字怎么获得",
+      "status": "answered",
+      "answer": "第一季活动期间（2026 年 11 月 24 日到 12 月 9 日），用 200 积分兑换一个 2 位纯字母名字，每天 20 个名额，全季 300 个。",
+      "source": "project"
+    },
+    {
+      "n": 12,
+      "q": ".haha 和 .meme 有什么区别",
+      "status": "answered",
+      "answer": "两者都是名字 NFT，功能完全一样，只是后缀不同。同一 .ai 每小时只能铸 1 个，两个后缀共用这个冷却。",
+      "source": "project"
+    },
+    {
+      "n": 13,
+      "q": "铸造的名字是永久的吗",
+      "status": "answered",
+      "answer": "是的，永久有效，没有续费，也没有过期。",
+      "source": "project"
+    },
+    {
+      "n": 14,
+      "q": "一个 .ai 能铸几个名字",
+      "status": "answered",
+      "answer": "没有总数上限，但每小时最多铸 1 个。积分奖励上，铸造每天最多算 3 次（每次 10 分）。",
+      "source": "project"
+    },
+    {
+      "n": 15,
+      "q": "铸造后名字归谁",
+      "status": "answered",
+      "answer": "归铸造的那个钱包所有。名字是 ERC-721 NFT，tokenId 就是名字的 namehash，可以转让、买卖。",
+      "source": "project"
+    },
+    {
+      "n": 16,
+      "q": "名字能转让吗",
+      "status": "answered",
+      "answer": "可以。转让后 agent 身份会被清掉（burn），信誉清零，买家只买到名字，不含信誉。新一代 agent 从 0 分开始，历代记录可以在链上查到。",
+      "source": "project"
+    },
+    {
+      "n": 17,
+      "q": "什么是 agent",
+      "status": "answered",
+      "answer": "agent 是你名字对应的 ERC-8004 身份。激活后，你的名字就成了一个有身份、有信誉的链上 agent，别人可以查看它的信誉、给它评分、验证它。",
+      "source": "project"
+    },
+    {
+      "n": 18,
+      "q": "怎么激活 agent",
+      "status": "answered",
+      "answer": "你必须是名字持有人，而且激活那一刻必须持有 .ai。无 .ai 的买家只能持有、挂单、卖名字，不能激活 agent。激活后每 .ai 终身得 20 积分。",
+      "source": "project"
+    },
+    {
+      "n": 19,
+      "q": "激活 agent 要花钱吗",
+      "status": "answered",
+      "answer": "激活本身不收费，只付 gas。激活后你的 agent 就有了身份，可以被评分和验证。",
+      "source": "project"
+    },
+    {
+      "n": 20,
+      "q": "一个名字能有几个 agent",
+      "status": "answered",
+      "answer": "一个名字同时只能有一个活跃 agent。agent 烧掉（burn）后可以重新激活新一代，generation 会加 1，旧的 agentId 不回收。",
+      "source": "project"
+    },
+    {
+      "n": 21,
+      "q": "agent 的信誉分是什么",
+      "status": "answered",
+      "answer": "信誉分是别人给你的 agent 打的星级评分，1 到 5 星。评分记录在链上，任何人都能查。信誉分和积分是两回事，信誉分不直接换积分。",
+      "source": "project"
+    },
+    {
+      "n": 22,
+      "q": "怎么给 agent 评分",
+      "status": "answered",
+      "answer": "评分人需要同时持有 .ai 和任意一个 .haha 或 .meme 名字，被评 agent 的主人当时也必须仍持有 .ai。每个 .ai 对同一 agent 只有一条评价，可以改分。评分后写评和收评各得 5 积分。",
+      "source": "project"
+    },
+    {
+      "n": 23,
+      "q": "自己能给自己评分吗",
+      "status": "answered",
+      "answer": "不能。自评会被拦截，包括本人、同一个 .ai、同一个操作人、以及该 agent 的 operator，一共四条路径都会被堵住。",
+      "source": "project"
+    },
+    {
+      "n": 24,
+      "q": "agent 的身份怎么验证",
+      "status": "answered",
+      "answer": "验证通过 HahaValidation 合约。验证者检查 agent 的身份真实性和接口可达性，给出 0 到 100 分。第一个真实验证是 ha.haha，得了 100 分。",
+      "source": "project"
+    },
+    {
+      "n": 25,
+      "q": "ERC-8004 是什么",
+      "status": "answered",
+      "answer": "ERC-8004 是以太坊的 agent 身份标准，定义了 agent 的身份、信誉和验证。haha.meme 实现了其中的身份、信誉和验证三部分。",
+      "source": "project"
+    },
+    {
+      "n": 26,
+      "q": "积分是什么",
+      "status": "answered",
+      "answer": "积分是 haha.meme 的链上积分，按你的 .ai 来记，不可转让。积分可以用来兑换第一季的 2 位名字。",
+      "source": "project"
+    },
+    {
+      "n": 27,
+      "q": "怎么赚积分",
+      "status": "answered",
+      "answer": "签到每天 30 分，铸造每次 10 分（每天最多 3 次），关注 30 分（终身 1 次），点赞、转发、评论各 10 分（每天各 1 次），写评价和收评价各 5 分（每天各最多 5 个不同对象），激活 agent 20 分（每 .ai 终身 1 次）。",
+      "source": "project"
+    },
+    {
+      "n": 28,
+      "q": "每天最多能得多少分",
+      "status": "answered",
+      "answer": "第一天最多 220 分，第二天起每天最多 170 分。这是常规任务的上限，找错奖励和每日验证另外算。",
+      "source": "project"
+    },
+    {
+      "n": 29,
+      "q": "签到能得多少分",
+      "status": "answered",
+      "answer": "签到每天 30 分，每天 1 次。积分按 UTC 日重置，也就是北京时间每天早上 08:00。",
+      "source": "project"
+    },
+    {
+      "n": 30,
+      "q": "积分能转让吗",
+      "status": "answered",
+      "answer": "不能。积分绑定你的 .ai，不可转让。",
+      "source": "project"
+    },
+    {
+      "n": 31,
+      "q": "积分会过期吗",
+      "status": "answered",
+      "answer": "积分本身不会过期，但每天的任务额度会在北京时间每天 08:00 重置。第一季结束后，积分的兑换用途要等后续安排。",
+      "source": "project"
+    },
+    {
+      "n": 32,
+      "q": "积分怎么兑换名字",
+      "status": "answered",
+      "answer": "第一季期间，200 积分兑换一个 2 位纯字母名字。在网站第一季页面申请，申请成功后由管理员发放。",
+      "source": "project"
+    },
+    {
+      "n": 33,
+      "q": "我的积分现在有多少",
+      "status": "answered",
+      "answer": "你可以在网站的积分榜或者你的 agent 页面查看积分。积分按 .ai 来记，登录后输入你的 .ai 名字就能看到。",
+      "source": "project"
+    },
+    {
+      "n": 34,
+      "q": "第一季是什么活动",
+      "status": "answered",
+      "answer": "第一季是 haha.meme 的上线活动，从 2026 年 11 月 24 日到 12 月 9 日，共 15 天。每天放出 20 个 2 位纯字母名字，用 200 积分兑换，全季 300 个。",
+      "source": "project"
+    },
+    {
+      "n": 35,
+      "q": "第一季什么时候结束",
+      "status": "answered",
+      "answer": "第一季在 2026 年 12 月 9 日早上 08:00（北京时间）结束。之后积分的兑换和每日验证都会停止。",
+      "source": "project"
+    },
+    {
+      "n": 36,
+      "q": "第一季怎么参加",
+      "status": "answered",
+      "answer": "先赚够 200 积分，然后在网站第一季页面申请兑换一个 2 位纯字母名字。每天 20 个名额，先到先得，名额按当天快照的积分排名来分配。",
+      "source": "project"
+    },
+    {
+      "n": 37,
+      "q": "兑换 2 位名字要多少积分",
+      "status": "answered",
+      "answer": "200 积分兑换一个 2 位纯字母名字。只接受 2 位小写字母（aa 到 zz），不接受数字。",
+      "source": "project"
+    },
+    {
+      "n": 38,
+      "q": "每天有几个兑换名额",
+      "status": "answered",
+      "answer": "每天 20 个，全季 300 个。上一天有资格没申请的人，第二天会被排除在优先名单外，名额顺延给后面满 200 分的人；不够 20 人时再随机补位。",
+      "source": "project"
+    },
+    {
+      "n": 39,
+      "q": "兑换后多久能拿到名字",
+      "status": "answered",
+      "answer": "申请成功后，管理员会在第二天早上 08:00 的批量操作里发放。发放后名字就归你所有，可以在你的名字列表里看到。",
+      "source": "project"
+    },
+    {
+      "n": 40,
+      "q": "第一季的任务是什么",
+      "status": "answered",
+      "answer": "第一季每天有一个任务包，指定一个 agent 做当日任务。完成每日验证可以得 30 分。找到网站或合约的问题并提交，审核通过后得 100 分。",
+      "source": "project"
+    },
+    {
+      "n": 41,
+      "q": "每天验证怎么做",
+      "status": "answered",
+      "answer": "在网站第一季页面，按提示完成当日验证。验证需要签名，每天最多 5 次机会，验证成功得 30 分。",
+      "source": "project"
+    },
+    {
+      "n": 42,
+      "q": "市场在哪里",
+      "status": "answered",
+      "answer": "在网站的市场页面（market.html），可以看到所有在售的名字、价格和卖家。",
+      "source": "project"
+    },
+    {
+      "n": 43,
+      "q": "怎么买名字",
+      "status": "answered",
+      "answer": "在市场页面选一个名字，复制网站给出的购买指令，交给你的 AI agent 去执行。购买只收 BNB。",
+      "source": "project"
+    },
+    {
+      "n": 44,
+      "q": "怎么卖名字",
+      "status": "answered",
+      "answer": "在你的名字页面挂单，设定价格，复制指令交给你的 AI agent 去执行。卖出后你能收到 BNB，扣除 1% 手续费。",
+      "source": "project"
+    },
+    {
+      "n": 45,
+      "q": "市场手续费多少",
+      "status": "answered",
+      "answer": "市场手续费是 1%，由卖家支付。买家不需要额外付手续费，只付名字价格和 gas。",
+      "source": "project"
+    },
+    {
+      "n": 46,
+      "q": "买名字用什么币",
+      "status": "answered",
+      "answer": "市场只收 BNB。",
+      "source": "project"
+    },
+    {
+      "n": 47,
+      "q": "买了名字能马上用吗",
+      "status": "answered",
+      "answer": "可以。买到名字后你就是持有人，可以挂单、卖出。如果当时你持有 .ai，还可以激活 agent。",
+      "source": "project"
+    },
+    {
+      "n": 48,
+      "q": "买名字后信誉还在吗",
+      "status": "answered",
+      "answer": "不在。转让后 agent 身份会被清掉，信誉清零。买家只买到名字，不含信誉，新一代 agent 从 0 分开始。",
+      "source": "project"
+    },
+    {
+      "n": 49,
+      "q": "市场上有多少个名字在卖",
+      "status": "answered",
+      "answer": "市场在售数量每天都在变，你可以在网站市场页面查看实时列表。目前市场只有过一笔真实交易（测试自买），大部分名字还没开始流通。",
+      "source": "project"
+    },
+    {
+      "n": 50,
+      "q": "网站怎么登录",
+      "status": "answered",
+      "answer": "网站不接钱包，你只输入你的 .ai 名字就能只读登录。网站不会让你连接钱包，也不会让你签名。真正的写操作（铸造、购买、激活等）都是复制一段指令，交给你的 AI agent 去执行。",
+      "source": "project"
+    },
+    {
+      "n": 51,
+      "q": "网站为什么不接钱包",
+      "status": "answered",
+      "answer": "haha.meme 的设计是：网站只做展示和只读查询，写操作由用户自己的 AI agent 去执行。这样网站不用碰你的私钥，更安全。",
+      "source": "project"
+    },
+    {
+      "n": 52,
+      "q": "我没有 AI agent 怎么办",
+      "status": "answered",
+      "answer": "你可以用币安 Agent 钱包，它自带 AI agent。网站上的每一步写操作都有现成的指令，复制给你的 agent，它会按指令在 BNB Chain 上执行，执行前会先给你看交易预览，你确认后再执行。",
+      "source": "project"
+    },
+    {
+      "n": 53,
+      "q": "操作说明书在哪",
+      "status": "answered",
+      "answer": "在网站根目录的 skill.md（https://haha.meme/skill.md），这是给 AI agent 看的操作说明书。你的 agent 执行任务前会先读这份文档。",
+      "source": "project"
+    },
+    {
+      "n": 54,
+      "q": "MCP 是什么",
+      "status": "answered",
+      "answer": "MCP 是 haha.meme 的数据接口，地址是 https://haha.meme/mcp。任何 AI agent 都可以在对话里说“请连接数据源接口：https://haha.meme/mcp”，就能直接查询 haha.meme 的链上数据，不用写代码、不用安装。",
+      "source": "project"
+    },
+    {
+      "n": 55,
+      "q": "MCP 能查什么",
+      "status": "answered",
+      "answer": "MCP 提供 29 个只读工具，可以查名字、agent 信誉、积分榜、市场在售、第一季资格和根、最新评价等等。全部是只读，不做写操作、不碰交易。",
+      "source": "project"
+    },
+    {
+      "n": 56,
+      "q": "MCP 能主动给我发消息吗",
+      "status": "answered",
+      "answer": "不能。MCP 是被动工具，不知道你是谁，也没有推送通道。想收到更新要走 X、Telegram 或邮件这些渠道。",
+      "source": "project"
+    },
+    {
+      "n": 57,
+      "q": "haha scan 是什么",
+      "status": "answered",
+      "answer": "haha scan 是 haha.meme 的区块浏览器，地址是 https://haha.meme/scan.html。可以搜名字、地址、交易哈希、区块号，查看总览、名字列表、信誉榜、积分榜、市场和第一季数据。",
+      "source": "project"
+    },
+    {
+      "n": 58,
+      "q": "网站用的什么字体",
+      "status": "answered",
+      "answer": "网站用的是 Fusion Pixel（融合像素字体），12px Proportional 简体中文版，开源字体，全站统一使用。",
+      "source": "project"
+    },
+    {
+      "n": 59,
+      "q": "项目有代币吗",
+      "status": "answered",
+      "answer": "没有。haha.meme 目前没有发任何代币，积分也不是代币，不能转让、不能交易。不要相信任何自称 HAHA 代币的消息。",
+      "source": "project"
+    },
+    {
+      "n": 60,
+      "q": "怎么联系项目方",
+      "status": "answered",
+      "answer": "X：@aihahameme；Telegram 项目群组：https://t.me/idhahameme；项目方个人 Telegram：https://t.me/aihahameme。",
+      "source": "project"
+    },
+    {
+      "n": 61,
+      "q": "网站出问题了怎么办",
+      "status": "answered",
+      "answer": "可以在 Telegram 群组里反馈，或者在第一季的找错任务里提交，审核通过后能得 100 积分。",
+      "source": "project"
+    }
+  ]
+}

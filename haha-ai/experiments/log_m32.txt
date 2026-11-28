@@ -1,0 +1,16 @@
+[train] decoder params: 7702  (variable cells: 99/128)
+[train] {'phase': 'vae', 'epoch': 0, 'rec': 394.87, 'kl': 37.1, 'sec': 1}
+[train] {'phase': 'vae', 'epoch': 500, 'rec': 21.92, 'kl': 15.13, 'sec': 27}
+[train] {'phase': 'vae', 'epoch': 1000, 'rec': 16.02, 'kl': 15.77, 'sec': 54}
+[train] {'phase': 'vae', 'epoch': 1499, 'rec': 15.44, 'kl': 15.99, 'sec': 82}
+[train] {'phase': 'ot', 'round': 0, 'matched_cell_acc': 0.8863, 'matched_exact': 0.001, 'qat': False, 'sec': 83}
+[train] {'phase': 'ot', 'round': 20, 'matched_cell_acc': 0.8977, 'matched_exact': 0.002, 'qat': False, 'sec': 100}
+[train] {'phase': 'ot', 'round': 40, 'matched_cell_acc': 0.9001, 'matched_exact': 0.002, 'qat': False, 'sec': 115}
+[train] {'phase': 'ot', 'round': 60, 'matched_cell_acc': 0.9039, 'matched_exact': 0.003, 'qat': False, 'sec': 131}
+[train] {'phase': 'ot', 'round': 80, 'matched_cell_acc': 0.906, 'matched_exact': 0.002, 'qat': False, 'sec': 147}
+[train] {'phase': 'ot', 'round': 100, 'matched_cell_acc': 0.9068, 'matched_exact': 0.003, 'qat': False, 'sec': 163}
+[train] {'phase': 'ot', 'round': 120, 'matched_cell_acc': 0.9072, 'matched_exact': 0.002, 'qat': False, 'sec': 179}
+[train] {'phase': 'ot', 'round': 140, 'matched_cell_acc': 0.9059, 'matched_exact': 0.001, 'qat': True, 'sec': 195}
+[train] {'phase': 'ot', 'round': 160, 'matched_cell_acc': 0.9047, 'matched_exact': 0.003, 'qat': True, 'sec': 211}
+[train] {'phase': 'ot', 'round': 180, 'matched_cell_acc': 0.9064, 'matched_exact': 0.0, 'qat': True, 'sec': 227}
+[train] {'phase': 'ot', 'round': 199, 'matched_cell_acc': 0.9058, 'matched_exact': 0.002, 'qat': True, 'sec': 242}

@@ -28,4 +28,16 @@
       }
     }, 100);
   }
+  /* 跳到正文的链接要在 i18n 应用文案之前插好，英文页才不会留下中文。 */
+  document.addEventListener("DOMContentLoaded", function () {
+    var main = document.querySelector("main");
+    if (main && !main.id) main.id = "main";
+    if (document.querySelector("a.skip")) return;
+    var a = document.createElement("a");
+    a.className = "skip";
+    a.href = "#main";
+    a.setAttribute("data-i18n", "nav.skip");
+    a.textContent = "跳到主要内容";
+    if (document.body) document.body.insertBefore(a, document.body.firstChild);
+  });
 })();

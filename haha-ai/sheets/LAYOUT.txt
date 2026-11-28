@@ -1,0 +1,3 @@
+tile=16x16 px, grid=16x16 tiles per sheet, no gaps, 250 dogs per sheet
+tile i -> x=(i%16)*16, y=(i//16)*16 ; transparent = empty cell
+labels.json: trait labels of every dog, in order (sheet 1 tiles 0..249, then sheet 2 ...)

@@ -1,0 +1,115 @@
+# 保留名
+
+状态：本清单由规格编写时整理，owner 已确认用它代替丢失的原 57 个名字。日期：2026-11-20。共 **61** 个。
+
+保留名不是预铸造的。它们留在未注册状态，管理员以后用 `adminMint` 铸给生态建设者或活跃用户。公众调用 `register` 必须失败。
+
+## 决定：部署时写死，管理员不能追加
+
+owner 要求管理员权力尽量小。保留名单因此和黑名单一样，在 `HahaNamePolicy` 构造函数里写入 mapping，之后没有增删函数。
+
+漏掉的品牌名不能在部署后补进名单。真要改，只能另外部署一整套新合约，本套合约不做这件事。部署前对照本文件最后再读一遍。
+
+1 个字符和 2 个字符的全部组合（`a-z`、`0-9`，共 36 + 1296 = 1332 个 label，两个 TLD 各自独立）也是保留名，但是用长度判断，不写进这 61 个哈希。`cz` 只有 2 个字符，长度规则已经覆盖它；它仍留在本清单里，避免以后读文档的人把它当成普通名字。
+
+## 公众可以注册的名字
+
+下面这些不在保留名单里，也不在黑名单里，必须能被公众铸造：
+
+`btc`、`bitcoin`、`eth`、`sol`、`usdt`、`usdc`、`bnb`、`lido`、`crypto`、`satoshi`、`wallet`、`exchange`
+
+`trump` 不在本清单，它在黑名单 v2 里，谁都不能注册。
+
+## 名单
+
+哈希是 `keccak256(bytes(label))`，也就是 labelhash。不要加 `HAHA_V2` 盐，盐只用于黑名单。
+
+### 交易所（14）
+
+`binance` `okx` `coinbase` `bybit` `bitget` `kucoin` `kraken` `gateio` `htx` `huobi` `mexc` `upbit` `bitfinex` `bitmex`
+
+### 钱包与基础设施（14）
+
+`metamask` `trustwallet` `phantom` `ledger` `trezor` `tokenpocket` `safepal` `etherscan` `bscscan` `coingecko` `coinmarketcap` `spaceid` `opensea` `blur`
+
+### DeFi 与链（13）
+
+`uniswap` `pancakeswap` `tether` `circle` `ethereumfoundation` `solanalabs` `bnbchain` `opbnb` `polygon` `arbitrum` `optimism` `x402` `erc8004`
+
+### 人物（14）
+
+`cz` `changpeng` `heyi` `star` `starxu` `vitalik` `vbuterin` `justinsun` `brian` `brianarmstrong` `musk` `elonmusk` `saylor` `haydenadams`
+
+### 项目自用（6）
+
+`haha` `hahameme` `meme` `admin` `official` `support`
+
+61 = 14 + 14 + 13 + 14 + 6。和黑名单没有交集。
+
+## labelhash
+
+`reserved-names.hashes.txt` 是字母序，每行 `label<空格>0x哈希`。部署脚本从上面的词表现场计算，必须与该文件逐行相等。
+
+| label | keccak256(bytes(label)) |
+| --- | --- |
+| admin | `0xf23ec0bb4210edd5cba85afd05127efcd2fc6a781bfed49188da1081670b22d8` |
+| arbitrum | `0x9186606d55c571b43a756333453d90ab5653c483deb4980cda697bfa36fba5de` |
+| binance | `0x099e8cf4d817a6e4eec62bff4cdef05faa4a00fcde8d7e99f5090708d23ad9b2` |
+| bitfinex | `0x12546cd5b4863d8fceb2700b20f85f808d21ea3bb21269f1dae245d1824316b9` |
+| bitget | `0x111eeb03db80a02c4ac0a8b15bfa19f1747d2582585b05adcb87e3bd7e16de56` |
+| bitmex | `0x1ab20d685c2ad1bcf3e3aec97df8453706b285bc63c61cccc06fad969b0a534a` |
+| blur | `0x70ae3a3d2d82c3654e3315e4669a9fc102cad4b71924978a4f394a535ba662b4` |
+| bnbchain | `0x156ceb2ec5b4b2871bc91425b59badddb4ebe84276e715a634da7aef4bc24878` |
+| brian | `0x61d644f0d6ba62b3b81f46d2291409f93244a931b0cf2556aad50391f3b67fb2` |
+| brianarmstrong | `0x0515a4bd6612cc585fdb8322cd183ac3239e1b7cd557a2bbd51507a7ed676aee` |
+| bscscan | `0x7e6086a2dc36c2c06ca243f5411d3b62afa3b2116e607f858a3f8471038bf444` |
+| bybit | `0x5ae2d7a74a1372650fdee61f8b005b242fab41ead68ffff1a2d8955eeab8f136` |
+| changpeng | `0x45f80ec87919d95facb00f1de2698d655f7c28cf63a797b64b7f80525ab9dab1` |
+| circle | `0x0a673551c14516dd05803ac42eca5a293a8ad89b657a45cbb05cfe7b444734ab` |
+| coinbase | `0x76ec948a9207fdea26dcba91086bcdd181920ff52a539b0d1eb28e73b4cd92af` |
+| coingecko | `0xf537e0662dd447cab7c956d3b9480a46404a8ad6a950953cd8710f5013892c69` |
+| coinmarketcap | `0x2d885d7a5667701b36239cab6f2446d7ce4cea88737e09815e085a55e0f08c00` |
+| cz | `0x416778a3f71dab67734ef49da2cbbaf28a3af9a3caa4ba9cd5c365a86ed84578` |
+| elonmusk | `0x3665e9164821440025147196728c7c84ac82e56332a99f7c7a53a5d8a14d8417` |
+| erc8004 | `0xb126d82eb3261515f478c495d152d01425c0b2efa0a1ac1715bb26c2755b65cb` |
+| ethereumfoundation | `0x692cd77bd7df068bd065b75dfb79098f7ed65a81b53fb79b828f9b1941f429f3` |
+| etherscan | `0x0d57c7d8b54ebf963f94cded8a57a1b109ac7465ada218575473648bf373b90d` |
+| gateio | `0x348d6aa61da5fde0d0d5a5d1a242b4454e955c0820509d45323e1a559b962d81` |
+| haha | `0xdaf852c65524dc81a2baabbf4ef3d25bcfd7de35fc7aec4f02bc697f115cbac9` |
+| hahameme | `0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed` |
+| haydenadams | `0x33e1e21c96c206f97ce167da7d2ea680d78de3e4fc6150d0ed58783d8ac9ccc2` |
+| heyi | `0x9cde749424d4ab2b74caad6ce50fe92417e6edbacc37f6871f2dcbb65aaa4a39` |
+| htx | `0x41a67b7d3daf214e43024bd3a92d50d4fb568bd074e36f3baf3948e09a3d7275` |
+| huobi | `0x85933d072d12b6b514ba453ad609d8f0d54b7d0b0cab0d0d85bcad19e485bca9` |
+| justinsun | `0xc0c7e349d1ea8efd3f8a9706d16149d360e071adf671e89c2f67d93d5338b514` |
+| kraken | `0x349df53c2354c03b3f1e2f33eedba00012c782d21c60ee340671dfbdb362b724` |
+| kucoin | `0x91b41130bb6e6c64c93e6998dd35f1f5a62ec772d9051357998a53e9fc7378eb` |
+| ledger | `0x2c0e8db8fb1343f00f1c6b57af1cf6bf785c6b487e5c99ae90a4e98907f27011` |
+| meme | `0x6c0e9707e506495dbae3f1975652e60c5ad3a00b399bb9f763bb9dc6be92c0c5` |
+| metamask | `0x69edc0ff6c1e084ebd1295782a6c284c57eda43f402b6ecc23762b9316812888` |
+| mexc | `0xb1cb159410be5dd191473c9dbe6bc6e6c2afed6ee2d3e9bf7e5e2a688a918a56` |
+| musk | `0xef2d6b522def309dc91f0657b3bfa38f3b922a5beb59f5090379f650fd006d01` |
+| official | `0xbf7ec22a475561aacb35f01fef1221e64ea6b9d1c86c4b6ef7d496e15234a1d7` |
+| okx | `0xd6b6d5e0aacce0469a313983d889ed10d0bb7c9545af0285a19b4ff094b4041d` |
+| opbnb | `0x5b8495dbd6ccd2adf47b3e0b6c835d6bc3c99e485ca530cc58595b528f489f86` |
+| opensea | `0xde576c970b49e44aeec7e80b8ff7320a46d682c1cc93e8520ff8b42a94a030e9` |
+| optimism | `0x09d0f27659ee556a8134fa56941e42400e672aecc2d4cfc61cdb0fcea4590e05` |
+| pancakeswap | `0xd7e0d5c07ddc27357df5c45737f3b7506ed8b6a6631c211732cdda1dfcf56ba3` |
+| phantom | `0xab2f448674ef160b43a9efef360fd2e2c1c834e3522fcbe458a1a5b8471497bc` |
+| polygon | `0xac63fa1fe369e75c38d62f0f4d465b48b3cd5159f0fb416332899402031d1408` |
+| safepal | `0x7a8d13323c7d09dd99264b104f4a4289ab4ebd7d8cbc071e71a009ea2abb007a` |
+| saylor | `0x45a6110f04154b716ee148d48168019be4a04ea9772171dd455720ac8d337273` |
+| solanalabs | `0xd0ae20d26a56e927d096fe6468f49af33ff9e99bd743d431f6c7bdc74e63a8f5` |
+| spaceid | `0x5ecbc570d2768064621ed560381a9c89b578a0a5cdf16d88c6dc6c49a16d3765` |
+| star | `0x2632c52c2eb190dc088fe4ce54053b1ccbff2c3c5988f7480ef74b97394dbd9a` |
+| starxu | `0x102782ec8f2651888b0ce8dd038fc180f3773f3b36f3915dd39386974dc26747` |
+| support | `0x05ed8e412f03a3e829aaa34f3b5d303588af0b61c223dec800945749682d4f73` |
+| tether | `0xc1eecd773f465eb8b794f74d137fc082cadce3e91ec96a392351393bd6df64e9` |
+| tokenpocket | `0x53dfbef18b948d6714ce148ed95cd118b9cf63373252db301145deb2d347efd6` |
+| trezor | `0x0b41950d7d05b03b627e2fbcbcd3b9a4e7cd4a905f050e8a8bb1b32008ed016f` |
+| trustwallet | `0x31924c4e2bb082322d1efa718bf67c73ca297b481dac9f76ad35670cff0056a3` |
+| uniswap | `0xa2a03459171c76bff45817330c10ef9f8af07011a33005b73b50189bbc7e7132` |
+| upbit | `0x7dd49a33bbbe15c5ff184b33c335a295efd135f38b81eba9ec1f3dea09b2d5fd` |
+| vbuterin | `0xa4ab475b2cd9447fa44d0dde76add24e4532e60a21565184db1ded8d2271daa7` |
+| vitalik | `0xaf2caa1c2ca1d027f1ac823b529d0a67cd144264b2789fa2ea4d63a67c7103cc` |
+| x402 | `0x263162b25514e5a51281ed4797f756b2d887d119c9c0f797e00e588b50363fc6` |

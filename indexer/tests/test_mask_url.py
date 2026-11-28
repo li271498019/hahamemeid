@@ -21,21 +21,21 @@ class TestMaskUrl(unittest.TestCase):
 
     def test_apikey_query_dropped(self):
         # L7: the old mask kept the query string, so ?apikey=<key> leaked.
-        url = "https://rpc.example.com/bsc?apikey=SECRETKEY1234567890"
+        url = "https://rpc.example.com/bsc?apikey=querytoken"
         self.assertEqual(_mask_url(url), "https://rpc.example.com/bsc")
-        self.assertNotIn("SECRETKEY", _mask_url(url))
+        self.assertNotIn("querytoken", _mask_url(url))
 
     def test_apikey_query_with_other_params_dropped(self):
-        url = "https://rpc.example.com/bsc?apikey=SECRETKEY1234567890&x=1"
+        url = "https://rpc.example.com/bsc?apikey=querytoken&x=1"
         self.assertEqual(_mask_url(url), "https://rpc.example.com/bsc")
 
     def test_userinfo_stripped(self):
-        url = "https://SECRETKEY1234567890@rpc.example.com/bsc"
+        url = "https://querytoken@rpc.example.com/bsc"
         self.assertEqual(_mask_url(url), "https://rpc.example.com/bsc")
-        self.assertNotIn("SECRETKEY", _mask_url(url))
+        self.assertNotIn("querytoken", _mask_url(url))
 
     def test_userinfo_and_long_tail_masked(self):
-        url = "https://user:pass1234567890@rpc.example.com/v1/abcdef0123456789"
+        url = "https://user:querytoken@rpc.example.com/v1/abcdef0123456789"
         self.assertEqual(_mask_url(url), "https://rpc.example.com/v1/***")
 
     def test_plain_url_unchanged(self):

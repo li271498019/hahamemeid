@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Haha Dog 部署面板</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Haha Dog 部署面板（4 合约）</div>
+    <div class="meta">
+      <span id="meta-commit">commit: —</span>
+      <span id="meta-solc">solc: 0.8.28 · via-ir · cancun</span>
+    </div>
+    <div class="wallet-box">
+      <span id="net-badge" class="badge badge-gray">未连接</span>
+      <span id="addr" class="addr">—</span>
+      <span id="balance" class="balance">—</span>
+      <button id="btn-connect" class="btn btn-primary">连接 MetaMask</button>
+      <button id="btn-connect-okx" class="btn btn-primary">连接 OKX</button>
+    </div>
+  </header>
+
+  <div id="net-warning" class="net-warning hidden">
+    当前网络不是目标网络，请切换。
+    <button id="btn-switch-net" class="btn btn-warn">一键切换</button>
+  </div>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h3>构造参数（可核对修改）</h3>
+      <p class="hint">这些是步骤 3 的构造参数，来自现有主网合约，可在这里核对后修改。</p>
+      <dl class="params" id="ctor-params">
+        <dt>aiRegistry（.ai 注册表）</dt><dd><input id="in-aiRegistry" type="text" spellcheck="false" /></dd>
+        <dt>registrar（HahaRegistrar）</dt><dd><input id="in-registrar" type="text" spellcheck="false" /></dd>
+        <dt>feeReceiver（手续费/版税）</dt><dd><input id="in-feeReceiver" type="text" spellcheck="false" /></dd>
+        <dt>blockHistory（EIP-2935）</dt><dd><input id="in-blockHistory" type="text" spellcheck="false" /></dd>
+        <dt>chainId</dt><dd id="p-chain">—</dd>
+      </dl>
+      <p><a href="index.html" style="color:var(--accent);font-size:13px">→ 返回主部署面板</a></p>
+      <h3>模式</h3>
+      <div class="mode-switch">
+        <button id="btn-mainnet" class="btn btn-outline">BSC 主网 (56)</button>
+        <button id="btn-testnet" class="btn btn-outline">BSC 测试网 (97)</button>
+      </div>
+      <h3>进度</h3>
+      <div class="progress-actions">
+        <button id="btn-export" class="btn btn-outline">导出进度</button>
+        <button id="btn-import" class="btn btn-outline">导入进度</button>
+        <input type="file" id="import-file" accept="application/json" class="hidden" />
+      </div>
+      <h3>开源验证（Etherscan V2）</h3>
+      <div class="verify-box">
+        <input id="verify-key" type="password" placeholder="Etherscan API Key（仅内存）" />
+        <button id="btn-verify" class="btn btn-outline">一键验证（4 个）</button>
+        <pre id="verify-results" class="verify-results hidden"></pre>
+      </div>
+    </aside>
+
+    <section class="content">
+      <h2>链上状态总览（只读）</h2>
+      <div id="overview" class="overview"></div>
+
+      <h2 class="mt">部署步骤（4 笔交易，按顺序）</h2>
+      <p class="hint">
+        顺序：HahaDogModel → HahaDogRenderer → HahaDog → HahaDogMarket。
+        前一步「已确认」后才能执行下一步；中断后按「查询确认」接续，无需重来。
+      </p>
+      <div id="steps" class="steps"></div>
+
+      <h2 class="mt">部署后自检（只读，读链核对）</h2>
+      <p class="hint">核对链上数据哈希 <code>MODEL_DATA_HASH()</code>（<code>0x72f92c…f8da</code>）、权重文件哈希（<code>0x1d2239…8078</code>，离线核对）、以及调用一次 <code>svgOf</code> 出图验证。</p>
+      <button id="btn-selfcheck" class="btn btn-primary" disabled>运行自检</button>
+      <div id="selfcheck" class="selfcheck"></div>
+
+      <h2 class="mt">tokenURI 出图验证</h2>
+      <p class="hint">填 tokenId（纯数字，如 <code>1</code>）调 <code>tokenURI</code>；填 seed（0x 开头 64 位 hex）调 <code>svgOf(seed)</code>；留空用固定 seed 0x…01。</p>
+      <div class="verify-box">
+        <input id="tokenuri-id" type="text" placeholder="tokenId 或 seed（如 1 或 0xb77e…）" />
+        <button id="btn-tokenuri" class="btn btn-outline">调用 tokenURI / svgOf</button>
+      </div>
+      <pre id="tokenuri-result" class="verify-results hidden"></pre>
+
+      <h2 class="mt">回执</h2>
+      <button id="btn-receipt-copy" class="btn btn-outline" disabled>复制回执</button>
+      <button id="btn-receipt-md" class="btn btn-outline" disabled>复制 Markdown 回执</button>
+      <button id="btn-receipt-download" class="btn btn-outline" disabled>下载 deployment-&lt;chainId&gt;.json</button>
+      <pre id="receipt" class="receipt hidden"></pre>
+    </section>
+  </main>
+
+  <script src="/vendor/ethers.umd.min.js"></script>
+  <script type="module" src="dog.js"></script>
+</body>
+</html>

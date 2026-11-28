@@ -2,29 +2,50 @@
 <html lang="zh-Hans">
 <head>
 <meta charset="utf-8">
-<script src="/js/boot.js?v=8"></script>
+<script src="/js/boot.js?v=9"></script>
 <script src="/js/config.js?v=9"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#F7931A">
+<script src="/js/rain.js?v=9" defer></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
 <title data-i18n-title="agent.docTitle">haha.meme · agent</title>
 <meta name="description" data-i18n="agent.docDesc" content="agent 名片。评价指令复制给自己的 agent。">
-<link rel="icon" href="/assets/logo/favicon.ico">
+<link rel="canonical" href="https://haha.meme/agent.html">
+<link rel="icon" href="/assets/logo/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/logo/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/logo/icon-192.png">
 <link rel="apple-touch-icon" href="/assets/logo/favicon-180.png">
-<meta property="og:title" content="haha.meme · agent">
-<meta property="og:description" content="agent 名片。评价指令复制给自己的 agent。">
-<meta property="og:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:title" data-i18n="agent.docTitle" content="haha.meme · agent">
+<meta property="og:description" data-i18n="agent.docDesc" content="agent 名片。评价指令复制给自己的 agent。">
+<meta property="og:url" content="https://haha.meme/agent.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="haha.meme">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:image" content="https://haha.meme/assets/og/og-erc8004.png">
+<meta property="og:image:secure_url" content="https://haha.meme/assets/og/og-erc8004.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="haha.meme：身份和信誉">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://haha.meme/assets/logo/haha-logo.png">
-<link rel="stylesheet" href="/css/site.css?v=24">
+<meta name="twitter:site" content="@aihahameme">
+<meta name="twitter:creator" content="@aihahameme">
+<meta name="twitter:title" data-i18n="agent.docTitle" content="haha.meme · agent">
+<meta name="twitter:description" data-i18n="agent.docDesc" content="agent 名片。评价指令复制给自己的 agent。">
+<meta name="twitter:image" content="https://haha.meme/assets/og/og-erc8004.png">
+<meta name="twitter:image:alt" content="haha.meme：身份和信誉">
+<link rel="stylesheet" href="/css/site.css?v=32">
 </head>
 <body>
 <canvas id="fx" aria-hidden="true"></canvas>
 <div class="grain" aria-hidden="true"></div>
 <div class="wrap">
 <header class="nav">
-  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40">haha.meme</a>
-    <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/market.html"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html"><span data-i18n="nav.earn">赚取积分</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/scan.html"><span data-i18n="nav.scan">haha scan</span></a><a href="/how.html"><span data-i18n="nav.how">工作原理</span></a><a href="/season" data-i18n="nav.season">稀有域名空投第一季</a></nav>
+  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40" decoding="async" fetchpriority="high">haha.meme</a>
+    <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/ai.html"><span data-i18n="nav.ai">Haha AI</span></a><a href="/mint.html"><span data-i18n="nav.mint">Haha Dog</span></a><a href="/market.html"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html"><span data-i18n="nav.earn">赚取积分</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/scan.html"><span data-i18n="nav.scan">haha scan</span></a><a href="/how.html"><span data-i18n="nav.how">工作原理</span></a><a href="/season" data-i18n="nav.season">稀有域名空投第一季</a></nav>
   <div class="nav-right">
     <span class="hello" id="hello" hidden>Hi! <b id="hello-name"></b></span>
 
@@ -42,23 +63,36 @@
 <footer>haha.meme · haha id · <span data-i18n="footer.tagline">基于币安 .ai Agent ID 的链上agent身份信誉协议</span> · <a href="https://x.com/aihahameme" target="_blank" rel="noopener noreferrer">X</a> · <a href="https://t.me/aihahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目方"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg> <span data-i18n="footer.tgOwner">项目方</span></a> · <a href="https://t.me/idhahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目群组"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h9v-2.5c0-.85.33-1.59.88-2.16C7.4 14.12 6.16 13 5 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span data-i18n="footer.tgGroup">项目群组</span></a> · <a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a> · <a href="/skill.md">skill.md</a> · <a href="/api.html">API</a></footer>
 </div>
 <div id="toast" role="status"></div>
-<script src="/js/addresses.js?v=8"></script>
-<script src="/js/rpc.js?v=17"></script>
-<script src="/js/i18n.js?v=62"></script>
+<script src="/js/addresses.js?v=9"></script>
+<script src="/js/rpc.js?v=18"></script>
+<script src="/js/i18n.js?v=72"></script>
 <script src="/js/instructions.js?v=12"></script>
 <script src="/js/session.js?v=8"></script>
 <script src="/js/nft.js?v=9"></script>
-<script src="/js/ui.js?v=8"></script>
+<script src="/js/ui.js?v=9"></script>
 <script src="/js/reviews.js?v=1"></script>
 
 <script>
 (function () {
   function T(key) { return HahaI18n.t(key); }
   function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
-  /* agentURI 只认 http(s) 链接：其他 scheme（如 javascript:）只渲染纯文本，防存储型 XSS。 */
-  function uriLink(uri) { var u = String(uri == null ? "" : uri).trim(); if (/^https?:\/\//i.test(u)) return '<a href="' + esc(u) + '">' + esc(u) + '</a>'; return esc(u); }
+  /* agentURI / 证据链接只认 http(s)：javascript:、data: 等只渲染纯文本，防存储型 XSS（H4）。 */
+  /* 小图标链接：只显示一个外链图标，不显示完整 URL 文本。 */
+  function iconLink(url, label) {
+    var u = String(url == null ? "" : url).trim();
+    var icon = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>';
+    if (!/^https?:\/\//i.test(u)) return esc(u);
+    return '<a class="icon-btn" href="' + esc(u) + '" target="_blank" rel="noopener noreferrer" title="' + esc(u) + '" aria-label="' + esc(label) + '">' + icon + '</a>';
+  }
+  /* 详情开关文案：不用新 i18n 键，直接按当前语言给一句话。 */
+  function detailsShowText() { return HahaI18n.lang() === "en" ? "Details" : "查看详情"; }
+  function detailsHideText() { return HahaI18n.lang() === "en" ? "Hide" : "收起"; }
   function shortHash(h) { var s = String(h == null ? "" : h); if (s.length <= 16) return s; return s.slice(0, 8) + "…" + s.slice(-6); }
-  function txLink(h) { if (!h) return ""; return '<a href="https://bscscan.com/tx/' + esc(h) + '" target="_blank" rel="noopener noreferrer" title="' + esc(h) + '">' + esc(shortHash(h)) + "</a>"; }
+  function txLink(h) {
+    var s = String(h == null ? "" : h);
+    if (!/^0x[0-9a-fA-F]{64}$/.test(s)) return esc(shortHash(s));
+    return '<a href="https://bscscan.com/tx/' + esc(s) + '" target="_blank" rel="noopener noreferrer" title="' + esc(s) + '">' + esc(shortHash(s)) + "</a>";
+  }
   /* 标准注册文件 URL（名字版）：与 erc8004.html 的激活默认 agentURI 同一地址。 */
   function registrationUrl(nm) {
     var origin = "https://haha.meme";
@@ -96,6 +130,22 @@
     }
     return address;
   }
+  /* 激活指令（与 erc8004.html 的 activateTask 同款）：
+   * 固定用“都没填”的版本：agent 先问用户，用户给了就用，没给按默认 / 跳过。 */
+  function activateTask(nm) {
+    var parts = [HahaI18n.fill("task.ercLead", { name: nm })];
+    parts.push(HahaI18n.fill("task.ercUriEmpty", { registrationUrl: registrationUrl(nm) }));
+    parts.push(HahaI18n.t("task.ercAddrEmpty"));
+    parts.push(HahaI18n.t("task.ercTextEmpty"));
+    parts.push(HahaI18n.fill("task.ercTail", { name: nm }));
+    return parts.join(HahaI18n.lang() === "en" ? " " : "");
+  }
+  function copyActivate(nm) {
+    HahaUI.copyText(hahaInstruction(activateTask(nm))).then(function (ok) {
+      if (ok === false) return;
+      HahaUI.toast(T("toast.activateCopied"));
+    });
+  }
 
   // ?name= 取名字，默认 moon.haha 仅作输入缺省，不把它当成已铸造事实。
   var raw = new URLSearchParams(location.search).get("name") || "moon.haha";
@@ -105,7 +155,10 @@
   var name = label + "." + tld;
   var root = document.getElementById("root");
 
-  function notFound(msg) {
+  var loadSeq = 0;
+  function stale(seq) { return seq !== loadSeq; }
+  function notFound(msg, seq) {
+    if (seq != null && stale(seq)) return;
     root.innerHTML = '<h1>' + esc(T("agent.missing")) + '</h1><p class="lede">' + esc(msg) + '</p>';
   }
 
@@ -127,50 +180,41 @@
     return pick;
   }
 
-  // 历代：HahaIndex.generations(fullName)。代数从大到小、当前代在前，评语按 ratedAt 倒序；
-  // 从未铸出返回 null，铸出过但无 agent 时 generations 为 []。没有数据时显示空状态。
-  async function loadGenerations(generation) {
-    var genBox = document.getElementById("generations");
+  /* 当前 agent 的评语：唯一的按 agent 取评语来源是
+   * HahaIndex.generations(name)（/v1/names/{name}/generations），
+   * 这里只取当前 agentId 的评语渲染到底部，不渲染任何代数信息。
+   * 无评语时留空（不显示“暂无评价”类文案）。
+   * 激活时间也只从这里取（链上 getAgent 不返回时间戳）。 */
+  async function loadReviews(agentId) {
     var revBox = document.getElementById("agent-reviews");
-    if (!genBox && !revBox) return;
+    var actLine = document.getElementById("activated-line");
+    var actAt = document.getElementById("activated-at");
     if (!window.HahaIndex || typeof HahaIndex.generations !== "function") {
-      if (genBox) genBox.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>";
       if (revBox) revBox.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>";
       return;
     }
     var res;
     try { res = await Promise.resolve(HahaIndex.generations(name)); } catch (err) {
-      if (genBox) genBox.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>";
       if (revBox) revBox.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>";
       return;
     }
     if (!res || !res.generations || !res.generations.length) {
-      if (genBox) genBox.innerHTML = "<p>" + esc(T("agent.noGen")) + "</p>";
-      if (revBox) revBox.innerHTML = "<p>" + esc(T("agent.noRev")) + "</p>";
+      if (revBox) revBox.innerHTML = "";
       return;
     }
     var gens = res.generations;
-    if (revBox) {
-      var current = gens.filter(function (g) { return g.active; })[0] || gens.filter(function (g) { return Number(g.generation) === Number(generation); })[0] || gens[0];
-      var reviews = current.reviews || [];
-      revBox.innerHTML = reviews.length
-        ? reviews.map(reviewRow).join("")
-        : "<p>" + esc(T("agent.noRev")) + "</p>";
+    var current = null;
+    for (var i = 0; i < gens.length; i++) {
+      if (String(gens[i].agentId) === String(agentId)) { current = gens[i]; break; }
     }
-    if (genBox) {
-      var owners = await Promise.all(gens.map(function (gen) { return displayName(gen.owner); }));
-      genBox.innerHTML = gens.map(function (gen, i) {
-        var reviews = (gen.reviews || []).map(reviewRow).join("");
-        return '<article class="card"><h3>' + esc(HahaI18n.fill("erc.genN", { n: gen.generation })) + (gen.active ? " · " + esc(T("erc.current")) : " · " + esc(T("agent.transferBurn"))) + '</h3>'
-          + '<p>' + scoreText(gen.starsCount, gen.starsSum) + '</p>'
-          + '<p>agentId ' + esc(gen.agentId) + ' · ' + esc(T("agent.holder")) + esc(owners[i]) + '</p>'
-          + (gen.agentURI ? '<p>agentURI：' + uriLink(gen.agentURI) + '</p>' : '')
-          + (gen.activatedAt ? '<p>' + esc(T("agent.activated")) + when(gen.activatedAt) + '</p>' : '')
-          + (gen.resetAt ? '<p>' + esc(T("agent.ended")) + when(gen.resetAt) + '</p>' : '')
-          + (reviews || "<p>" + esc(T("agent.noRev")) + "</p>")
-          + (gen.reviewsTruncated ? "<p>" + esc(T("erc.truncated")) + "</p>" : "")
-          + '</article>';
-      }).join("");
+    if (!current) current = gens[0];
+    if (actLine && actAt && current.activatedAt) {
+      actAt.innerHTML = when(current.activatedAt);
+      actLine.hidden = false;
+    }
+    if (revBox) {
+      var reviews = current.reviews || [];
+      revBox.innerHTML = reviews.length ? reviews.map(reviewRow).join("") : "";
     }
   }
 
@@ -207,54 +251,270 @@
         if (dn && dn.toLowerCase() !== String(v.validatorAddress).toLowerCase()) validatorName = dn;
       }
       var scoreHtml = (v.response == null) ? esc(T("agent.validationPending")) : esc(String(v.response)) + " / 100";
-      var evHtml = v.responseURI ? '<p>' + esc(T("agent.validationEvidence")) + '：' + uriLink(v.responseURI) + '</p>' : "";
-      /* 证据链：请求文档 → 请求哈希 → 验证请求交易 → 验证者回执交易，
-       * 全部取自 /v1/agents/{agentId}/validations 的同一条记录。 */
-      var chainHtml = '<div><b>' + esc(T("agent.evidenceTitle")) + '</b></div>'
-        + (v.requestURI ? '<div>' + esc(T("agent.evidenceDoc")) + '：' + uriLink(v.requestURI) + '</div>' : "")
+      /* 摘要只留两行：标签 + 分数、验证者 + 时间。其余（说明、证据原文、文档链接、哈希、交易）全部收进“查看详情”。 */
+      var head = tagText ? '<div><b>' + esc(tagText) + '</b> · ' + scoreHtml + '</div>' : '<div>' + scoreHtml + '</div>';
+      var meta = '<div class="validation-meta">' + esc(T("agent.validationValidator")) + '：' + esc(validatorName) + (v.lastUpdatedAt ? ' · ' + esc(T("agent.validationTime")) + '：' + when(v.lastUpdatedAt) : "") + '</div>';
+      var evHtml = "";
+      if (v.responseURI) {
+        if (/^data:/i.test(v.responseURI)) {
+          /* base64 证据原文只放进可滚动的盒子里，word-break 换行，永远撑不出卡片。 */
+          evHtml = '<div>' + esc(T("agent.validationEvidence")) + '：</div><div class="evidence-box">' + esc(v.responseURI) + '</div>';
+        } else {
+          evHtml = '<div>' + esc(T("agent.validationEvidence")) + '：' + iconLink(v.responseURI, T("agent.validationEvidence")) + '</div>';
+        }
+      }
+      var details = '<div class="validation-details" hidden>'
+        + '<div class="validation-meta">' + esc(T("agent.validationNote")) + '</div>'
+        + evHtml
+        + (v.requestURI ? '<div>' + esc(T("agent.evidenceDoc")) + '：' + iconLink(v.requestURI, T("agent.evidenceDoc")) + '</div>' : "")
         + (v.requestHash ? '<div>' + esc(T("agent.evidenceReqHash")) + '：<span title="' + esc(v.requestHash) + '">' + esc(shortHash(v.requestHash)) + '</span></div>' : "")
         + (v.requestTxHash ? '<div>' + esc(T("agent.evidenceReqTx")) + '：' + txLink(v.requestTxHash) + '</div>' : "")
-        + (v.lastUpdateTxHash ? '<div>' + esc(T("agent.evidenceRespTx")) + '：' + txLink(v.lastUpdateTxHash) + '</div>' : "");
-      var timeHtml = v.lastUpdatedAt ? '<p>' + esc(T("agent.validationTime")) + '：' + when(v.lastUpdatedAt) + '</p>' : "";
-      var head = tagText ? '<div><b>' + esc(tagText) + '</b> · ' + scoreHtml + '</div>' : '<div>' + scoreHtml + '</div>';
-      return '<div class="validation">' + head
-        + '<div>' + esc(T("agent.validationValidator")) + '：' + esc(validatorName) + '</div>'
-        + timeHtml + evHtml + chainHtml
+        + (v.lastUpdateTxHash ? '<div>' + esc(T("agent.evidenceRespTx")) + '：' + txLink(v.lastUpdateTxHash) + '</div>' : "")
         + '<div>' + esc(T(dKey)) + '</div></div>';
+      return '<div class="validation">' + head + meta
+        + '<button class="details-toggle" type="button" data-vtoggle>' + esc(detailsShowText()) + '</button>'
+        + details + '</div>';
     }));
     box.innerHTML = rows.join("");
+    var toggles = box.querySelectorAll("[data-vtoggle]");
+    for (var i = 0; i < toggles.length; i++) {
+      toggles[i].addEventListener("click", function () {
+        var det = this.parentNode ? this.parentNode.querySelector(".validation-details") : null;
+        if (!det) return;
+        det.hidden = !det.hidden;
+        this.textContent = det.hidden ? detailsShowText() : detailsHideText();
+      });
+    }
   }
 
-  var cached = null;
-  async function load() {
-    if (!window.HahaRPC) { notFound(T("agent.chain")); return; }
-    var tokenId, owner, agentId, agent, score;
-    try {
-      if (cached) {
-        tokenId = cached.tokenId; owner = cached.owner; agentId = cached.agentId; agent = cached.agent; score = cached.score;
-      } else {
-        tokenId = HahaRPC.tokenIdOf ? HahaRPC.tokenIdOf(label, tld) : await Promise.resolve(HahaRPC.nodeOf(label, tld));
-        if (!tokenId) { notFound(T("agent.notFound")); return; }
-        var first = await Promise.all([HahaRPC.ownerOf(tokenId), HahaRPC.agentOfName(tokenId)]);
-        owner = first[0];
-        agentId = first[1];
-        if (isZero(owner) || !agentId || String(agentId) === "0") { notFound(T("agent.notFound")); return; }
-        var second = await Promise.all([HahaRPC.getAgent(agentId), HahaRPC.getScore(agentId)]);
-        agent = second[0];
-        score = second[1];
-        if (!agent || !agent.active) { notFound(T("agent.notFound")); return; }
-        cached = { tokenId: tokenId, owner: owner, agentId: agentId, agent: agent, score: score };
+  /* haha agent 对话框（伪 agent：本地答案库）：
+   * 已激活且是主人：输入 + 发送可用；发送后在本地答案库里匹配回答，不走网络。
+   * 未激活：输入 + 发送置灰禁用，点遮罩显示“去激活即可免费和 agent 对话”并给出复制激活指令按钮。
+   * 已激活但不是主人：输入 + 发送置灰禁用，点遮罩显示“只有这个 agent 的主人能和它对话”。
+   * 答案库 data/qa-library.json（1012 条），{name} 占位在显示时换成当前名字。
+   * 聊天记录存在浏览器 localStorage（haha.chat.<名字>），只在本机保存。 */
+  var CHAT_LIB_URL = "data/qa-library.json";
+  var chatLib = null;
+  var chatLibLoading = null;
+  function chatPanelHtml(active, isOwner) {
+    var usable = active && isOwner;
+    var hint = !active ? T("agent.chatNeedActivate") : T("agent.chatNeedOwner");
+    var veil = usable ? "" : '<div class="chat-veil" id="chat-veil" title="' + esc(hint) + '"></div>';
+    var dis = usable ? "" : " disabled";
+    var welcome = HahaI18n.lang() === "en" ? "Hello, " + name + ", I'm haha agent — ask me anything." : "你好，" + name + "，我是 haha agent，有什么想问我的吗？";
+    return '<div class="panel chat-panel"><h2>' + esc(T("agent.chatTitle")) + '</h2>'
+      + '<div class="list chat-log" id="chat-log"><div class="chat-welcome">' + esc(welcome) + '</div></div>'
+      + '<div class="chat-row' + (usable ? "" : " chat-disabled") + '">'
+      + '<input id="chat-input" class="field-input" placeholder="' + esc(T("agent.chatPh")) + '" autocomplete="off" spellcheck="false"' + dis + '>'
+      + '<button class="btn" type="button" id="chat-send"' + dis + '>' + esc(T("agent.chatSend")) + '</button>'
+      + veil + '</div>'
+      + '<p class="note" id="chat-note" hidden></p>'
+      + '<p id="chat-activate-wrap" hidden><button class="btn light" type="button" id="chat-activate">' + esc(T("agent.activateBtn")) + '</button></p>'
+      + '</div>';
+  }
+  function bindChat(active, isOwner, agentId) {
+    var input = document.getElementById("chat-input");
+    var send = document.getElementById("chat-send");
+    var log = document.getElementById("chat-log");
+    var note = document.getElementById("chat-note");
+    var veil = document.getElementById("chat-veil");
+    var actWrap = document.getElementById("chat-activate-wrap");
+    var actBtn = document.getElementById("chat-activate");
+    function showNeedActivate() {
+      if (note) { note.textContent = T("agent.chatNeedActivate"); note.hidden = false; }
+      if (actWrap) actWrap.hidden = false;
+    }
+    function showNeedOwner() {
+      if (note) { note.textContent = T("agent.chatNeedOwner"); note.hidden = false; }
+    }
+    if (actBtn) actBtn.addEventListener("click", function () { copyActivate(name); });
+    if (!active) {
+      if (veil) veil.addEventListener("click", showNeedActivate);
+      return;
+    }
+    if (!isOwner) {
+      if (veil) veil.addEventListener("click", showNeedOwner);
+      return;
+    }
+    /* ---- 伪 agent：本地答案库 ---- */
+    var lang = (window.HahaI18n && typeof HahaI18n.lang === "function") ? HahaI18n.lang() : "zh";
+    var storeKey = "haha.chat." + name;
+    function scrollLog() {
+      if (log) log.scrollTop = log.scrollHeight;
+    }
+    function welcomeEl() {
+      return log ? log.querySelector(".chat-welcome") : null;
+    }
+    function msgHtml(role, text) {
+      return '<div class="chat-msg chat-msg-' + role + '"><div class="chat-msg-text">' + esc(text) + '</div></div>';
+    }
+    function addMsg(role, text) {
+      if (!log) return null;
+      var w = welcomeEl();
+      if (w) w.remove();
+      var div = document.createElement("div");
+      div.innerHTML = msgHtml(role, text);
+      var node = div.firstChild;
+      log.appendChild(node);
+      scrollLog();
+      return node;
+    }
+    function fillPending(node, text) {
+      if (!node) return;
+      var t = node.querySelector(".chat-msg-text");
+      if (t) t.textContent = text;
+      scrollLog();
+    }
+    function loadLocal() {
+      try {
+        var raw = window.localStorage.getItem(storeKey);
+        if (!raw) return;
+        var arr = JSON.parse(raw);
+        if (!arr || !arr.length) return;
+        if (log) log.innerHTML = "";
+        arr.slice(-50).forEach(function (m) {
+          addMsg(m.role === "agent" ? "agent" : "user", m.text || "");
+        });
+      } catch (err) {}
+    }
+    function saveLocal(role, text) {
+      try {
+        var arr = [];
+        try { arr = JSON.parse(window.localStorage.getItem(storeKey) || "[]") || []; } catch (err) { arr = []; }
+        arr.push({ role: role, text: text });
+        if (arr.length > 50) arr = arr.slice(-50);
+        window.localStorage.setItem(storeKey, JSON.stringify(arr));
+      } catch (err) {}
+    }
+    function norm(s) {
+      return String(s || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+    }
+    function matchScore(userNorm, libNorm) {
+      if (!userNorm || !libNorm) return 0;
+      if (userNorm === libNorm) return 100;
+      if (libNorm.indexOf(userNorm) !== -1) return 90;
+      if (userNorm.indexOf(libNorm) !== -1) return 85;
+      var seen = {};
+      var uChars = [];
+      for (var i = 0; i < userNorm.length; i++) {
+        var c = userNorm[i];
+        if (!seen[c]) { seen[c] = true; uChars.push(c); }
       }
-    } catch (err) { notFound(T("agent.chain")); return; }
+      if (!uChars.length) return 0;
+      var hit = 0;
+      for (var k = 0; k < uChars.length; k++) {
+        if (libNorm.indexOf(uChars[k]) !== -1) hit++;
+      }
+      var ratio = hit / uChars.length;
+      var lenRatio = Math.min(userNorm.length, libNorm.length) / Math.max(userNorm.length, libNorm.length);
+      return ratio * 70 * (0.5 + 0.5 * lenRatio);
+    }
+    function loadLib() {
+      if (chatLib) return Promise.resolve(chatLib);
+      if (chatLibLoading) return chatLibLoading;
+      chatLibLoading = fetch(CHAT_LIB_URL).then(function (r) {
+        if (!r.ok) throw new Error("lib " + r.status);
+        return r.json();
+      }).then(function (j) {
+        chatLib = (j && j.qa) || [];
+        return chatLib;
+      }).catch(function () {
+        chatLibLoading = null;
+        return [];
+      });
+      return chatLibLoading;
+    }
+    function findAnswer(message) {
+      var un = norm(message);
+      if (!un || !chatLib || !chatLib.length) return null;
+      var best = null;
+      var bestScore = 0;
+      for (var i = 0; i < chatLib.length; i++) {
+        var s = matchScore(un, norm(chatLib[i][0]));
+        if (s > bestScore) { bestScore = s; best = chatLib[i][1]; }
+      }
+      if (bestScore < 40) return null;
+      return best;
+    }
+    function fallbackText() {
+      return lang === "en"
+        ? "I don't know that one yet — try asking about minting, points, Season 1, or the market, or rephrase it."
+        : "这个问题我还没学会，你可以问我关于铸造、积分、第一季、市场的事，或者换个说法再问一次。";
+    }
+    function doSend() {
+      if (!input || !log) return;
+      var v = input.value.trim();
+      if (!v) return;
+      addMsg("user", v);
+      saveLocal("user", v);
+      input.value = "";
+      input.disabled = true;
+      if (send) send.disabled = true;
+      var node = addMsg("agent", "");
+      var tt = node ? node.querySelector(".chat-msg-text") : null;
+      if (tt) tt.innerHTML = esc(T("agent.chatThinking")) + '<span class="chat-thinking-dots"><span>.</span><span>.</span><span>.</span></span>';
+      loadLib().then(function () {
+        var ans = findAnswer(v) || fallbackText();
+        ans = String(ans).split("{name}").join(name);
+        setTimeout(function () {
+          fillPending(node, ans);
+          saveLocal("agent", ans);
+          input.disabled = false;
+          if (send) send.disabled = false;
+          if (input) input.focus();
+        }, 600 + Math.floor(Math.random() * 400));
+      });
+    }
+    if (send) send.addEventListener("click", doSend);
+    if (input) input.addEventListener("keydown", function (e) { if (e.key === "Enter") doSend(); });
+    loadLocal();
+    loadLib();
+  }
 
-    var generation = agent.generation != null ? agent.generation : "";
+  /* 点击选星：点几颗就是几星，默认 5 星。 */
+  var pickedStars = 5;
+  function renderStarPicker() {
+    var box = document.getElementById("star-picker");
+    if (!box) return;
+    var btns = box.querySelectorAll(".star-btn");
+    for (var i = 0; i < btns.length; i++) {
+      var v = Number(btns[i].getAttribute("data-v"));
+      btns[i].textContent = v <= pickedStars ? "★" : "☆";
+      btns[i].setAttribute("aria-pressed", v === pickedStars ? "true" : "false");
+    }
+  }
+  function starPickerHtml() {
+    var h = '<span id="star-picker" class="star-picker" role="radiogroup" aria-label="' + esc(T("agent.stars")) + '">';
+    for (var i = 1; i <= 5; i++) h += '<button type="button" class="star-btn" data-v="' + i + '" aria-label="' + i + '">' + (i <= pickedStars ? "★" : "☆") + '</button>';
+    return h + '</span>';
+  }
+
+  /* 未激活的名字：一样渲染 agent 页（名片 + 持有人 + 激活指令复制按钮 + 置灰对话框）。
+   * 只有从未铸出的名字（持有人为零地址）才走 notFound。 */
+  async function renderInactive(owner, seq) {
     var holderText = await displayName(owner);
-    var uri = agent.uri || "";
-    var uriHtml = uri ? '<p>agentURI：' + uriLink(uri) + '</p>' : "";
+    if (stale(seq)) return;
+    var nft = (typeof hahaNft === "function") ? hahaNft(name) : "";
+    root.innerHTML = '<p class="kicker">' + esc(T("agent.kicker")) + '</p><div class="two agent-two">'
+      + '<div class="agent-col"><div class="panel"><div class="nft">' + nft + '</div><p>' + esc(T("agent.notActive")) + '</p><p>' + esc(T("agent.holder")) + esc(holderText) + '</p>'
+      + '<p>' + esc(T("agent.activateNote")) + '</p>'
+      + '<p class="manage-btns"><button class="btn" type="button" id="copy-activate">' + esc(T("agent.activateBtn")) + '</button><a class="btn light" href="/erc8004.html">' + esc(T("agent.back")) + '</a></p></div>'
+      + '</div>'
+      + chatPanelHtml(false, false)
+      + '</div>';
+    var btn = document.getElementById("copy-activate");
+    if (btn) btn.addEventListener("click", function () { copyActivate(name); });
+    bindChat(false, false);
+  }
+
+  async function renderActive(data, seq) {
+    var owner = data.owner, agentId = data.agentId, agent = data.agent, score = data.score;
+    var holderText = await displayName(owner);
+    if (stale(seq)) return;
     var regUrl = registrationUrl(name);
-    var regHtml = '<p>' + esc(T("agent.registrationFile")) + '：<a href="' + esc(regUrl) + '" target="_blank" rel="noopener noreferrer">' + esc(regUrl) + '</a> <button class="btn light" type="button" id="copy-reg-url">' + esc(T("agent.copyRegistrationUrl")) + '</button></p>'
-      + '<p>' + esc(T("agent.registrationNote")) + '</p>';
-    /* 更新按钮 fail-closed：只有取到登录 .ai 对应地址、且与持有人地址相同才显示；取不到任一地址时隐藏。 */
+    /* 注册文件链接不显示完整 URL：只放一个小图标打开，另附复制按钮。 */
+    var regHtml = '<p>' + esc(T("agent.registrationFile")) + '：' + iconLink(regUrl, T("agent.registrationFile")) + ' <button class="btn light" type="button" id="copy-reg-url">' + esc(T("agent.copyRegistrationUrl")) + '</button></p>';
+    /* fail-closed：只有取到登录 .ai 对应地址、且与持有人地址相同才显示管理与更新；取不到任一地址时隐藏。 */
     var session = window.HahaSession ? HahaSession.get() : null;
     var myAddr = session && session.address ? String(session.address).toLowerCase() : "";
     var isHolder = !!myAddr && !!owner && myAddr === String(owner).toLowerCase();
@@ -263,52 +523,58 @@
     if (myAddr && window.HahaRPC && typeof HahaRPC.isAgentOperator === "function") {
       try { isOperator = await Promise.resolve(HahaRPC.isAgentOperator(agentId, myAddr)); } catch (err) { isOperator = false; }
     }
+    if (stale(seq)) return;
     var opCount = null;
     if (window.HahaRPC && typeof HahaRPC.operatorCount === "function") {
       try { opCount = await Promise.resolve(HahaRPC.operatorCount(agentId)); } catch (err) { opCount = null; }
     }
+    if (stale(seq)) return;
     var canManageUri = isHolder || isOperator;
-    var updateLabel = esc(T("agent.updateToStandardUri")) + (HahaI18n.lang() === "en" ? " (" + esc(T("agent.updateOnlyHolder")) + ")" : "（" + esc(T("agent.updateOnlyHolder")) + "）");
-    var updateHtml = isHolder ? '<p><button class="btn" type="button" id="update-std-uri">' + updateLabel + '</button></p>' : "";
-    /* 请求验证按钮 fail-closed：只有持有人才显示；取不到地址时隐藏。 */
-    var requestValidationHtml = isHolder ? '<p><button class="btn" type="button" id="request-validation">' + esc(T("agent.requestValidation")) + '</button></p>' : "";
     var validationHtml = '<h2>' + esc(T("agent.validation")) + '</h2>'
-      + '<p>' + esc(T("agent.validationNote")) + '</p>'
-      + '<div class="list" id="validations"><p>' + esc(T("common.loading")) + '</p></div>'
-      + requestValidationHtml;
-    /* 管理区：改 URI（主人或 operator），设 operator（仅主人）。别人看不到。 */
+      + '<div class="list" id="validations"><p>' + esc(T("common.loading")) + '</p></div>';
+    /* 管理区收拢：一个“管理agent”按钮，点开后展开改 URI、设 operator、更新标准注册文件。别人看不到。 */
     var manageHtml = "";
     if (canManageUri || isHolder) {
-      manageHtml = '<h2>' + esc(T("agent.manageTitle")) + '</h2>'
-        + '<p>' + esc(T("agent.manageNote")) + '</p>';
+      var body = "";
       if (canManageUri) {
-        manageHtml += '<label class="manage-field">' + esc(T("agent.setUriLabel")) + ' <input id="new-uri" class="field-input" maxlength="2048" placeholder="' + esc(T("agent.setUriPh")) + '" autocomplete="off" spellcheck="false"></label>'
+        body += '<label class="manage-field">' + esc(T("agent.setUriLabel")) + ' <input id="new-uri" class="field-input" maxlength="2048" placeholder="' + esc(T("agent.setUriPh")) + '" autocomplete="off" spellcheck="false"></label>'
           + '<p><button class="btn" type="button" id="copy-set-uri" disabled>' + esc(T("agent.setUriCopy")) + '</button></p>'
           + '<p class="note" id="set-uri-msg"></p>';
       }
       if (isHolder) {
-        manageHtml += '<h3>' + esc(T("agent.operatorTitle")) + '</h3>'
+        body += '<h3>' + esc(T("agent.operatorTitle")) + '</h3>'
           + (opCount == null ? "" : '<p>' + esc(HahaI18n.fill("agent.operatorCount", { x: opCount })) + '</p>')
           + '<label class="manage-field">' + esc(T("agent.operatorLabel")) + ' <input id="op-addr" class="field-input" placeholder="0x…" autocomplete="off" spellcheck="false"></label>'
           + '<p class="manage-btns"><button class="btn" type="button" id="op-add" disabled>' + esc(T("agent.operatorAdd")) + '</button> <button class="btn light" type="button" id="op-remove" disabled>' + esc(T("agent.operatorRemove")) + '</button> <button class="btn light" type="button" id="op-check">' + esc(T("agent.operatorCheck")) + '</button></p>'
           + '<p class="note" id="op-msg"></p>';
+        body += '<p><button class="btn" type="button" id="update-std-uri">' + esc(T("agent.updateStdFile")) + '</button></p>';
       }
+      manageHtml = '<div id="manage-body" hidden><p>' + esc(T("agent.manageNote")) + '</p>' + body + '</div>';
     }
     var nft = (typeof hahaNft === "function") ? hahaNft(name) : "";
     var commentValue = "";
     var oldComment = document.getElementById("comment");
     var hadComment = !!oldComment;
     if (oldComment) commentValue = oldComment.value;
-    root.innerHTML = '<p class="kicker">' + esc(T("agent.kicker")) + '</p><div class="two">'
-      + '<div class="panel"><div class="nft" style="max-width:280px">' + nft + '</div><h2>' + esc(name) + '</h2><p>' + esc(T("agent.active")) + '</p><p>' + esc(T("agent.holder")) + esc(holderText) + '</p><p>' + esc(HahaI18n.fill("agent.gen", { n: generation })) + '</p><p class="stars">' + scoreText(score && score.count, score && score.sum) + '</p>' + uriHtml + regHtml + updateHtml + validationHtml + manageHtml + '<p><a class="btn light" href="/erc8004.html">' + esc(T("agent.back")) + '</a></p></div>'
-      + '<div class="panel"><h2>' + esc(T("agent.write")) + '</h2><p>' + esc(T("agent.writeHelp")) + '</p>'
-      + '<form id="rate" class="list"><label>' + esc(T("agent.stars")) + ' <select id="stars" class="field-input"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>'
+    pickedStars = 5;
+    /* 操作按钮收进同一行：请求验证（仅持有人）/ 管理agent（仅主人或 operator）/ 回广场。 */
+    var actionsHtml = '<p class="manage-btns">'
+      + (isHolder ? '<button class="btn" type="button" id="request-validation">' + esc(T("agent.requestValidation")) + '</button>' : "")
+      + ((canManageUri || isHolder) ? '<button class="btn light" type="button" id="manage-toggle" aria-expanded="false">' + esc(T("agent.manageBtn")) + '</button>' : "")
+      + '<a class="btn light" href="/erc8004.html">' + esc(T("agent.back")) + '</a></p>';
+    if (stale(seq)) return;
+    root.innerHTML = '<p class="kicker">' + esc(T("agent.kicker")) + '</p><div class="two agent-two">'
+      + '<div class="agent-col"><div class="panel"><div class="nft">' + nft + '</div><p>' + esc(T("agent.active")) + '</p><p>agentId ' + esc(String(agentId)) + ' · ' + esc(T("agent.holder")) + esc(holderText) + '</p><p id="activated-line" hidden>' + esc(T("agent.activated")) + '<span id="activated-at"></span></p><p class="stars">' + scoreText(score && score.count, score && score.sum) + '</p>' + regHtml + validationHtml + actionsHtml + manageHtml + '</div>'
+      + '<section class="panel"><h2>' + esc(T("agent.write")) + '</h2><p>' + esc(T("agent.writeHelp")) + '</p>'
+      + '<form id="rate" class="list"><div>' + esc(T("agent.stars")) + ' ' + starPickerHtml() + '</div>'
       + '<textarea id="comment" class="field-input" maxlength="140" placeholder="' + esc(T("agent.commentPh")) + '" rows="3"></textarea>'
       + '<div><button class="btn light" type="button" id="random-review">' + esc(T("agent.randomReview")) + '</button></div>'
       + '<button class="btn" type="submit">' + esc(T("agent.copy")) + '</button></form>'
       + '<h2>' + esc(T("agent.reviews")) + '</h2><div class="list" id="agent-reviews"><p>' + esc(T("agent.loadingRev")) + '</p></div>'
-      + '<h2>' + esc(T("agent.gens")) + '</h2><p>' + esc(HahaI18n.fill("agent.genHelp", { n: generation })) + '</p><p>' + esc(T("agent.transferBurnNote")) + '</p><p>' + esc(T("agent.oldFromIndex")) + '</p><div class="list" id="generations"><p>' + esc(T("agent.loadingGen")) + '</p></div>'
-      + '</div></div>';
+      + '</section>'
+      + '</div>'
+      + chatPanelHtml(true, isHolder)
+      + '</div>';
     var commentEl = document.getElementById("comment");
     if (commentValue) commentEl.value = commentValue;
     else if (!hadComment) commentEl.value = randomReview();
@@ -317,13 +583,19 @@
       var el = document.getElementById("comment");
       if (el) el.value = randomReview();
     });
+    var picker = document.getElementById("star-picker");
+    if (picker) picker.addEventListener("click", function (e) {
+      var b = e.target && e.target.closest ? e.target.closest(".star-btn") : null;
+      if (!b) return;
+      pickedStars = Number(b.getAttribute("data-v")) || 5;
+      renderStarPicker();
+    });
 
     document.getElementById("rate").addEventListener("submit", function (e) {
       e.preventDefault();
       var text = document.getElementById("comment").value.replace(/\r?\n/g, " ").replace(/"/g, "”").trim() || T("agent.defaultComment");
       if (new TextEncoder().encode(text).length > 140) { HahaUI.toast(T("toast.reviewLong")); return; }
-      var n = document.getElementById("stars").value;
-      HahaUI.copyText(hahaInstruction(HahaI18n.task("rate", { name: name, stars: n, text: text }))).then(function (ok) {
+      HahaUI.copyText(hahaInstruction(HahaI18n.task("rate", { name: name, stars: pickedStars, text: text }))).then(function (ok) {
         if (ok === false) return;
         HahaUI.toast(T("toast.rateCopied"));
       });
@@ -358,6 +630,15 @@
         HahaUI.toast(T("toast.instruction"));
       });
     });
+    var manageToggle = document.getElementById("manage-toggle");
+    var manageBody = document.getElementById("manage-body");
+    if (manageToggle && manageBody) {
+      manageToggle.addEventListener("click", function () {
+        var open = manageBody.hidden;
+        manageBody.hidden = !open;
+        manageToggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    }
 
     /* 改 URI：1–2048 字节才可点；空或超长点不下去。 */
     var uriInput = document.getElementById("new-uri");
@@ -428,8 +709,48 @@
       opRemove.addEventListener("click", function () { opCopy(false); });
     }
 
-    loadGenerations(generation);
+    bindChat(true, isHolder, agentId);
+    loadReviews(agentId);
     loadValidations(agentId);
+  }
+
+  var cached = null;
+  async function load() {
+    var seq = ++loadSeq;
+    if (!window.HahaRPC) { notFound(T("agent.chain"), seq); return; }
+    var tokenId, owner, agentId, agent, score;
+    try {
+      if (cached) {
+        tokenId = cached.tokenId; owner = cached.owner; agentId = cached.agentId; agent = cached.agent; score = cached.score;
+      } else {
+        tokenId = HahaRPC.tokenIdOf ? HahaRPC.tokenIdOf(label, tld) : await Promise.resolve(HahaRPC.nodeOf(label, tld));
+        if (stale(seq)) return;
+        if (!tokenId) { notFound(T("agent.notFound"), seq); return; }
+        var first = await Promise.all([HahaRPC.ownerOf(tokenId), HahaRPC.agentOfName(tokenId)]);
+        if (stale(seq)) return;
+        owner = first[0];
+        agentId = first[1];
+        if (isZero(owner)) { notFound(T("agent.notFound"), seq); return; }
+        if (!agentId || String(agentId) === "0") {
+          cached = { tokenId: tokenId, owner: owner, agentId: 0, agent: null, score: null };
+          await renderInactive(owner, seq);
+          return;
+        }
+        var second = await Promise.all([HahaRPC.getAgent(agentId), HahaRPC.getScore(agentId)]);
+        if (stale(seq)) return;
+        agent = second[0];
+        score = second[1];
+        if (!agent || !agent.active) {
+          cached = { tokenId: tokenId, owner: owner, agentId: agentId, agent: null, score: null };
+          await renderInactive(owner, seq);
+          return;
+        }
+        cached = { tokenId: tokenId, owner: owner, agentId: agentId, agent: agent, score: score };
+      }
+    } catch (err) { notFound(T("agent.chain"), seq); return; }
+    if (stale(seq)) return;
+    if (!cached.agent) { await renderInactive(cached.owner, seq); return; }
+    await renderActive(cached, seq);
   }
   if (window.HahaI18n) HahaI18n.onChange(function () { load(); });
   if (window.HahaSession) HahaSession.onChange(function () { load(); });
@@ -437,6 +758,5 @@
 })();
 </script>
 
-<script src="/js/rain.js?v=7"></script>
 </body>
 </html>

@@ -1,0 +1,10 @@
+[train] {'epoch': 0, 'loss': 582.484, 'train_cell_acc': 0.247, 'train_exact': 0.0, 'qat': False, 'sec': 0, 'seed_exact': 0.0, 'seed_cells_off': 96.35, 'seed_le2_off': 0.0}
+[train] {'epoch': 250, 'loss': 68.864, 'train_cell_acc': 0.8612, 'train_exact': 0.0, 'qat': False, 'sec': 11}
+[train] {'epoch': 500, 'loss': 57.341, 'train_cell_acc': 0.8919, 'train_exact': 0.0, 'qat': False, 'sec': 23}
+[train] {'epoch': 750, 'loss': 44.917, 'train_cell_acc': 0.903, 'train_exact': 0.0, 'qat': False, 'sec': 34}
+[train] {'epoch': 1000, 'loss': 45.434, 'train_cell_acc': 0.9131, 'train_exact': 0.001, 'qat': False, 'sec': 46, 'seed_exact': 0.0, 'seed_cells_off': 12.88, 'seed_le2_off': 0.028}
+[train] {'epoch': 1250, 'loss': 40.149, 'train_cell_acc': 0.9169, 'train_exact': 0.002, 'qat': False, 'sec': 58}
+[train] {'epoch': 1500, 'loss': 41.563, 'train_cell_acc': 0.9208, 'train_exact': 0.005, 'qat': False, 'sec': 70}
+[train] {'epoch': 1750, 'loss': 34.293, 'train_cell_acc': 0.9261, 'train_exact': 0.001, 'qat': False, 'sec': 82}
+[train] {'epoch': 2000, 'loss': 38.223, 'train_cell_acc': 0.9257, 'train_exact': 0.003, 'qat': False, 'sec': 94, 'seed_exact': 0.005, 'seed_cells_off': 10.91, 'seed_le2_off': 0.048}
+[train] {'epoch': 2250, 'loss': 138.945, 'train_cell_acc': 0.8231, 'train_exact': 0.0, 'qat': True, 'sec': 107}

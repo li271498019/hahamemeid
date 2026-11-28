@@ -1,0 +1,10 @@
+# haha.meme G13 验证者服务日志轮转：按周轮转，保留 4 周。
+# copytruncate：服务一直持有日志文件句柄，轮转后不用重启服务。
+/opt/haha-validation/validator.log {
+    weekly
+    rotate 4
+    compress
+    missingok
+    notifempty
+    copytruncate
+}

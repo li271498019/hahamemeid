@@ -18,7 +18,7 @@ sudo apt install -y nodejs postgresql nginx git python3-pip
 
 ## 1. 合约（不用部署，已在主网）
 
-12 个合约已部署在 BSC 主网（chainId 56），全部 BscScan 开源验证、不可升级。地址见 [README.md](README.md) 的合约表。**任何人都能在 BscScan 上核对源码与链上字节码是否一致。**
+12 个 haha id 合约已部署在 BSC 主网（chainId 56），全部 BscScan 开源验证、不可升级。地址见 [README.md](README.md) 的合约表。**任何人都能在 BscScan 上核对源码与链上字节码是否一致。** Haha Dog 另有 4 个主网合约，地址在 README 的 Haha AI / Haha Dog 一节，部署步骤见 `haha-dog/DEPLOY.md`。
 
 想自己重新部署：`src/` + `foundry.toml`，用 Foundry（`forge build` 需 `via_ir=true`）。
 

@@ -134,8 +134,13 @@ class Builder:
         cur = conn.cursor()
         cur.execute(open("/opt/haha-indexer/schema.sql").read())
         for t in ("raw_logs", "blocks", "checkpoint", "names", "listings",
-                  "trades", "agents", "reviews", "points", "handle_cache"):
-            cur.execute("TRUNCATE %s" % t)
+                  "trades", "agents", "reviews", "points", "handle_cache",
+                  "season1_days", "season1_orders", "season1_verifications",
+                  "season1_findings", "season1_task_packs", "season1_entries",
+                  "season1_validators", "season1_reward_signer"):
+            cur.execute("SELECT to_regclass(%s)", (t,))
+            if cur.fetchone()[0] is not None:
+                cur.execute("TRUNCATE %s" % t)
         for bn in sorted(self.headers):
             h = self.headers[bn]
             cur.execute(

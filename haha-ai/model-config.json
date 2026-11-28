@@ -1,0 +1,163 @@
+{
+ "architecture": {
+  "input": "8 x int8 seed code",
+  "hidden": [
+   64,
+   32
+  ],
+  "activation": "ReLU",
+  "output": "198 cell coords + 26 color logits",
+  "cells": "16x8 left half, mirrored to 16x16"
+ },
+ "seed_to_z": "for i in 0..7: s = b[4i]+b[4i+1]+b[4i+2]+b[4i+3] - 510 ; z_q = (s*7) >> 5  (b = seed bytes, big-endian)",
+ "integer_math": "see infer_int.py / quantize.py header",
+ "classes": [
+  "empty",
+  "outline",
+  "fur",
+  "fur_shade",
+  "mark",
+  "cloth",
+  "cloth_shade",
+  "accessory",
+  "glow",
+  "white",
+  "pink"
+ ],
+ "palette": {
+  "outline": "#17131c",
+  "white": "#fbf7ee",
+  "pink": "#f08da0",
+  "fur": [
+   {
+    "name": "classic tan",
+    "fur": "#e3954a",
+    "mark": "#fbecd2"
+   },
+   {
+    "name": "red",
+    "fur": "#c9602d",
+    "mark": "#f8e3c6"
+   },
+   {
+    "name": "black & tan",
+    "fur": "#3b3443",
+    "mark": "#efd7b0"
+   },
+   {
+    "name": "cream",
+    "fur": "#f1d9ad",
+    "mark": "#fffaf0"
+   },
+   {
+    "name": "cyborg",
+    "fur": "#a7b0bb",
+    "mark": "#e1e6ec"
+   },
+   {
+    "name": "hologram",
+    "fur": "#7fe3e0",
+    "mark": "#d6fbf8"
+   },
+   {
+    "name": "gold",
+    "fur": "#f4b928",
+    "mark": "#fff0b3"
+   }
+  ],
+  "cloth": [
+   "#2a2733",
+   "#e8423f",
+   "#3f8ef0",
+   "#ef68a8",
+   "#8d5cf0",
+   "#4cc36b",
+   "#f2f0e8",
+   "#ff9d2e"
+  ],
+  "acc": [
+   "#f2b62b",
+   "#c3cad3",
+   "#36313f",
+   "#ff5148",
+   "#3fe0f0",
+   "#ff7cba"
+  ],
+  "glow": [
+   "#ff3b3b",
+   "#3fe9ff",
+   "#7dff6a",
+   "#ff5cc8",
+   "#ffd23f"
+  ],
+  "shade_rule": "shade = rgb*3//4 per channel"
+ },
+ "layout": {
+  "canvas": 24,
+  "dog_x": 4,
+  "dog_y": 6,
+  "repeat_last_row": 2,
+  "svg": "<svg viewBox=\"0 0 24 24\" shape-rendering=\"crispEdges\">, bg rects then dog rects"
+ },
+ "backgrounds": {
+  "styles": [
+   {
+    "name": "scanlines",
+    "suggested_rarity_pct": 30
+   },
+   {
+    "name": "sunburst",
+    "suggested_rarity_pct": 25
+   },
+   {
+    "name": "stars",
+    "suggested_rarity_pct": 20
+   },
+   {
+    "name": "moon",
+    "suggested_rarity_pct": 15
+   },
+   {
+    "name": "glitch",
+    "suggested_rarity_pct": 10
+   }
+  ],
+  "colors": [
+   "#ff6f59",
+   "#ff5d8f",
+   "#ff9a3c",
+   "#ffc93c",
+   "#9be15d",
+   "#e84a5f",
+   "#b15de5",
+   "#ff8fab"
+  ],
+  "night_colors_idx": [
+   1,
+   5,
+   6
+  ],
+  "note": "contract-only; see backgrounds.py"
+ },
+ "sizes": {
+  "weights_int8_bytes": 9728,
+  "bias_bits": 14,
+  "bias_bytes": 640,
+  "prototype_bytes": 55,
+  "cell_tables_bytes": 355,
+  "total_model_data_bytes": 10778,
+  "params": 10048
+ },
+ "float_vs_int8": {
+  "cell_agreement": 0.95952,
+  "dogs_identical": 0.0136,
+  "pick_agreement": 0.9012,
+  "mean_cells_differing": 5.181
+ },
+ "qat_sim_vs_int8": {
+  "cell_agreement": 0.99717,
+  "dogs_identical": 0.704,
+  "pick_agreement": 0.9981,
+  "mean_cells_differing": 0.363
+ }
+}

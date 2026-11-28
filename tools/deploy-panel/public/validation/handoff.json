@@ -1,0 +1,29 @@
+{
+  "kind": "validation-handoff",
+  "specCommit": "ca22caf",
+  "compiler": "0.8.28",
+  "viaIr": true,
+  "bytecodeBytes": 3650,
+  "abiPath": "tools/deploy-panel/public/validation/HahaValidation.abi.json",
+  "events": [
+    {
+      "name": "ValidationDisputed",
+      "signature": "ValidationDisputed(bytes32,address)",
+      "topic0": "0xe3d32c9b1e490818f4656d2753e75fede5d1b74df812d64ccab705df76583a72"
+    },
+    {
+      "name": "ValidationRequest",
+      "signature": "ValidationRequest(address,uint256,string,bytes32)",
+      "topic0": "0x530436c3634a98e1e626b0898be2f1e9980cc1bd2a78c07a0aba52d0a48a5059"
+    },
+    {
+      "name": "ValidationResponse",
+      "signature": "ValidationResponse(address,uint256,bytes32,uint8,string,bytes32,string)",
+      "topic0": "0xafddf629e874ccc3963b6a888c477bd464a6c8525024fc88759ea3b2326349ae"
+    }
+  ],
+  "constructor": {
+    "admin": "0x083A467259f12602E9053bBAe2b3Fd5B62976Ef7",
+    "identity": "0x54A70BF81B288d41013D7b57c2Db0922f1E1a4d4"
+  }
+}

@@ -1,0 +1,45 @@
+{
+ "args": {
+  "data": "data/dataset.npz",
+  "out": "out_try1",
+  "hidden": 32,
+  "epochs": 1500,
+  "beta": 1.0,
+  "lr": 0.003,
+  "seed": 0
+ },
+ "log": [
+  {
+   "epoch": 0,
+   "rec": 865.135,
+   "kl": 31.14,
+   "cell_acc": 0.1544,
+   "exact_dogs": 0.0,
+   "sec": 0
+  },
+  {
+   "epoch": 500,
+   "rec": 21.88,
+   "kl": 16.37,
+   "cell_acc": 0.9623,
+   "exact_dogs": 0.041,
+   "sec": 13
+  },
+  {
+   "epoch": 1000,
+   "rec": 16.181,
+   "kl": 17.22,
+   "cell_acc": 0.9724,
+   "exact_dogs": 0.085,
+   "sec": 26
+  },
+  {
+   "epoch": 1499,
+   "rec": 15.355,
+   "kl": 17.38,
+   "cell_acc": 0.9747,
+   "exact_dogs": 0.092,
+   "sec": 40
+  }
+ ]
+}

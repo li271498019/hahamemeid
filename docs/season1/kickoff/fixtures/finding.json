@@ -1,0 +1,21 @@
+{
+  "fixture": "finding",
+  "note": "文档样本。敏感条目没有正文",
+  "cases": [
+    {
+      "id": "public",
+      "reportEvidenceHash": "0xabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+      "withheld": false,
+      "commitBlock": 140000100,
+      "txIndex": 2,
+      "logIndex": 4,
+      "canonicalAssigned": true,
+      "canonicalPaid": false
+    },
+    {
+      "id": "withheld",
+      "reportEvidenceHash": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      "withheld": true
+    }
+  ]
+}

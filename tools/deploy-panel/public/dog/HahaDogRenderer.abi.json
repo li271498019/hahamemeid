@@ -1,0 +1,304 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "model_",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "background",
+    "inputs": [
+      {
+        "name": "seed",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "style",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "color",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "classify",
+    "inputs": [
+      {
+        "name": "cells",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "head",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "eyes",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "mouth",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "neck",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "dog",
+    "inputs": [
+      {
+        "name": "seed",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "d",
+        "type": "tuple",
+        "internalType": "struct HahaDogRenderer.Dog",
+        "components": [
+          {
+            "name": "cells",
+            "type": "bytes",
+            "internalType": "bytes"
+          },
+          {
+            "name": "picks",
+            "type": "uint8[4]",
+            "internalType": "uint8[4]"
+          },
+          {
+            "name": "style",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "color",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "head",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "eyes",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "mouth",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "neck",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "score",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "tier",
+            "type": "uint8",
+            "internalType": "uint8"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "generatingSvg",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "model",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IHahaDogModel"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "rarity",
+    "inputs": [
+      {
+        "name": "head",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "eyes",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "mouth",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "neck",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "fur",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "style",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "score",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "tier",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "svgOf",
+    "inputs": [
+      {
+        "name": "seed",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "svgWith",
+    "inputs": [
+      {
+        "name": "seed",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "style",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "color",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenURI",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "seed",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "rerolls",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "state",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "error",
+    "name": "ZeroAddress",
+    "inputs": []
+  }
+]

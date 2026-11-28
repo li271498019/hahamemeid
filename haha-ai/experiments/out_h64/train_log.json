@@ -1,0 +1,87 @@
+{
+ "args": {
+  "data": "data/dataset.npz",
+  "out": "out_h64",
+  "hidden": 64,
+  "epochs": 4000,
+  "beta": 1.0,
+  "lr": 0.003,
+  "seed": 0,
+  "snap_weight": 1.0,
+  "snap_start": 0.4
+ },
+ "log": [
+  {
+   "epoch": 0,
+   "rec": 898.152,
+   "kl": 87.69,
+   "cell_acc": 0.1849,
+   "exact_dogs": 0.0,
+   "sec": 0
+  },
+  {
+   "epoch": 500,
+   "rec": 10.34,
+   "kl": 25.11,
+   "cell_acc": 0.9801,
+   "exact_dogs": 0.176,
+   "sec": 31
+  },
+  {
+   "epoch": 1000,
+   "rec": 8.007,
+   "kl": 20.14,
+   "cell_acc": 0.9863,
+   "exact_dogs": 0.247,
+   "sec": 64
+  },
+  {
+   "epoch": 1500,
+   "rec": 5.78,
+   "kl": 18.53,
+   "cell_acc": 0.9905,
+   "exact_dogs": 0.349,
+   "sec": 97
+  },
+  {
+   "epoch": 2000,
+   "rec": 20.355,
+   "kl": 16.53,
+   "cell_acc": 0.9707,
+   "exact_dogs": 0.075,
+   "sec": 174
+  },
+  {
+   "epoch": 2500,
+   "rec": 19.724,
+   "kl": 16.38,
+   "cell_acc": 0.9733,
+   "exact_dogs": 0.091,
+   "sec": 556
+  },
+  {
+   "epoch": 3000,
+   "rec": 18.242,
+   "kl": 16.52,
+   "cell_acc": 0.9747,
+   "exact_dogs": 0.095,
+   "sec": 642
+  },
+  {
+   "epoch": 3500,
+   "rec": 18.061,
+   "kl": 16.32,
+   "cell_acc": 0.9755,
+   "exact_dogs": 0.1,
+   "sec": 723
+  },
+  {
+   "epoch": 3999,
+   "rec": 18.267,
+   "kl": 16.5,
+   "cell_acc": 0.9761,
+   "exact_dogs": 0.103,
+   "sec": 805
+  }
+ ]
+}

@@ -33,7 +33,14 @@ CONTRACTS = {
     "deployer": "0x3c7bd1649ac03afb65e6e10f949f45d764b6b601",
     "season1": "0x4b8a35bfe18750c2058fd01e7159728add345c00",
     "validation": "0xaf9d2d3b6717469b21464baa12b022817841952b",
+    # Haha Dog (2026-11-28). Keys are lowercase so /v1/events?contract=dog works.
+    "dog": "0x26f88a5db4925e9afa35b1096fdd6dba09f056c6",
+    "dogmarket": "0xd7f5502bd7a52e17959bf4b7f1180f6e3611fd49",
 }
+# HahaDog deployment block; the dog backfill starts here. HahaDogMarket is
+# deployed in the same window, so one start block covers both.
+DOG_START_BLOCK = 136153154
+DOG_ADDRESSES = [CONTRACTS["dog"], CONTRACTS["dogmarket"]]
 AI_REGISTRY = "0x60b9262456de011f7d15a54cdd8c48baaa8b022f"
 ALL_ADDRESSES = [CONTRACTS[k] for k in
                  ("policy", "metadata", "resolver", "registry", "registrar",
@@ -58,7 +65,7 @@ def season1_module():
 
 
 def log_addresses():
-    addrs = list(ALL_ADDRESSES)
+    addrs = list(ALL_ADDRESSES) + list(DOG_ADDRESSES)
     module = season1_module()
     if module and module not in addrs:
         addrs.append(module)
@@ -256,11 +263,11 @@ class RpcClient:
     def block_number(self):
         return int(self.call("eth_blockNumber", []), 16)
 
-    def get_logs(self, from_block, to_block):
+    def get_logs(self, from_block, to_block, addresses=None):
         return self.call("eth_getLogs", [{
             "fromBlock": hex(from_block),
             "toBlock": hex(to_block),
-            "address": log_addresses(),
+            "address": list(addresses) if addresses else log_addresses(),
         }])
 
     def get_block(self, number):
@@ -481,6 +488,32 @@ _EVENT_DEFS = [
       ("responseHash", "bytes32", False), ("tag", "string", False)]),
     ("validation", "ValidationDisputed(bytes32,address)",
      [("requestHash", "bytes32", True), ("disputer", "address", True)]),
+    # ---- Haha Dog (HahaDog ERC-721 + HahaDogMarket) ----
+    ("dog", "Transfer(address,address,uint256)",
+     [("from", "address", True), ("to", "address", True),
+      ("tokenId", "uint256", True)]),
+    ("dog", "Committed(uint256,uint256,uint256)",
+     [("tokenId", "uint256", True), ("rerolls", "uint256", False),
+      ("commitBlock", "uint256", False)]),
+    ("dog", "Snapshot(uint256,bytes32)",
+     [("blockNumber", "uint256", True), ("blockHash", "bytes32", False)]),
+    ("dogmarket", "Listed(uint256,address,uint256,uint256)",
+     [("tokenId", "uint256", True), ("seller", "address", True),
+      ("price", "uint256", False), ("rerolls", "uint256", False)]),
+    ("dogmarket", "PriceUpdated(uint256,address,uint256,uint256)",
+     [("tokenId", "uint256", True), ("seller", "address", True),
+      ("oldPrice", "uint256", False), ("newPrice", "uint256", False)]),
+    ("dogmarket", "Cancelled(uint256,address)",
+     [("tokenId", "uint256", True), ("seller", "address", True)]),
+    ("dogmarket", "StaleCleared(uint256,address,address)",
+     [("tokenId", "uint256", True), ("seller", "address", True),
+      ("currentOwner", "address", True)]),
+    ("dogmarket", "Sold(uint256,address,address,uint256,uint256,uint256)",
+     [("tokenId", "uint256", True), ("seller", "address", True),
+      ("buyer", "address", True), ("price", "uint256", False),
+      ("fee", "uint256", False), ("proceeds", "uint256", False)]),
+    ("dogmarket", "Withdrawn(address,uint256)",
+     [("account", "address", True), ("amount", "uint256", False)]),
 ]
 
 # (contract key, topic0) -> (event name, params)

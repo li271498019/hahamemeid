@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HahaValidation 部署面板</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">HahaValidation 部署面板（G13 验证注册表）</div>
+    <div class="meta">
+      <span id="meta-commit">commit: —</span>
+      <span id="meta-solc">solc: 0.8.28</span>
+    </div>
+    <div class="wallet-box">
+      <span id="net-badge" class="badge badge-gray">未连接</span>
+      <span id="addr" class="addr">—</span>
+      <span id="balance" class="balance">—</span>
+      <button id="btn-connect" class="btn btn-primary">连接 MetaMask</button>
+      <button id="btn-connect-okx" class="btn btn-primary">连接 OKX</button>
+    </div>
+  </header>
+
+  <div id="net-warning" class="net-warning hidden">
+    当前网络不是目标网络，请切换。
+    <button id="btn-switch-net" class="btn btn-warn">一键切换</button>
+  </div>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h3>构造参数（不可改）</h3>
+      <dl class="params">
+        <dt>管理员 admin</dt><dd id="p-admin">—</dd>
+        <dt>identity 注册表</dt><dd id="p-identity">—</dd>
+        <dt>chainId</dt><dd id="p-chain">—</dd>
+      </dl>
+      <p><a href="index.html" style="color:var(--accent);font-size:13px">→ 返回主部署面板</a></p>
+      <p><a href="season1.html" style="color:var(--accent);font-size:13px">→ Season1 部署授权面板</a></p>
+      <h3>模式</h3>
+      <div class="mode-switch">
+        <button id="btn-mainnet" class="btn btn-outline">BSC 主网 (56)</button>
+        <button id="btn-testnet" class="btn btn-outline">BSC 测试网 (97)</button>
+      </div>
+      <h3>进度</h3>
+      <div class="progress-actions">
+        <button id="btn-export" class="btn btn-outline">导出进度</button>
+        <button id="btn-import" class="btn btn-outline">导入进度</button>
+        <input type="file" id="import-file" accept="application/json" class="hidden" />
+      </div>
+      <h3>开源验证</h3>
+      <div class="verify-box">
+        <input id="verify-key" type="password" placeholder="Etherscan API Key（仅内存，V2 多链）" />
+        <button id="btn-verify" class="btn btn-outline">一键验证</button>
+        <pre id="verify-results" class="verify-results hidden"></pre>
+      </div>
+    </aside>
+
+    <section class="content">
+      <h2>链上状态总览（只读）</h2>
+      <div id="overview" class="overview"></div>
+
+      <h2 class="mt">部署步骤（1 笔交易）</h2>
+      <p class="hint">
+        部署 HahaValidation 合约（G13 验证注册表）。构造参数固定为 admin + identity。
+        部署后 validator 初始 = admin，管理员可调 setValidator 更换验证者。
+      </p>
+      <div id="steps" class="steps"></div>
+
+      <h2 class="mt">部署后自检（只读，读链核对）</h2>
+      <button id="btn-selfcheck" class="btn btn-primary" disabled>运行自检</button>
+      <div id="selfcheck" class="selfcheck"></div>
+
+      <h2 class="mt">回执</h2>
+      <button id="btn-receipt-copy" class="btn btn-outline" disabled>复制回执</button>
+      <button id="btn-receipt-md" class="btn btn-outline" disabled>复制 Markdown 回执</button>
+      <button id="btn-receipt-download" class="btn btn-outline" disabled>下载 deployment-&lt;chainId&gt;.json</button>
+      <pre id="receipt" class="receipt hidden"></pre>
+    </section>
+  </main>
+
+  <script src="/vendor/ethers.umd.min.js"></script>
+  <script type="module" src="validation.js"></script>
+</body>
+</html>

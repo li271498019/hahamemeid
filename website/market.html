@@ -2,29 +2,51 @@
 <html lang="zh-Hans">
 <head>
 <meta charset="utf-8">
-<script src="/js/boot.js?v=8"></script>
+<script src="/js/boot.js?v=9"></script>
 <script src="/js/config.js?v=9"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#F7931A">
+<script src="/js/rain.js?v=9" defer></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
 <title data-i18n-title="market.docTitle">haha.meme · 交易市场</title>
 <meta name="description" data-i18n="market.docDesc" content="只展示卖家挂单。购买和挂单都是复制给 agent 的指令。">
-<link rel="icon" href="/assets/logo/favicon.ico">
+<link rel="canonical" href="https://haha.meme/market">
+<link rel="icon" href="/assets/logo/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/logo/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/logo/icon-192.png">
 <link rel="apple-touch-icon" href="/assets/logo/favicon-180.png">
-<meta property="og:title" content="haha.meme · 交易市场">
-<meta property="og:description" content="只展示卖家挂单。购买和挂单都是复制给 agent 的指令。">
-<meta property="og:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:title" data-i18n="market.docTitle" content="haha.meme · 交易市场">
+<meta property="og:description" data-i18n="market.docDesc" content="只展示卖家挂单。购买和挂单都是复制给 agent 的指令。">
+<meta property="og:url" content="https://haha.meme/market">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="haha.meme">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:image" content="https://haha.meme/assets/og/og-market.png">
+<meta property="og:image:secure_url" content="https://haha.meme/assets/og/og-market.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="haha.meme：交易市场">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://haha.meme/assets/logo/haha-logo.png">
-<link rel="stylesheet" href="/css/site.css?v=24">
+<meta name="twitter:site" content="@aihahameme">
+<meta name="twitter:creator" content="@aihahameme">
+<meta name="twitter:title" data-i18n="market.docTitle" content="haha.meme · 交易市场">
+<meta name="twitter:description" data-i18n="market.docDesc" content="只展示卖家挂单。购买和挂单都是复制给 agent 的指令。">
+<meta name="twitter:image" content="https://haha.meme/assets/og/og-market.png">
+<meta name="twitter:image:alt" content="haha.meme：交易市场">
+<link rel="stylesheet" href="/css/site.css?v=32">
+<link rel="stylesheet" href="/css/haha-dog.css?v=2">
 </head>
 <body>
 <canvas id="fx" aria-hidden="true"></canvas>
 <div class="grain" aria-hidden="true"></div>
 <div class="wrap">
 <header class="nav">
-  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40">haha.meme</a>
-    <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/market.html" aria-current="page"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html"><span data-i18n="nav.earn">赚取积分</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/scan.html"><span data-i18n="nav.scan">haha scan</span></a><a href="/how.html"><span data-i18n="nav.how">工作原理</span></a><a href="/season" data-i18n="nav.season">稀有域名空投第一季</a></nav>
+  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40" decoding="async" fetchpriority="high">haha.meme</a>
+    <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/ai.html"><span data-i18n="nav.ai">Haha AI</span></a><a href="/mint.html"><span data-i18n="nav.mint">Haha Dog</span></a><a href="/market.html" aria-current="page"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html"><span data-i18n="nav.earn">赚取积分</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/scan.html"><span data-i18n="nav.scan">haha scan</span></a><a href="/how.html"><span data-i18n="nav.how">工作原理</span></a><a href="/season" data-i18n="nav.season">稀有域名空投第一季</a></nav>
   <div class="nav-right">
     <span class="hello" id="hello" hidden>Hi! <b id="hello-name"></b></span>
 
@@ -39,12 +61,17 @@
 </header>
 
 <main><section class="page">
+  <div class="mk-tabs" role="tablist" aria-label="交易市场" data-i18n-aria="market.kicker">
+    <button type="button" role="tab" id="tab-names" aria-selected="true" aria-controls="mk-names" data-i18n="mk.tabNames">haha id 域名</button>
+    <button type="button" role="tab" id="tab-dog" aria-selected="false" aria-controls="mk-dog" data-i18n="mk.tabDog">Haha Dog</button>
+  </div>
+  <div id="mk-names" role="tabpanel" aria-labelledby="tab-names">
   <p class="kicker" data-i18n="market.kicker">交易市场</p>
   <p class="lede" data-i18n="market.lede">交易手续费1%，卖家支付。</p>
   <div class="stats" id="stats"></div>
   <div class="panel">
     <form class="toolbar" id="find-form">
-      <input id="find" placeholder="搜完整名称，比如 abc123.meme" data-i18n-placeholder="market.findPh" style="flex:1;min-width:200px">
+      <input id="find" placeholder="搜完整名称，比如 abc123.meme" data-i18n-placeholder="market.findPh">
       <button class="btn" type="submit" data-i18n="market.search">搜索</button>
       <label class="sr" for="sort">排序</label>
       <select id="sort">
@@ -87,17 +114,65 @@
     <h2 data-i18n="market.sales">最近成交</h2>
     <div class="list" id="sales"></div>
   </div>
+  </div>
+  <div id="mk-dog" role="tabpanel" aria-labelledby="tab-dog" hidden>
+    <p class="kicker">HAHA DOG</p>
+    <p class="lede" data-i18n="dog.mkLede">交易手续费1%，卖家支付。</p>
+    <div class="stats" id="dog-stats"></div>
+    <div class="panel">
+      <h2 data-i18n="dog.mkRulesTitle">交易规则</h2>
+      <ol class="mk-rules">
+        <li data-i18n="dog.mkRule1">还在“出图中”的狗不能挂单，也不能买。</li>
+        <li data-i18n="dog.mkRule2">挂单之后重铸或转走，挂单自动失效。</li>
+        <li data-i18n="dog.mkRule3">挂单要两步：先授权，再挂单。</li>
+        <li data-i18n="dog.mkRule4">货款先进市场合约，卖家要提款。</li>
+        <li data-i18n="dog.mkRule5">版税：EIP-2981 版税也是 1%，同一个费用接收地址；在本市场成交只收 1% 手续费，不另收版税。计价币种只有 BNB。</li>
+      </ol>
+      <p class="muted dog-fn">HahaDogMarket <code class="dog-addr" data-addr="dogMarket"></code> · list <code>0x50fd7367</code> · updatePrice <code>0x82367b2d</code> · cancel <code>0x40e58ee5</code> · clearStale <code>0x9a9d6a76</code> · buy <code>0xd96a094a</code> · withdraw <code>0x3ccfd60b</code></p>
+    </div>
+    <div class="panel">
+      <div class="section-head"><h2 data-i18n="dog.mkListings">在售的 Haha Dog</h2><span class="muted" data-i18n="dog.mkListingsSub">来自索引器，购买前合约再校验</span></div>
+      <form class="toolbar" id="dog-find-form">
+        <input id="dog-find" inputmode="numeric" maxlength="5" placeholder="按编号搜" data-i18n-placeholder="dog.mkFindPh">
+        <button class="btn" type="submit" data-i18n="dog.mkSearch">搜索</button>
+        <label class="sr" for="dog-sort">排序</label>
+        <select id="dog-sort">
+          <option value="low" data-i18n="dog.mkSortLow">价格从低到高</option>
+          <option value="high" data-i18n="dog.mkSortHigh">价格从高到低</option>
+          <option value="id" data-i18n="dog.mkSortId">编号从小到大</option>
+        </select>
+      </form>
+      <div id="dog-hit"></div>
+      <div class="grid dog-grid" id="dog-grid"></div>
+      <p class="muted" id="dog-src"></p>
+    </div>
+    <div class="panel">
+      <div class="section-head"><h2 data-i18n="dog.mkMine">我的 Haha Dog</h2><span class="muted" data-i18n="dog.mkMineSub">你登录的钱包持有的 Haha Dog</span></div>
+      <div class="actions" id="dog-withdraw-row" hidden>
+        <button class="btn" type="button" data-dwithdraw data-i18n="dog.mkWithdraw">复制提款指令</button>
+        <span class="muted" id="dog-withdraw-amount"></span>
+      </div>
+      <div class="grid dog-grid" id="dog-mine"></div>
+    </div>
+    <div class="panel">
+      <h2 data-i18n="dog.mkContracts">合约</h2>
+      <table class="addr dog-info" id="dog-contracts"></table>
+    </div>
+  </div>
 </section></main>
 <footer>haha.meme · haha id · <span data-i18n="footer.tagline">基于币安 .ai Agent ID 的链上agent身份信誉协议</span> · <a href="https://x.com/aihahameme" target="_blank" rel="noopener noreferrer">X</a> · <a href="https://t.me/aihahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目方"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg> <span data-i18n="footer.tgOwner">项目方</span></a> · <a href="https://t.me/idhahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目群组"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h9v-2.5c0-.85.33-1.59.88-2.16C7.4 14.12 6.16 13 5 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span data-i18n="footer.tgGroup">项目群组</span></a> · <a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a> · <a href="/skill.md">skill.md</a> · <a href="/api.html">API</a></footer>
 </div>
 <div id="toast" role="status"></div>
-<script src="/js/addresses.js?v=8"></script>
-<script src="/js/rpc.js?v=17"></script>
-<script src="/js/i18n.js?v=62"></script>
+<script src="/js/addresses.js?v=9"></script>
+<script src="/js/rpc.js?v=18"></script>
+<script src="/js/i18n.js?v=72"></script>
+<script src="/js/haha-dog-i18n.js?v=2"></script>
 <script src="/js/instructions.js?v=12"></script>
 <script src="/js/session.js?v=8"></script>
 <script src="/js/nft.js?v=9"></script>
-<script src="/js/ui.js?v=8"></script>
+<script src="/js/ui.js?v=9"></script>
+<script src="/js/haha-ai-model.js?v=1"></script>
+<script src="/js/haha-dog.js?v=3"></script>
 
 <script>
 (function () {
@@ -195,7 +270,7 @@
     }
   });
   function card(row, mode) {
-    var html = '<article class="card"><div class="nft">' + hahaNft(row.name) + '</div><h3>' + esc(row.name) + '</h3>';
+    var html = '<article class="card"><a href="/agent.html?name=' + encodeURIComponent(row.name) + '"><div class="nft">' + hahaNft(row.name) + '</div><h3>' + esc(row.name) + '</h3></a>';
     if (mode !== "mine-open") html += '<p class="price">' + esc(row.price) + ' BNB</p>';
     else html += '<p class="price">' + esc(T("market.notListed")) + '</p>';
     if (mode === "sell" || mode === "mine-open") {
@@ -297,8 +372,10 @@
     return "price_asc";
   }
   var renderSeq = 0;
+  var mineSeq = 0;
   function renderMine(session) {
     var mine = document.getElementById("mine");
+    var seq = ++mineSeq;
     if (!session || !session.address) {
       mine.innerHTML = '<p class="note" style="grid-column:1/-1">' + esc(T("market.mineGuest")) + '</p>';
       return;
@@ -307,8 +384,12 @@
       mine.innerHTML = '<p class="note" style="grid-column:1/-1">' + esc(T("market.mineFail")) + '</p>';
       return;
     }
+    var want = session.address;
     mine.innerHTML = '<p class="note" style="grid-column:1/-1">' + esc(T("common.loading")) + '</p>';
-    HahaIndex.namesOf(session.address).then(function (res) {
+    HahaIndex.namesOf(want).then(function (res) {
+      if (seq !== mineSeq) return;
+      var cur = window.HahaSession ? HahaSession.get() : null;
+      if (!cur || cur.address !== want) return;
       if (!res || res.error) {
         mine.innerHTML = '<p class="note" style="grid-column:1/-1">' + esc(T("market.mineFail")) + '</p>';
         return;
@@ -427,9 +508,11 @@
     if (parts[1] !== "haha" && parts[1] !== "meme") return null;
     return { label: parts[0], tld: parts[1], full: parts[0] + "." + parts[1] };
   }
+  var hitSeq = 0;
   function searchHit() {
     var q = document.getElementById("find").value.trim().toLowerCase();
     var hit = document.getElementById("hit");
+    var seq = ++hitSeq;
     if (!q) { hit.innerHTML = ""; return; }
     var parsed = parseFull(q);
     if (!parsed) { hit.innerHTML = '<div class="note">' + esc(T("market.badQuery")) + '</div>'; return; }
@@ -438,8 +521,9 @@
     var rpc = window.HahaRPC;
     var looked = (index && index.name) ? index.name(parsed.full) : Promise.resolve(null);
     looked.then(function (row) {
+      if (seq !== hitSeq) return "done";
       if (row && row.minted && row.owner) {
-        paintHit(parsed, row.owner, row.listing);
+        paintHit(parsed, row.owner, row.listing, null, seq);
         return "done";
       }
       if (!rpc || !rpc.lookupName) {
@@ -450,17 +534,20 @@
         throw new Error("no rpc");
       }
       return rpc.lookupName(parsed.label, parsed.tld).then(function (chain) {
+        if (seq !== hitSeq) return;
         if (!chain || !chain.owner) {
           hit.innerHTML = '<div class="note">' + esc(T("market.notMinted")) + ' <a href="/">' + esc(T("market.goMint")) + '</a></div>';
           return;
         }
-        paintHit(parsed, chain.owner, null, chain.tokenId);
+        paintHit(parsed, chain.owner, null, chain.tokenId, seq);
       });
     }).catch(function () {
+      if (seq !== hitSeq) return;
       hit.innerHTML = '<div class="note">' + esc(T("common.chainFail")) + '</div>';
     });
   }
-  function paintHit(parsed, owner, listing, tokenId) {
+  function paintHit(parsed, owner, listing, tokenId, seq) {
+    if (seq !== hitSeq) return;
     var hit = document.getElementById("hit");
     if (listing && listing.seller && String(listing.seller).toLowerCase() !== ZERO) {
       var price = weiToBnb(listing.priceWei);
@@ -473,6 +560,7 @@
       return;
     }
     HahaRPC.listings(tokenId).then(function (onchain) {
+      if (seq !== hitSeq) return;
       if (onchain && onchain.seller && onchain.seller.toLowerCase() !== ZERO) {
         hit.innerHTML = '<div class="note">' + esc(T("market.listed")) + ' · ' + esc(onchain.priceBnb) + ' BNB'
           + ' <button class="btn" type="button" data-buy="' + esc(parsed.full) + '" data-price="' + esc(onchain.priceBnb) + '">' + esc(T("market.copyBuy")) + '</button></div>';
@@ -480,6 +568,7 @@
         hit.innerHTML = '<div class="note">' + esc(T("market.notForSale")) + '</div>';
       }
     }).catch(function () {
+      if (seq !== hitSeq) return;
       hit.innerHTML = '<div class="note">' + esc(T("market.notForSale")) + '</div>';
     });
   }
@@ -493,6 +582,6 @@
 })();
 </script>
 
-<script src="/js/rain.js?v=7"></script>
+<script src="/js/haha-dog-market.js?v=2"></script>
 </body>
 </html>

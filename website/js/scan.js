@@ -118,7 +118,8 @@
     AccidentCompensated: "scan.evAccidentCompensated",
     ValidationRequest: "scan.evValidationRequest",
     ValidationResponse: "scan.evValidationResponse",
-    ValidationDisputed: "scan.evValidationDisputed"
+    ValidationDisputed: "scan.evValidationDisputed",
+    Committed: "scan.evCommitted", Snapshot: "scan.evSnapshot"
   };
   function eventLabel(name) {
     var k = name && EVENT_LABELS[name];
@@ -132,7 +133,8 @@
     policy: "NamePolicy", identity: "AgentIdentity", points: "Points",
     reputation: "Reputation", market: "Marketplace", metadata: "Metadata",
     deployer: "Deployer", season1: "Season1", aiRegistry: ".ai Registry",
-    validation: "Validation"
+    validation: "Validation", dog: "HahaDog", dogmarket: "HahaDogMarket",
+    dogmodel: "HahaDogModel", dogrenderer: "HahaDogRenderer"
   };
   var CONTRACT_CN = {
     registrar: "scan.cnRegistrar", registry: "scan.cnRegistry",
@@ -141,9 +143,11 @@
     reputation: "scan.cnReputation", market: "scan.cnMarket",
     metadata: "scan.cnMetadata", deployer: "scan.cnDeployer",
     season1: "scan.cnSeason1", aiRegistry: "scan.cnAiRegistry",
-    validation: "scan.cnValidation"
+    validation: "scan.cnValidation", dog: "scan.cnDog", dogmarket: "scan.cnDogMarket",
+    dogmodel: "scan.cnDogModel", dogrenderer: "scan.cnDogRenderer"
   };
-  var ADDR_KEY = {namePolicy: "policy", agentIdentity: "identity", marketplace: "market"};
+  var ADDR_KEY = {namePolicy: "policy", agentIdentity: "identity", marketplace: "market",
+    dogMarket: "dogmarket", dogModel: "dogmodel", dogRenderer: "dogrenderer"};
   var ADDR_TO_CONTRACT = {};
   (function () {
     Object.keys(ADDR).forEach(function (k) {
@@ -286,6 +290,7 @@
     agents: null, reputation: null,
     points: {items: [], cursor: null, done: false},
     listings: null, trades: null,
+    dog: {stats: null, activity: null, listings: null, trades: null, failed: false},
     seasonDays: {}, seasonFindings: null, findingsPublic: null,
     seasonLoaded: {}
   };
@@ -295,7 +300,7 @@
     var el = $("scan-overview-body");
     if (!el) return;
     if (!state.stats || !state.health) {
-      el.innerHTML = '<p class="note">' + esc(T("scan.loading")) + "</p>";
+      el.innerHTML = '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
       return;
     }
     var s = state.stats, h = state.health;
@@ -321,8 +326,9 @@
       + esc(T("scan.syncConf")) + ": " + esc(String(CONFIRMATIONS)) + " · "
       + esc(h.ok ? T("scan.syncOk") : T("scan.syncBad")) + "</p></div>";
     html += shortSections(s);
+    html += dogOverviewHtml();
     html += "<h3>" + esc(T("scan.latestEvents")) + "</h3>";
-    html += state.latestEvents ? eventTable(state.latestEvents, false) : '<p class="note">' + esc(T("scan.loading")) + "</p>";
+    html += state.latestEvents ? eventTable(state.latestEvents, false) : '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
     html += "<h3>" + esc(T("scan.latestNames")) + "</h3>";
     if (state.latestNames) {
       html += '<div class="lb-scroll"><table><thead><tr><th>' + esc(T("scan.colName")) + "</th><th>" + esc(T("scan.colOwner")) + "</th><th>" + esc(T("scan.colMintedAt")) + "</th><th>" + esc(T("scan.colBlock")) + "</th></tr></thead><tbody>"
@@ -330,7 +336,7 @@
           return "<tr><td>" + nameTokenLink(n.tokenId, n.fullName) + "</td><td>" + aiAddrLink(n.owner) + "</td><td>" + esc(fmtTime(n.mintedAt)) + "</td><td>" + blockLink(n.blockNumber) + "</td></tr>";
         }).join("") + "</tbody></table></div>";
     } else {
-      html += '<p class="note">' + esc(T("scan.loading")) + "</p>";
+      html += '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
     }
     el.innerHTML = html;
     resolveAiNames(el);
@@ -340,7 +346,7 @@
   function shortSections(s) {
     var card = function (titleKey, data) {
       var num = function (v) { return v == null ? "—" : String(v); };
-      if (!data) return '<article class="board-card"><h3>' + esc(T(titleKey)) + "</h3>" + '<p class="note">' + esc(T("scan.loading")) + "</p></article>";
+      if (!data) return '<article class="board-card"><h3>' + esc(T(titleKey)) + "</h3>" + '<p class="note skel">' + esc(T("scan.loading")) + "</p></article>";
       var h = data.haha || {}, m = data.meme || {};
       return '<article class="board-card"><h3>' + esc(T(titleKey)) + "</h3>"
         + '<div class="split"><span>' + esc(T("scan.shortHahaLeft")) + "</span><b>" + esc(num(h.remaining)) + "</b></div>"
@@ -376,7 +382,7 @@
     if (!el) return;
     var btn = $("scan-names-more");
     if (!state.names.items.length) {
-      el.innerHTML = '<p class="note">' + esc(T("scan.loading")) + "</p>";
+      el.innerHTML = '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
       if (btn) btn.hidden = true;
       return;
     }
@@ -428,7 +434,7 @@
     if (!el) return;
     var btn = $("scan-events-more");
     if (!state.events.items.length) {
-      el.innerHTML = '<p class="note">' + esc(T("scan.loading")) + "</p>";
+      el.innerHTML = '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
       if (btn) btn.hidden = true;
       return;
     }
@@ -478,7 +484,7 @@
     if (!el) return;
     var html = "";
     if (!state.agents) {
-      html = '<p class="note">' + esc(T("scan.loading")) + "</p>";
+      html = '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
     } else if (!state.agents.length) {
       html = '<p class="note">' + esc(T("scan.empty")) + "</p>";
     } else {
@@ -486,7 +492,7 @@
     }
     html += "<h3>" + esc(T("scan.repTitle")) + "</h3>";
     if (!state.reputation) {
-      html += '<p class="note">' + esc(T("scan.loading")) + "</p>";
+      html += '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
     } else if (!state.reputation.length) {
       html += '<p class="note">' + esc(T("scan.empty")) + "</p>";
     } else {
@@ -512,7 +518,7 @@
     if (!el) return;
     var btn = $("scan-points-more");
     if (!state.points.items.length) {
-      el.innerHTML = '<p class="note">' + esc(T("scan.loading")) + "</p>";
+      el.innerHTML = '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
       if (btn) btn.hidden = true;
       return;
     }
@@ -547,7 +553,7 @@
     if (!el) return;
     var html = "";
     if (!state.listings) {
-      html = '<p class="note">' + esc(T("scan.loading")) + "</p>";
+      html = '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
     } else if (!state.listings.length) {
       html = '<p class="note">' + esc(T("scan.empty")) + "</p>";
     } else {
@@ -558,7 +564,7 @@
     }
     html += "<h3>" + esc(T("scan.tradesTitle")) + "</h3>";
     if (!state.trades) {
-      html += '<p class="note">' + esc(T("scan.loading")) + "</p>";
+      html += '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
     } else if (!state.trades.length) {
       html += '<p class="note">' + esc(T("scan.tradesEmpty")) + "</p>";
     } else {
@@ -576,6 +582,107 @@
       .catch(function () { var el = $("scan-market-body"); if (el && !state.listings) el.innerHTML = errHtml(); });
     api("/v1/trades?limit=24").then(function (d) { state.trades = d.items || []; renderMarket(); })
       .catch(function () {});
+  }
+
+  /* ---------------- Haha Dog ---------------- */
+  var DOG_CAP = 10000;
+  function bnbText(w) { return w == null ? "—" : weiToBnb(w) + " BNB"; }
+  function dogTokenLink(id) {
+    return id == null ? "—" : '<a href="/mint.html?id=' + esc(id) + '#view">#' + esc(id) + "</a>";
+  }
+  function dogStatCards(d) {
+    var m = d.market || {};
+    return [
+      [T("scan.dogMinted"), d.minted + " / " + DOG_CAP],
+      [T("scan.dogHolders"), String(d.holders)],
+      [T("scan.dogRerolls"), String(d.rerolls)],
+      [T("scan.statListings"), String(m.listings)],
+      [T("scan.statFloor"), bnbText(m.floorPriceWei)],
+      [T("scan.dogLatest"), bnbText(m.latestTradePriceWei)],
+      [T("scan.dogSales"), String(m.sales)],
+      [T("scan.dogVolume"), bnbText(m.volumeWei)],
+      [T("scan.statVol24"), bnbText(m.volume24hWei)]
+    ];
+  }
+  function statCardsHtml(cards) {
+    return '<div class="scan-stats">' + cards.map(function (c) {
+      return "<div><b>" + esc(c[0]) + "</b><span>" + esc(c[1]) + "</span></div>";
+    }).join("") + "</div>";
+  }
+  function dogOverviewHtml() {
+    var d = state.dog.stats;
+    if (!d) return "";
+    var c = dogStatCards(d);
+    return "<h3>Haha Dog</h3>" + statCardsHtml([c[0], c[1], c[2], c[6], c[4], c[8]]);
+  }
+  var DOG_TYPE_KEY = {mint: "scan.dogTMint", reroll: "scan.dogTReroll", transfer: "scan.dogTTransfer", list: "scan.dogTList",
+    price: "scan.dogTPrice", cancel: "scan.dogTCancel", clear: "scan.dogTClear", sale: "scan.dogTSale", withdraw: "scan.dogTWithdraw"};
+  function dogWho(a) {
+    if (a.type === "mint") return aiAddrLink(a.to);
+    if (a.type === "transfer") return aiAddrLink(a.from) + " → " + aiAddrLink(a.to);
+    if (a.type === "sale") return aiAddrLink(a.seller) + " → " + aiAddrLink(a.buyer);
+    if (a.type === "withdraw") return aiAddrLink(a.account);
+    if (a.type === "clear") return aiAddrLink(a.seller);
+    return aiAddrLink(a.seller || a.currentOwner || a.account);
+  }
+  function dogAmount(a) {
+    if (a.type === "sale" || a.type === "list") return bnbText(a.priceWei);
+    if (a.type === "price") return bnbText(a.oldPriceWei) + " → " + bnbText(a.newPriceWei);
+    if (a.type === "withdraw") return bnbText(a.amountWei);
+    if (a.type === "reroll") return fill("scan.dogRerollN", {n: a.rerolls});
+    return "—";
+  }
+  function dogActivityTable(items) {
+    if (!items.length) return '<p class="note">' + esc(T("scan.empty")) + "</p>";
+    return '<div class="lb-scroll"><table><thead><tr><th>' + esc(T("scan.colTime")) + "</th><th>" + esc(T("scan.dogColType")) + "</th><th>" + esc(T("scan.dogColToken")) + "</th><th>" + esc(T("scan.dogColWho")) + "</th><th>" + esc(T("scan.dogColAmount")) + "</th><th>" + esc(T("scan.colBlock")) + "</th><th>" + esc(T("scan.colTx")) + "</th></tr></thead><tbody>"
+      + items.map(function (a) {
+        return "<tr><td>" + esc(fmtTime(a.blockTime)) + "</td><td>" + esc(T(DOG_TYPE_KEY[a.type] || "scan.eventUnknown")) + "</td><td>" + dogTokenLink(a.tokenId) + "</td><td>" + dogWho(a) + "</td><td>" + esc(dogAmount(a)) + "</td><td>" + blockLink(a.blockNumber) + "</td><td>" + txLink(a.txHash) + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+  }
+  function renderDog() {
+    var el = $("scan-dog-body");
+    if (!el) return;
+    var d = state.dog, skel = '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
+    if (d.failed && !d.stats) { el.innerHTML = '<p class="note">' + esc(T("scan.dogNoIndex")) + "</p>"; return; }
+    var html = d.stats ? statCardsHtml(dogStatCards(d.stats)) : skel;
+    if (d.stats) html += '<p class="note">' + esc(fill("scan.dogStart", {t: "2026-11-28 10:47:48"})) + " · " + blockLink(136153154) + "</p>";
+    html += "<h3>" + esc(T("scan.dogActivity")) + "</h3>" + (d.activity ? dogActivityTable(d.activity) : skel);
+    html += "<h3>" + esc(T("scan.dogListings")) + "</h3>";
+    if (!d.listings) html += skel;
+    else if (!d.listings.length) html += '<p class="note">' + esc(T("scan.empty")) + "</p>";
+    else html += '<div class="lb-scroll"><table><thead><tr><th>' + esc(T("scan.dogColToken")) + "</th><th>" + esc(T("scan.colSeller")) + "</th><th>" + esc(T("scan.colPrice")) + "</th><th>" + esc(T("scan.colTime")) + "</th><th>" + esc(T("scan.colTx")) + "</th></tr></thead><tbody>"
+      + d.listings.map(function (l) {
+        return "<tr><td>" + dogTokenLink(l.tokenId) + "</td><td>" + aiAddrLink(l.seller) + "</td><td>" + esc(bnbText(l.priceWei)) + (l.stale ? ' <small class="muted">' + esc(T("scan.dogStale")) + "</small>" : "") + "</td><td>" + esc(fmtTime(l.listedAt)) + "</td><td>" + txLink(l.txHash) + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+    html += "<h3>" + esc(T("scan.dogTrades")) + "</h3>";
+    if (!d.trades) html += skel;
+    else if (!d.trades.length) html += '<p class="note">' + esc(T("scan.tradesEmpty")) + "</p>";
+    else html += '<div class="lb-scroll"><table><thead><tr><th>' + esc(T("scan.dogColToken")) + "</th><th>" + esc(T("scan.colSeller")) + "</th><th>" + esc(T("scan.colBuyer")) + "</th><th>" + esc(T("scan.colPrice")) + "</th><th>" + esc(T("scan.dogColFee")) + "</th><th>" + esc(T("scan.colTime")) + "</th><th>" + esc(T("scan.colTx")) + "</th></tr></thead><tbody>"
+      + d.trades.map(function (t) {
+        return "<tr><td>" + dogTokenLink(t.tokenId) + "</td><td>" + aiAddrLink(t.seller) + "</td><td>" + aiAddrLink(t.buyer) + "</td><td>" + esc(bnbText(t.priceWei)) + "</td><td>" + esc(bnbText(t.feeWei)) + "</td><td>" + esc(fmtTime(t.tradedAt)) + "</td><td>" + txLink(t.txHash) + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+    el.innerHTML = html;
+    resolveAiNames(el);
+  }
+  function loadDog() {
+    renderDog();
+    api("/v1/dog/stats").then(function (d) { state.dog.stats = d; renderDog(); renderOverview(); })
+      .catch(function () { state.dog.failed = true; renderDog(); });
+    api("/v1/dog/activity?limit=15").then(function (d) { state.dog.activity = d.items || []; renderDog(); }).catch(function () {});
+    api("/v1/dog/listings?limit=12").then(function (d) { state.dog.listings = d.items || []; renderDog(); }).catch(function () {});
+    api("/v1/dog/trades?limit=12").then(function (d) { state.dog.trades = d.items || []; renderDog(); }).catch(function () {});
+  }
+  function dogDetailHtml(t, acts) {
+    var html = "<h3>" + dogTokenLink(t.tokenId).replace(">#", ">Haha Dog #") + "</h3>";
+    if (!t.minted) return html + '<p class="note">' + esc(fill("scan.dogNotMinted", {id: t.tokenId})) + "</p>";
+    html += "<p>" + esc(T("scan.nameOwner")) + ": " + aiAddrLink(t.owner)
+      + "<br>" + esc(T("scan.dogStatus")) + ": " + esc(T("scan.dogS_" + t.status))
+      + "<br>" + esc(T("scan.dogRerolls")) + ": " + esc(String(t.rerolls))
+      + "<br>" + esc(T("scan.colBlock")) + ": " + blockLink(t.commitBlock) + " → " + blockLink(t.targetBlock)
+      + "<br>" + esc(T("scan.nameMintedAt")) + ": " + esc(fmtTime(t.mintedAt)) + " · " + txLink(t.mintTx)
+      + (t.seed ? "<br>seed: <code>" + esc(t.seed) + "</code>" : "") + "</p>";
+    html += "<h4>" + esc(T("scan.dogActivity")) + "</h4>" + dogActivityTable(acts || []);
+    return html;
   }
 
   /* ---------------- 第一季 ---------------- */
@@ -629,7 +736,7 @@
     if (!el) return;
     var html = "";
     if (!state.seasonFindings) {
-      html = '<p class="note">' + esc(T("scan.loading")) + "</p>";
+      html = '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
     } else if (!state.seasonFindings.length) {
       html = '<p class="note">' + esc(T("scan.empty")) + "</p>";
     } else {
@@ -717,6 +824,12 @@
     var days = [];
     for (var day = FIRST_DAY; day <= LAST_DAY; day++) days.push(day);
     days.forEach(function (day) {
+      /* 还没到的 UTC 日索引器会 404。直接标成尚未开始，避免一串失败请求。 */
+      if (day > todayDay()) {
+        state.seasonDays[day] = null;
+        updateDayCard(day);
+        return;
+      }
       api("/v1/season1/days/" + day).then(function (d) {
         state.seasonDays[day] = d;
         updateDayCard(day);
@@ -742,7 +855,11 @@
     ["marketplace", "scan.cMarket", "", "scan.cnMarket"],
     ["deployer", "scan.cDeployer", "scan.deployerNote", "scan.cnDeployer"],
     ["aiRegistry", "scan.cAiRegistry", "", "scan.cnAiRegistry"],
-    ["validation", "scan.cValidation", "scan.validationNote", "scan.cnValidation"]
+    ["validation", "scan.cValidation", "scan.validationNote", "scan.cnValidation"],
+    ["dog", "scan.cDog", "scan.dogNote", "scan.cnDog"],
+    ["dogMarket", "scan.cDogMarket", "scan.dogMarketNote", "scan.cnDogMarket"],
+    ["dogRenderer", "scan.cDogRenderer", "scan.dogRendererNote", "scan.cnDogRenderer"],
+    ["dogModel", "scan.cDogModel", "scan.dogModelNote", "scan.cnDogModel"]
   ];
   function renderContracts() {
     var el = $("scan-contracts-body");
@@ -764,7 +881,9 @@
     if (el) { el.innerHTML = html; resolveAiNames(el); }
   }
   function nameDetailHtml(n, gens) {
-    var html = "<h3>" + esc(n.fullName) + "</h3>";
+    var html = n.minted
+      ? '<h3><a href="/agent.html?name=' + encodeURIComponent(n.fullName) + '">' + esc(n.fullName) + "</a></h3>"
+      : "<h3>" + esc(n.fullName) + "</h3>";
     if (!n.minted) {
       html += '<p class="note">' + esc(T("scan.nameNotMinted")) + "</p>";
       return html;
@@ -797,8 +916,22 @@
     q = (q || "").trim();
     var box = $("scan-search-result");
     if (!q) { if (box) box.innerHTML = ""; return; }
-    if (box) box.innerHTML = '<p class="note">' + esc(T("scan.loading")) + "</p>";
+    if (box) box.innerHTML = '<p class="note skel">' + esc(T("scan.loading")) + "</p>";
     var low = q.toLowerCase();
+    // Haha Dog：dog 12 / dog#12 / haha dog 12
+    var dm = /^(?:haha\s*)?dog\s*#?\s*([0-9]{1,5})$/.exec(low);
+    if (dm) {
+      var did = parseInt(dm[1], 10);
+      if (did < 1 || did > DOG_CAP) { searchResult('<p class="note">' + esc(fill("scan.dogNotMinted", {id: did})) + "</p>"); return; }
+      Promise.all([
+        api("/v1/dog/tokens/" + did).catch(function () { return null; }),
+        api("/v1/dog/activity?limit=10&tokenId=" + did).catch(function () { return null; })
+      ]).then(function (res) {
+        if (!res[0]) { searchResult(errHtml()); return; }
+        searchResult(dogDetailHtml(res[0], res[1] && res[1].items));
+      });
+      return;
+    }
     // 名字 xxx.haha / xxx.meme
     if (/^[a-z0-9]{1,32}\.(haha|meme)$/.test(low)) {
       Promise.all([
@@ -814,9 +947,10 @@
     if (/^0x[0-9a-fA-F]{40}$/.test(q)) {
       Promise.all([
         api("/v1/owners/" + q + "/names").catch(function () { return null; }),
-        api("/v1/owners/" + q + "/primary").catch(function () { return null; })
+        api("/v1/owners/" + q + "/primary").catch(function () { return null; }),
+        api("/v1/dog/owners/" + q + "/tokens").catch(function () { return null; })
       ]).then(function (res) {
-        var names = res[0], prim = res[1];
+        var names = res[0], prim = res[1], dogs = res[2];
         var html = "<h3>" + aiAddrLink(q) + "</h3>";
         if (prim && prim.primaryName) html += "<p>" + esc(T("scan.ownerPrimary")) + ": " + nameTokenLink(null, prim.primaryName) + "</p>";
         if (!names || !names.items || !names.items.length) {
@@ -826,6 +960,9 @@
             + names.items.map(function (n) {
               return "<tr><td>" + nameTokenLink(n.tokenId, n.fullName) + "</td><td>" + esc(fmtTime(n.mintedAt)) + "</td><td>" + (n.listing ? esc(weiToBnb(n.listing.priceWei)) + " BNB" : "—") + "</td></tr>";
             }).join("") + "</tbody></table></div>";
+        }
+        if (dogs && dogs.items && dogs.items.length) {
+          html += "<h4>Haha Dog</h4><p>" + dogs.items.map(function (x) { return dogTokenLink(x.tokenId); }).join(" ") + "</p>";
         }
         searchResult(html);
       });
@@ -884,6 +1021,7 @@
     renderAgents();
     renderPoints();
     renderMarket();
+    renderDog();
     renderSeason();
     renderContracts();
   }
@@ -922,6 +1060,7 @@
     loadAgents();
     loadPoints(false);
     loadMarket();
+    loadDog();
     loadSeason();
     renderContracts();
   }

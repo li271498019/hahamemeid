@@ -1,0 +1,89 @@
+{
+  "kind": "season1-handoff",
+  "specCommit": "293f202",
+  "compiler": "0.8.28",
+  "viaIr": true,
+  "bytecodeBytes": 16920,
+  "split": false,
+  "abiPath": "tools/deploy-panel/public/season1/HahaSeason1.abi.json",
+  "events": [
+    {
+      "name": "AccidentCompensated",
+      "signature": "AccidentCompensated(uint256,bytes32,uint256)",
+      "topic0": "0x58aa975018372ca98fd8e52cb076076432998fe692810c2fb976b0513993eeb0"
+    },
+    {
+      "name": "AccidentCompensationDeferred",
+      "signature": "AccidentCompensationDeferred(uint256,bytes32)",
+      "topic0": "0xe10e7be46beb50edc43a5577038a97925084f83d43542cdb93c9038da0de5b6c"
+    },
+    {
+      "name": "AccidentDeclared",
+      "signature": "AccidentDeclared(uint256,bytes32,address,bytes32)",
+      "topic0": "0x5f02164934437d802bdc4b048430d64bc64e6865412b4cbee7398a227e04ec75"
+    },
+    {
+      "name": "AccidentRefunded",
+      "signature": "AccidentRefunded(uint256,bytes32,uint256)",
+      "topic0": "0x00eabd432846f9379cac53d5ce309245e076c58f3b1745deeae7e8cc7c8d3640"
+    },
+    {
+      "name": "CanonicalAssigned",
+      "signature": "CanonicalAssigned(bytes32,bytes32)",
+      "topic0": "0x3ecc575aabbedb6b7bbbb540729260c06f4ea474735c12b1a66d49aff7b67cfd"
+    },
+    {
+      "name": "DayRootSet",
+      "signature": "DayRootSet(uint64,bytes32,uint64,bytes32,uint16,uint16)",
+      "topic0": "0xdd9105e4f6f0edc71d0ea2eddf8b7a6911038bb4eaf13f4e78b705b12dea0932"
+    },
+    {
+      "name": "FindingCommitted",
+      "signature": "FindingCommitted(bytes32,bytes32,address,bytes32)",
+      "topic0": "0x0347cd96e620e666ed739604aeaf69d909f401bbb7d531868ad12e52cc601b93"
+    },
+    {
+      "name": "FindingPaid",
+      "signature": "FindingPaid(bytes32,bytes32,bytes32,address,uint256)",
+      "topic0": "0x9e069c1c99a1c7463730125db41187a82e5c54f3648bad1ee1d7eac2fbf408c7"
+    },
+    {
+      "name": "FulfillmentAttested",
+      "signature": "FulfillmentAttested(uint256,uint256,address,bytes32)",
+      "topic0": "0x7121144536d8fbab6d2fae46af8490e641cefc2aa24ef9ce9dbae1d26dda886c"
+    },
+    {
+      "name": "Redeemed",
+      "signature": "Redeemed(uint256,bytes32,address,address,uint8,string,uint64,uint8,uint256,bytes32)",
+      "topic0": "0x36e79c89c77883df6810ab00d4c703bc1815570f36af81b7a43a080089744520"
+    },
+    {
+      "name": "RewardSignerSet",
+      "signature": "RewardSignerSet(address)",
+      "topic0": "0x073ffd8bf24fd95cb2eb5bab8db507b06961fbc31ed400a0f3c8fff8fb9045ba"
+    },
+    {
+      "name": "TaskPackSet",
+      "signature": "TaskPackSet(uint64,bytes32)",
+      "topic0": "0xcd4851a7eeb1c0f0f0eba3a156a3ffc34ce968645c330a4cf4706357276a0c90"
+    },
+    {
+      "name": "ValidatorSet",
+      "signature": "ValidatorSet(address,bool)",
+      "topic0": "0x6b3b7d0d26ec99d080840dca1323c7147d1868adc66a4290afb8101d7908320d"
+    },
+    {
+      "name": "Verified",
+      "signature": "Verified(bytes32,uint64,uint256,uint64,uint8,bytes32,uint256)",
+      "topic0": "0x623ea0f65441f3b4688a273dd49df4fa3b796a712423f3e3feaeead3c8db3088"
+    }
+  ],
+  "anvil": {
+    "chainId": 31337,
+    "module": null
+  },
+  "mainnet": {
+    "chainId": 56,
+    "module": null
+  }
+}

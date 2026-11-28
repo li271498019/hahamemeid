@@ -1,0 +1,39 @@
+haha.meme 违规词清单（合规黑名单 v2）
+日期：2026-11-20
+版本：v2（已通过）
+词数：208
+本文件是链上黑名单的词表源。哈希派生物见 blacklist-v2.hashes.txt。
+
+规则
+1. 归一化（网站与链下过滤使用；链上不另做归一化，只接受已经是 a-z0-9 的 label）：转小写，删掉空格、-、_、.、/，只留 a-z0-9。
+   例：xi jinping、xi-jinping、xi.jinping 都变成 xijinping。
+2. 加盐哈希：keccak256(abi.encodePacked("HAHA_V2", label))。字符串直接拼接，没有分隔符，也不是 abi.encode。
+3. 链上只做精确匹配。组合词（如 binanceofficial）和 leet（如 b1nance）只在网站拦截。
+4. 名单在部署时写入 HahaNamePolicy，之后没有人能增删，包括管理员。
+5. 单字姓氏的拼音不单独特意拉黑：mao、deng、jiang、hu、xi、li、wang。其中 xi、li、hu 只有 2 个字符，会被保留名规则挡住；mao、deng、jiang、wang 不在本名单，公众可以注册。
+
+B1. 党政军 / 机构 / 敏感历史 / 分裂相关（90 个）
+ccp, cpc, communist, communistparty, zhongguogongchandang, pla, gov, government, state, army, military, police, officer, general, marshal, chairman, premier, minister, governor, mayor, secretary, dang, gongchandang, zhonggong, dangzhongyang, zhongyang, zhengfu, guowuyuan, renda, zhengxie, jiwei, jianwei, jiefangjun, renminjiefangjun, wujing, gongan, guoan, jingcha, junguan, shangjiang, zhongjiang, shaojiang, jiangjun, yuanshuai, zhuxi, zongshuji, zongli, buzhang, shengzhang, shizhang, shuji, weiyuan, lianghui, rendadaibiao, zhengxieweiyuan, junwei, zhengzhiju, changwei, buwei, bangongting, jiguan, zhanqu, junqu, zhongxuanbu, zhongzubu, zhengfawei, fagaiwei, waijiaobu, guofangbu, gonganbu, guoanbu, tiananmen, liusi, 8964, wenge, wenhuadageming, falungong, lunzi, xiejiao, quannengshen, zangdu, jiangdu, taidu, gangdu, dongtu, dongyiyun, xizangduli, xinjiangduli, taiwanduli, xianggangduli
+
+B2. 国家领导人（现任与历届）（42 个）
+xijinping, xjp, liqiang, likeqiang, zhaoleji, wanghuning, caiqi, dingxuexiang, lixi, hanzheng, wangyi, maozedong, chairmanmao, zhouenlai, dengxiaoping, jiangzemin, hujintao, zhude, liushaoqi, huaguofeng, wenjiabao, zhurongji, lipeng, qiaoshi, liruhuan, putin, biden, trump, harris, kimjongun, zelensky, modi, macron, sunak, starmer, kishida, ishiba, yoon, leejaemyung, scholz, meloni, erdogan
+
+B3. 仇恨言论（44 个）
+nigger, nigga, chink, chinky, gook, spic, kike, wetback, beaner, coon, darkie, paki, raghead, towelhead, nazi, hitler, gestapo, swastika, fascist, heil, kkk, kukluxklan, whitepower, whitepride, neonazi, antisemite, islamophobe, faggot, fag, dyke, tranny, genocide, ethniccleansing, gaschamber, heigui, zhina, zhinazhu, xiaoriben, ribenguizi, bangzi, asan, baipizhu, nige, dongyabingfu
+
+B4. 儿童色情（最高优先级）（9 个）
+childporn, childlover, lolicon, shotacon, ageplay, preteen, loli, lolis, underage
+
+B5. 恐怖主义 / 极端组织（16 个）
+isis, isil, daesh, alqaeda, taliban, bokoharam, hamas, hezbollah, alshabaab, terror, terrorist, terrorism, jihad, extremism, extremist, radicalization
+
+B6. 其他违法（7 个）
+scam, scammer, fraud, phishing, phish, ponzi, moneylaundering
+
+附：全部 208 个（字母序）
+8964, ageplay, alqaeda, alshabaab, antisemite, army, asan, baipizhu, bangongting, bangzi, beaner, biden, bokoharam, buwei, buzhang, caiqi, ccp, chairman, chairmanmao, changwei, childlover, childporn, chink, chinky, communist, communistparty, coon, cpc, daesh, dang, dangzhongyang, darkie, dengxiaoping, dingxuexiang, dongtu, dongyabingfu, dongyiyun, dyke, erdogan, ethniccleansing, extremism, extremist, fag, fagaiwei, faggot, falungong, fascist, fraud, gangdu, gaschamber, general, genocide, gestapo, gongan, gonganbu, gongchandang, gook, gov, government, governor, guoan, guoanbu, guofangbu, guowuyuan, hamas, hanzheng, harris, heigui, heil, hezbollah, hitler, huaguofeng, hujintao, ishiba, isil, isis, islamophobe, jiangdu, jiangjun, jiangzemin, jianwei, jiefangjun, jiguan, jihad, jingcha, jiwei, junguan, junqu, junwei, kike, kimjongun, kishida, kkk, kukluxklan, leejaemyung, lianghui, likeqiang, lipeng, liqiang, liruhuan, liushaoqi, liusi, lixi, loli, lolicon, lolis, lunzi, macron, maozedong, marshal, mayor, meloni, military, minister, modi, moneylaundering, nazi, neonazi, nige, nigga, nigger, officer, paki, phish, phishing, pla, police, ponzi, premier, preteen, putin, qiaoshi, quannengshen, radicalization, raghead, renda, rendadaibiao, renminjiefangjun, ribenguizi, scam, scammer, scholz, secretary, shangjiang, shaojiang, shengzhang, shizhang, shotacon, shuji, spic, starmer, state, sunak, swastika, taidu, taiwanduli, taliban, terror, terrorism, terrorist, tiananmen, towelhead, tranny, trump, underage, waijiaobu, wanghuning, wangyi, weiyuan, wenge, wenhuadageming, wenjiabao, wetback, whitepower, whitepride, wujing, xianggangduli, xiaoriben, xiejiao, xijinping, xinjiangduli, xizangduli, xjp, yoon, yuanshuai, zangdu, zelensky, zhanqu, zhaoleji, zhengfawei, zhengfu, zhengxie, zhengxieweiyuan, zhengzhiju, zhina, zhinazhu, zhonggong, zhongguogongchandang, zhongjiang, zhongxuanbu, zhongyang, zhongzubu, zhouenlai, zhude, zhurongji, zhuxi, zongli, zongshuji
+
+不在本名单，不代表可以注册
+- 1 到 2 个字符的名字，以及 reserved-names.md 里的 61 个保留名，公众不能注册，只能管理员铸造。
+- 除黑名单和保留名以外的名字都可以免费铸造，包括 btc、bitcoin、eth、sol、usdt、usdc、bnb、lido、crypto、satoshi、wallet、exchange。
+- trump 在本名单中，不能注册。

@@ -1,10 +1,20 @@
-# Foundry build outputs
-out/
-cache/
-broadcast/
+# Foundry build outputs (repo root only; model training outputs live in haha-ai/out)
+/out/
+/cache/
+/broadcast/
 
 # Foundry dependencies (install with `forge install`)
+# Pinned: openzeppelin-contracts v5.1.0, forge-std v1.9.4
 lib/
+
+# Secrets. Real values live only in server env files.
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
 
 # IDE
 .vscode/

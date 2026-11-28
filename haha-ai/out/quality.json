@@ -1,0 +1,8 @@
+{
+ "samples": 400,
+ "latent_scale": 1.0,
+ "min_hamming_to_train_mean": 6.95,
+ "min_hamming_median": 6,
+ "frac_near_copy_le3": 0.24,
+ "unique_shapes": 397
+}

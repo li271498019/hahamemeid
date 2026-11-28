@@ -1,0 +1,133 @@
+{
+ "args": {
+  "data": "data",
+  "out": "out_m48",
+  "hidden": "48",
+  "vae_epochs": 1500,
+  "ot_rounds": 200,
+  "ot_epochs": 10,
+  "beta": 1.0,
+  "vae_weight": 0.3,
+  "seed": 0
+ },
+ "params": 11430,
+ "n_var": 99,
+ "log": [
+  {
+   "phase": "vae",
+   "epoch": 0,
+   "rec": 389.6,
+   "kl": 16.13,
+   "sec": 1
+  },
+  {
+   "phase": "vae",
+   "epoch": 500,
+   "rec": 17.74,
+   "kl": 16.4,
+   "sec": 28
+  },
+  {
+   "phase": "vae",
+   "epoch": 1000,
+   "rec": 11.92,
+   "kl": 16.31,
+   "sec": 55
+  },
+  {
+   "phase": "vae",
+   "epoch": 1499,
+   "rec": 10.87,
+   "kl": 16.12,
+   "sec": 83
+  },
+  {
+   "phase": "ot",
+   "round": 0,
+   "matched_cell_acc": 0.8873,
+   "matched_exact": 0.002,
+   "qat": false,
+   "sec": 84
+  },
+  {
+   "phase": "ot",
+   "round": 20,
+   "matched_cell_acc": 0.9006,
+   "matched_exact": 0.002,
+   "qat": false,
+   "sec": 100
+  },
+  {
+   "phase": "ot",
+   "round": 40,
+   "matched_cell_acc": 0.9054,
+   "matched_exact": 0.003,
+   "qat": false,
+   "sec": 116
+  },
+  {
+   "phase": "ot",
+   "round": 60,
+   "matched_cell_acc": 0.9097,
+   "matched_exact": 0.002,
+   "qat": false,
+   "sec": 131
+  },
+  {
+   "phase": "ot",
+   "round": 80,
+   "matched_cell_acc": 0.9099,
+   "matched_exact": 0.006,
+   "qat": false,
+   "sec": 148
+  },
+  {
+   "phase": "ot",
+   "round": 100,
+   "matched_cell_acc": 0.9116,
+   "matched_exact": 0.005,
+   "qat": false,
+   "sec": 163
+  },
+  {
+   "phase": "ot",
+   "round": 120,
+   "matched_cell_acc": 0.9129,
+   "matched_exact": 0.006,
+   "qat": false,
+   "sec": 179
+  },
+  {
+   "phase": "ot",
+   "round": 140,
+   "matched_cell_acc": 0.912,
+   "matched_exact": 0.004,
+   "qat": true,
+   "sec": 195
+  },
+  {
+   "phase": "ot",
+   "round": 160,
+   "matched_cell_acc": 0.9128,
+   "matched_exact": 0.005,
+   "qat": true,
+   "sec": 211
+  },
+  {
+   "phase": "ot",
+   "round": 180,
+   "matched_cell_acc": 0.9117,
+   "matched_exact": 0.001,
+   "qat": true,
+   "sec": 228
+  },
+  {
+   "phase": "ot",
+   "round": 199,
+   "matched_cell_acc": 0.913,
+   "matched_exact": 0.008,
+   "qat": true,
+   "sec": 243
+  }
+ ]
+}

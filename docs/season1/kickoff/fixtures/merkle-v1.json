@@ -1,0 +1,395 @@
+{
+  "algorithm": "haha-season1-merkle-v1",
+  "description": "Production tree. Leaf is keccak256(keccak256(abi.encode(aiId,balance,uint8 tier))). Pairs are sorted as raw bytes then keccak256(abi.encodePacked). An odd node is carried up unchanged and is not hashed with itself. Entries in each case are sorted by aiId bytes. This is not the odd-node-self-pair helper in D's tests.",
+  "cases": [
+    {
+      "count": 1,
+      "root": "0x1de1fef56350455c6f48356a12aa86d66ae67ce6be00cb4a62a0db64043f7881",
+      "entries": [
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "balance": "1000",
+          "tier": 0,
+          "leaf": "0x1de1fef56350455c6f48356a12aa86d66ae67ce6be00cb4a62a0db64043f7881",
+          "proof": []
+        }
+      ]
+    },
+    {
+      "count": 2,
+      "root": "0x68cdba65f45692225a7e6ff1982faedd4c3ab207361e24dd704faae1c451041f",
+      "entries": [
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "balance": "1000",
+          "tier": 0,
+          "leaf": "0x1de1fef56350455c6f48356a12aa86d66ae67ce6be00cb4a62a0db64043f7881",
+          "proof": [
+            "0x5f534703d592a7368e582265cf25e86495dd80555261319bb9ada5540aee0a33"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0x5f534703d592a7368e582265cf25e86495dd80555261319bb9ada5540aee0a33",
+          "proof": [
+            "0x1de1fef56350455c6f48356a12aa86d66ae67ce6be00cb4a62a0db64043f7881"
+          ]
+        }
+      ]
+    },
+    {
+      "count": 3,
+      "root": "0xace5aeef4c07deed5fa8c765e93793b69e5af253a5981f17bd2e139573b77057",
+      "entries": [
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "balance": "501",
+          "tier": 0,
+          "leaf": "0x40cd85bff3a59b3cd77276e3172491c401f6320973b4bc8b11af6def4f7f342c",
+          "proof": [
+            "0x9c40e0f2d22a41bc5c6607435acbb39458f24990511b95b9ae1253f0815876b6",
+            "0xdf0ad868a31f1dab71e60bbca6b5c72ef001e8db9c80037be9c9e3024c82d95f"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "balance": "502",
+          "tier": 1,
+          "leaf": "0x9c40e0f2d22a41bc5c6607435acbb39458f24990511b95b9ae1253f0815876b6",
+          "proof": [
+            "0x40cd85bff3a59b3cd77276e3172491c401f6320973b4bc8b11af6def4f7f342c",
+            "0xdf0ad868a31f1dab71e60bbca6b5c72ef001e8db9c80037be9c9e3024c82d95f"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "balance": "503",
+          "tier": 1,
+          "leaf": "0xdf0ad868a31f1dab71e60bbca6b5c72ef001e8db9c80037be9c9e3024c82d95f",
+          "proof": [
+            "0xc989af00a25a1b57d8cae5cdd7f3f1d25a7acb34530e5fd52415b87d60437cdb"
+          ]
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "root": "0x1a622ce55fdd0fa6c41dccf9fdcda6fda3798b466aeb6134a9d7bd8bfe13a4ba",
+      "entries": [
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "balance": "800",
+          "tier": 0,
+          "leaf": "0x66641d8a1ee62a5e613540d5a7bf8870c9bbc6f44583649d8f27b5bf6bef38f0",
+          "proof": [
+            "0x8bc1b88cc52f807d524aa874332acfafce2ae4e6f513996885d5360e1d2b1571",
+            "0x9597d8d3967c0428ccf6beddc82ab7605431d001bd32a388389fbf5f229edfd8",
+            "0x6249e3e622b4c0f476728a24a8dd730a0eedfefd8e9f55fba85d7103a18a3ad6"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "balance": "800",
+          "tier": 0,
+          "leaf": "0x8bc1b88cc52f807d524aa874332acfafce2ae4e6f513996885d5360e1d2b1571",
+          "proof": [
+            "0x66641d8a1ee62a5e613540d5a7bf8870c9bbc6f44583649d8f27b5bf6bef38f0",
+            "0x9597d8d3967c0428ccf6beddc82ab7605431d001bd32a388389fbf5f229edfd8",
+            "0x6249e3e622b4c0f476728a24a8dd730a0eedfefd8e9f55fba85d7103a18a3ad6"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0xaf4b472d47cd77f4e5ae7d406ac0469638ebe9ccad879a20c6aeebbe86148cff",
+          "proof": [
+            "0x7a297bc477a99247620d8e30927f4816db85f65edbc4eb9a320ce9d286add6b4",
+            "0xae64d1d890875d999c48b3a304ade794589179bfbb9db5f2b19893a902810529",
+            "0x6249e3e622b4c0f476728a24a8dd730a0eedfefd8e9f55fba85d7103a18a3ad6"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0x7a297bc477a99247620d8e30927f4816db85f65edbc4eb9a320ce9d286add6b4",
+          "proof": [
+            "0xaf4b472d47cd77f4e5ae7d406ac0469638ebe9ccad879a20c6aeebbe86148cff",
+            "0xae64d1d890875d999c48b3a304ade794589179bfbb9db5f2b19893a902810529",
+            "0x6249e3e622b4c0f476728a24a8dd730a0eedfefd8e9f55fba85d7103a18a3ad6"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0x6249e3e622b4c0f476728a24a8dd730a0eedfefd8e9f55fba85d7103a18a3ad6",
+          "proof": [
+            "0xaf7688fbab0ece84192c5b0b2ae539df8e4f57d5fbf07a173f5812c287c3b2b7"
+          ]
+        }
+      ]
+    },
+    {
+      "count": 20,
+      "root": "0xbff1068ef69fd1896a19e5b29949e8dd58da7a96d5460ad5d14c1282c458714e",
+      "entries": [
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "balance": "999",
+          "tier": 0,
+          "leaf": "0x23a47e26ba690508016519a706d11eec2ff929d3d0cc6ddf271db057f502d901",
+          "proof": [
+            "0x059e7aa488158161aaebc8b7b768671b8b00256e5faa4ef995d6b52b5b6b914e",
+            "0xc9a1d48efbb824da100ce64f87152322c9c65302056d972148d2ffa2ee651702",
+            "0xb039350f64a13fc11177b0d1c921ea2431b7b8b70ab3583452da4bd059fdec8e",
+            "0x59f1d25552d9d65a8a66f9330bb4a8982a2f9467f7ae6b7b868a2b723784b7cd",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "balance": "998",
+          "tier": 0,
+          "leaf": "0x059e7aa488158161aaebc8b7b768671b8b00256e5faa4ef995d6b52b5b6b914e",
+          "proof": [
+            "0x23a47e26ba690508016519a706d11eec2ff929d3d0cc6ddf271db057f502d901",
+            "0xc9a1d48efbb824da100ce64f87152322c9c65302056d972148d2ffa2ee651702",
+            "0xb039350f64a13fc11177b0d1c921ea2431b7b8b70ab3583452da4bd059fdec8e",
+            "0x59f1d25552d9d65a8a66f9330bb4a8982a2f9467f7ae6b7b868a2b723784b7cd",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000003",
+          "balance": "997",
+          "tier": 0,
+          "leaf": "0xa74475e2e47f3b20a5cb62e190d881e1b593fd1b4a6c6aec4d9fd173874498f2",
+          "proof": [
+            "0xfae599b66ec61c90a13d675f850c0391510a7da5ed2cd65a240752cece81ab44",
+            "0x6ab690d47b1c243979fd2db0f951f31effb97304e4be742b1f0e3fd23bb6c5ac",
+            "0xb039350f64a13fc11177b0d1c921ea2431b7b8b70ab3583452da4bd059fdec8e",
+            "0x59f1d25552d9d65a8a66f9330bb4a8982a2f9467f7ae6b7b868a2b723784b7cd",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000004",
+          "balance": "996",
+          "tier": 0,
+          "leaf": "0xfae599b66ec61c90a13d675f850c0391510a7da5ed2cd65a240752cece81ab44",
+          "proof": [
+            "0xa74475e2e47f3b20a5cb62e190d881e1b593fd1b4a6c6aec4d9fd173874498f2",
+            "0x6ab690d47b1c243979fd2db0f951f31effb97304e4be742b1f0e3fd23bb6c5ac",
+            "0xb039350f64a13fc11177b0d1c921ea2431b7b8b70ab3583452da4bd059fdec8e",
+            "0x59f1d25552d9d65a8a66f9330bb4a8982a2f9467f7ae6b7b868a2b723784b7cd",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000005",
+          "balance": "995",
+          "tier": 0,
+          "leaf": "0x977a4bcf746d72f2611ced43e12a80dab72b399b0c7cc50220b0c1254d73bea6",
+          "proof": [
+            "0x1d817649af0bdfb3f48614f3adc91c4a6fda1bfd247d9d4686329340b2f76e0f",
+            "0xd8793030fa92a79295e2f683277515fab26dbb39910e4e0579a656cab374cac6",
+            "0x0ece759373ac6557744b0b8005302c0a6a6f70ab2979567023f6b8939b226791",
+            "0x59f1d25552d9d65a8a66f9330bb4a8982a2f9467f7ae6b7b868a2b723784b7cd",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000006",
+          "balance": "994",
+          "tier": 0,
+          "leaf": "0x1d817649af0bdfb3f48614f3adc91c4a6fda1bfd247d9d4686329340b2f76e0f",
+          "proof": [
+            "0x977a4bcf746d72f2611ced43e12a80dab72b399b0c7cc50220b0c1254d73bea6",
+            "0xd8793030fa92a79295e2f683277515fab26dbb39910e4e0579a656cab374cac6",
+            "0x0ece759373ac6557744b0b8005302c0a6a6f70ab2979567023f6b8939b226791",
+            "0x59f1d25552d9d65a8a66f9330bb4a8982a2f9467f7ae6b7b868a2b723784b7cd",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000007",
+          "balance": "993",
+          "tier": 0,
+          "leaf": "0x56e8a1762fd870cf0e41a24f4b05b58611af20f2aa7bf880e347274b9b665c80",
+          "proof": [
+            "0xee47b6ffa147ae53b735a67cbcc4ad1f52b0f2d079391e6aeb9e2a4decc88036",
+            "0xd268ad461f2d800fbb7be898a2c940f3d7f633ea15774df20cd565d56a69065e",
+            "0x0ece759373ac6557744b0b8005302c0a6a6f70ab2979567023f6b8939b226791",
+            "0x59f1d25552d9d65a8a66f9330bb4a8982a2f9467f7ae6b7b868a2b723784b7cd",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000008",
+          "balance": "992",
+          "tier": 0,
+          "leaf": "0xee47b6ffa147ae53b735a67cbcc4ad1f52b0f2d079391e6aeb9e2a4decc88036",
+          "proof": [
+            "0x56e8a1762fd870cf0e41a24f4b05b58611af20f2aa7bf880e347274b9b665c80",
+            "0xd268ad461f2d800fbb7be898a2c940f3d7f633ea15774df20cd565d56a69065e",
+            "0x0ece759373ac6557744b0b8005302c0a6a6f70ab2979567023f6b8939b226791",
+            "0x59f1d25552d9d65a8a66f9330bb4a8982a2f9467f7ae6b7b868a2b723784b7cd",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000009",
+          "balance": "991",
+          "tier": 0,
+          "leaf": "0x4c01fb535ccc0c640604c33042e7ebf1677f6a3110a3a110ce4bf05dd36c7a17",
+          "proof": [
+            "0xc880c765451871ff5f20bc97b77766287b7f1973e111279e57891a2556c5549e",
+            "0xb45f54ce95973edd3b1a69983c250d804b7f771abdc946d841c98de9a991bd28",
+            "0x7663517c9e42d8f847116a66f9689b1db73b83645726597634837b07e919dc6b",
+            "0x585315a91567df1cf2c0b43570f4672a7b42e50c142eaa4fe8344dd7bdf89d3a",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x000000000000000000000000000000000000000000000000000000000000000a",
+          "balance": "990",
+          "tier": 0,
+          "leaf": "0xc880c765451871ff5f20bc97b77766287b7f1973e111279e57891a2556c5549e",
+          "proof": [
+            "0x4c01fb535ccc0c640604c33042e7ebf1677f6a3110a3a110ce4bf05dd36c7a17",
+            "0xb45f54ce95973edd3b1a69983c250d804b7f771abdc946d841c98de9a991bd28",
+            "0x7663517c9e42d8f847116a66f9689b1db73b83645726597634837b07e919dc6b",
+            "0x585315a91567df1cf2c0b43570f4672a7b42e50c142eaa4fe8344dd7bdf89d3a",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x000000000000000000000000000000000000000000000000000000000000000b",
+          "balance": "989",
+          "tier": 0,
+          "leaf": "0x4d1ae428fc55faacf85a7a12f96e04402b3a7c1c91dee230cefe149f67047424",
+          "proof": [
+            "0x4d139c2472c6df3516df99e2548407882b3f7e34ad51ab4ed41d27af7e80596d",
+            "0x6fe5829296d7cc1748551c2dc696e533c736f3272e33826761d85aab4b34462f",
+            "0x7663517c9e42d8f847116a66f9689b1db73b83645726597634837b07e919dc6b",
+            "0x585315a91567df1cf2c0b43570f4672a7b42e50c142eaa4fe8344dd7bdf89d3a",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x000000000000000000000000000000000000000000000000000000000000000c",
+          "balance": "988",
+          "tier": 0,
+          "leaf": "0x4d139c2472c6df3516df99e2548407882b3f7e34ad51ab4ed41d27af7e80596d",
+          "proof": [
+            "0x4d1ae428fc55faacf85a7a12f96e04402b3a7c1c91dee230cefe149f67047424",
+            "0x6fe5829296d7cc1748551c2dc696e533c736f3272e33826761d85aab4b34462f",
+            "0x7663517c9e42d8f847116a66f9689b1db73b83645726597634837b07e919dc6b",
+            "0x585315a91567df1cf2c0b43570f4672a7b42e50c142eaa4fe8344dd7bdf89d3a",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x000000000000000000000000000000000000000000000000000000000000000d",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0xda344df7c76bc3119c195affb99b2e8a8b475d988b573c198881aa0d9fe040eb",
+          "proof": [
+            "0xad108b31315ef006d6d6da2df404c6aeb2338d0a7466b6ddd85d437e59fd928b",
+            "0xeb9d143550413af5fbccf2815391d8d2b8e03c36049a5048f69b44fa3ea501ef",
+            "0x0a5915c93a38a4417df872b02733d380f7f3d7dba9f1a52dc58906befea377e3",
+            "0x585315a91567df1cf2c0b43570f4672a7b42e50c142eaa4fe8344dd7bdf89d3a",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x000000000000000000000000000000000000000000000000000000000000000e",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0xad108b31315ef006d6d6da2df404c6aeb2338d0a7466b6ddd85d437e59fd928b",
+          "proof": [
+            "0xda344df7c76bc3119c195affb99b2e8a8b475d988b573c198881aa0d9fe040eb",
+            "0xeb9d143550413af5fbccf2815391d8d2b8e03c36049a5048f69b44fa3ea501ef",
+            "0x0a5915c93a38a4417df872b02733d380f7f3d7dba9f1a52dc58906befea377e3",
+            "0x585315a91567df1cf2c0b43570f4672a7b42e50c142eaa4fe8344dd7bdf89d3a",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x000000000000000000000000000000000000000000000000000000000000000f",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0x191db443f7423a4280eb38f3162fa34c2b2190c231e86cc38efc514da37260e1",
+          "proof": [
+            "0x39cedce1616b775c2304176f96343acfe14e7d14c7db1e45abd07b4fcaf35923",
+            "0x93cfe30443bfcc784f6116f4c2c870974236d227069cc0f280ea8902738e40d3",
+            "0x0a5915c93a38a4417df872b02733d380f7f3d7dba9f1a52dc58906befea377e3",
+            "0x585315a91567df1cf2c0b43570f4672a7b42e50c142eaa4fe8344dd7bdf89d3a",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000010",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0x39cedce1616b775c2304176f96343acfe14e7d14c7db1e45abd07b4fcaf35923",
+          "proof": [
+            "0x191db443f7423a4280eb38f3162fa34c2b2190c231e86cc38efc514da37260e1",
+            "0x93cfe30443bfcc784f6116f4c2c870974236d227069cc0f280ea8902738e40d3",
+            "0x0a5915c93a38a4417df872b02733d380f7f3d7dba9f1a52dc58906befea377e3",
+            "0x585315a91567df1cf2c0b43570f4672a7b42e50c142eaa4fe8344dd7bdf89d3a",
+            "0x58c6b2f41acdfa001861a9ce0a3288ea678ffde70090afc4805835f5a08df973"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000011",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0x99b6691bd630789e928482594b3b1d6816594a13219aa39f4a9c81ec590c02af",
+          "proof": [
+            "0x049389919ab7357fe13e449e40f1ba2e404588cc9a3f8b748c2eb5bfd08857c3",
+            "0x4233d97071d0746ef280e216839b9a9b36c36fd3896221d626623340cc231574",
+            "0x7a385eb80b79a9895f2062243ccc4d11cd36e7d1bee3b09f5cfb4ea19e6ef877"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000012",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0x049389919ab7357fe13e449e40f1ba2e404588cc9a3f8b748c2eb5bfd08857c3",
+          "proof": [
+            "0x99b6691bd630789e928482594b3b1d6816594a13219aa39f4a9c81ec590c02af",
+            "0x4233d97071d0746ef280e216839b9a9b36c36fd3896221d626623340cc231574",
+            "0x7a385eb80b79a9895f2062243ccc4d11cd36e7d1bee3b09f5cfb4ea19e6ef877"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000013",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0x71e38daf604e4b6cc10c0c424e94a1115cf6494ef33bff06f083a02621a3bd83",
+          "proof": [
+            "0x1712c115389a09aab6bea8d6368b705f5c612f3878f78cae9513ef0b80729a93",
+            "0xda86f7140d6817cc4042e917d3f2b58ed18753990635121600f4c2d7124ae644",
+            "0x7a385eb80b79a9895f2062243ccc4d11cd36e7d1bee3b09f5cfb4ea19e6ef877"
+          ]
+        },
+        {
+          "aiId": "0x0000000000000000000000000000000000000000000000000000000000000014",
+          "balance": "200",
+          "tier": 1,
+          "leaf": "0x1712c115389a09aab6bea8d6368b705f5c612f3878f78cae9513ef0b80729a93",
+          "proof": [
+            "0x71e38daf604e4b6cc10c0c424e94a1115cf6494ef33bff06f083a02621a3bd83",
+            "0xda86f7140d6817cc4042e917d3f2b58ed18753990635121600f4c2d7124ae644",
+            "0x7a385eb80b79a9895f2062243ccc4d11cd36e7d1bee3b09f5cfb4ea19e6ef877"
+          ]
+        }
+      ]
+    }
+  ]
+}

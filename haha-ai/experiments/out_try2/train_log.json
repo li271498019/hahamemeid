@@ -1,0 +1,47 @@
+{
+ "args": {
+  "data": "data/dataset.npz",
+  "out": "out_try2",
+  "hidden": 32,
+  "epochs": 1500,
+  "beta": 1.0,
+  "lr": 0.003,
+  "seed": 0,
+  "snap_weight": 1.0,
+  "snap_start": 0.4
+ },
+ "log": [
+  {
+   "epoch": 0,
+   "rec": 865.135,
+   "kl": 31.14,
+   "cell_acc": 0.1544,
+   "exact_dogs": 0.0,
+   "sec": 0
+  },
+  {
+   "epoch": 500,
+   "rec": 21.88,
+   "kl": 16.37,
+   "cell_acc": 0.9623,
+   "exact_dogs": 0.041,
+   "sec": 13
+  },
+  {
+   "epoch": 1000,
+   "rec": 23.725,
+   "kl": 22.73,
+   "cell_acc": 0.959,
+   "exact_dogs": 0.046,
+   "sec": 76
+  },
+  {
+   "epoch": 1499,
+   "rec": 20.81,
+   "kl": 22.67,
+   "cell_acc": 0.9632,
+   "exact_dogs": 0.057,
+   "sec": 149
+  }
+ ]
+}

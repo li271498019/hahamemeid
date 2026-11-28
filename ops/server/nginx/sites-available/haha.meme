@@ -1,0 +1,196 @@
+server {
+  server_name haha.meme www.haha.meme;
+  root /var/www/haha.meme;
+  index index.html;
+
+  # H5 (2026-11-24, C): Cloudflare-only is enforced at UFW level, NOT here.
+  # nginx allow/deny does NOT work on this box: realip runs before the
+  # access module, so allow/deny sees the real client IP (CF-Connecting-IP),
+  # never a CF edge IP -- adding it 403s all CF traffic (proven twice,
+  # 2026-11-24 ~10:54 and ~10:57 UTC). UFW 443 rules are CF ranges only
+  # (generated from cloudflare-realip.conf); see final report for the list.
+  # Do NOT re-add allow/deny here.
+
+  # H7 + L13 (2026-11-24, C): slow-attack timeouts, explicit body cap.
+  client_max_body_size 256k;
+  client_body_timeout 10s;
+  client_header_timeout 10s;
+  keepalive_timeout 15s;
+  send_timeout 10s;
+
+  # M7 + H10 (2026-11-24, C): security headers (see
+  # /etc/nginx/snippets/security-headers-haha.conf for CSP notes).
+  include /etc/nginx/snippets/security-headers-haha.conf;
+
+  location = /skill.md {
+    types { }
+    default_type text/markdown;
+    charset utf-8;
+    charset_types text/markdown;
+    add_header Cache-Control "no-store, no-cache, must-revalidate" always;
+    include /etc/nginx/snippets/security-headers-haha.conf;
+  }
+  location = /site.webmanifest { types { } default_type application/manifest+json; add_header Cache-Control "public, max-age=86400" always; }
+  location = /tasks { return 301 /earn; }
+  location = /tasks.html { return 301 /earn; }
+  location = /games { return 301 /earn; }
+  location = /games.html { return 301 /earn; }
+
+  # H1 (2026-11-24, C): instruction JS must not sit in browser cache 7 days.
+  # Exact locations beat the static regex below. Known residue: browsers
+  # that already cached the old JS keep it until expiry (up to 7 days).
+  location = /js/instructions.js {
+    add_header Cache-Control "no-cache" always;
+    include /etc/nginx/snippets/security-headers-haha.conf;
+    limit_req zone=static burst=60 nodelay;
+    limit_req_status 429;
+    limit_req_log_level warn;
+    limit_conn conn 50;
+    try_files $uri =404;
+  }
+  location = /js/i18n.js {
+    add_header Cache-Control "no-cache" always;
+    include /etc/nginx/snippets/security-headers-haha.conf;
+    limit_req zone=static burst=60 nodelay;
+    limit_req_status 429;
+    limit_req_log_level warn;
+    limit_conn conn 50;
+    try_files $uri =404;
+  }
+
+  location = /api/v1/season1/sign-verify {
+    limit_req zone=sign_verify burst=10 nodelay;
+    limit_req_status 429;
+    limit_req_log_level warn;
+    limit_conn conn 10;
+    client_max_body_size 4k;
+    add_header Retry-After 60 always;
+    include /etc/nginx/snippets/security-headers-haha.conf;
+    proxy_pass http://127.0.0.1:8788/v1/season1/sign-verify;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    # X-Forwarded-For (2026-11-24, C): the signing service reads this for
+    # its per-IP attempt limiting (sign_verify_service.py _client_ip);
+    # without it the service only ever sees 127.0.0.1 and the IP limit
+    # never triggers. nginx is the only caller (service binds 127.0.0.1),
+    # so the header is trustworthy here.
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_read_timeout 15s;
+  }
+  # G13 validation request documents (2026-11-25, C): static files the
+  # upload endpoint publishes to /var/www/validations/ (haha:haha).
+  location /validations/ {
+    alias /var/www/validations/;
+    limit_req zone=static burst=20 nodelay;
+    limit_conn conn 20;
+    add_header Cache-Control "no-store";
+    add_header X-Content-Type-Options nosniff;
+    try_files  =404;
+  }
+
+  location ^~ /api/ {
+    limit_req zone=haha_api burst=60 nodelay;
+    limit_req_status 429;
+    limit_req_log_level warn;
+    limit_conn conn 20;
+    add_header Retry-After 60 always;
+    include /etc/nginx/snippets/security-headers-haha.conf;
+    proxy_pass http://127.0.0.1:8787/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    # X-Real-IP / X-Forwarded-For (2026-11-24, C, restored): the audit
+    # recorded these here; the findings publish route's per-(IP+hash)
+    # app-level limit (L5) reads X-Forwarded-For, and without it the API
+    # only ever sees 127.0.0.1. Same trust note as sign-verify above.
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_read_timeout 10s;
+  }
+  location /tg-bot/ {
+    limit_req zone=haha_api burst=10 nodelay;
+    limit_req_status 429;
+    limit_req_log_level warn;
+    limit_conn conn 20;
+    add_header Retry-After 60 always;
+    include /etc/nginx/snippets/security-headers-haha.conf;
+    rewrite ^/tg-bot/(.*)$ /$1 break;
+    proxy_pass http://127.0.0.1:8080;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+
+  location /rpc/ {
+    # H8 (2026-11-24, C): NO method whitelist -- this nginx build has no
+    # lua module (nginx -V shows none, no modules in /usr/lib/nginx/modules),
+    # so $request_body can't be inspected. Mitigation for now: 32k body cap
+    # + 120r/m limit below. Site JS only ever sends eth_call / eth_blockNumber
+    # (js/rpc.js, incl. batch eth_call arrays), but any method can still be
+    # proxied. Follow-up: put a small validating proxy in front of the
+    # upstream (allow eth_call, eth_blockNumber, eth_getBalance, eth_chainId;
+    # deny eth_getLogs, eth_sendRawTransaction, debug_*) or move RPC behind
+    # a keyed node, so a ban of the shared dataseed IP can't kill the site.
+    limit_req zone=haha_rpc burst=120 nodelay;
+    limit_req_status 429;
+    limit_req_log_level warn;
+    limit_conn conn 20;
+    client_max_body_size 32k;
+    add_header Retry-After 60 always;
+    include /etc/nginx/snippets/security-headers-haha.conf;
+    proxy_pass https://bsc-dataseed.binance.org/;
+    proxy_ssl_server_name on;
+    proxy_set_header Host bsc-dataseed.binance.org;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_connect_timeout 3s;
+    proxy_read_timeout 8s;
+  }
+  location / {
+    add_header Cache-Control "no-cache" always;
+    include /etc/nginx/snippets/security-headers-haha.conf;
+    limit_req zone=haha_api burst=20 nodelay;
+    limit_req_status 429;
+    limit_req_log_level warn;
+    limit_conn conn 20;
+    try_files $uri $uri.html $uri/ =404;
+  }
+  location ~ /\. { deny all; }
+  location ~* \.(webp|png|svg|ico|css|js|woff2)$ {
+    expires 7d;
+    add_header Cache-Control "public" always;
+    include /etc/nginx/snippets/security-headers-haha.conf;
+    limit_req zone=static burst=60 nodelay;
+    limit_req_status 429;
+    limit_req_log_level warn;
+    limit_conn conn 50;
+    try_files $uri =404;
+  }
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/haha.meme/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/haha.meme/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+}
+server {
+    if ($host = www.haha.meme) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = haha.meme) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+  listen 80; listen [::]:80;
+  server_name haha.meme www.haha.meme;
+    return 404; # managed by Certbot
+
+
+
+}

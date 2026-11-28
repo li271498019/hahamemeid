@@ -39,7 +39,7 @@
 <meta name="twitter:image:alt" content="haha.meme：Haha AI">
 <link rel="stylesheet" href="/css/site.css?v=32">
 <link rel="stylesheet" href="/css/haha-ai.css?v=1">
-<link rel="stylesheet" href="/css/haha-dog.css?v=2">
+<link rel="stylesheet" href="/css/haha-dog.css?v=3">
 </head>
 <body>
 <canvas id="fx" aria-hidden="true"></canvas>
@@ -71,6 +71,7 @@
       <div class="actions ai-cta">
         <a class="btn" href="#gen" data-i18n="ai.ctaGen">马上生成一只</a>
         <a class="btn light" href="#verify" data-i18n="ai.ctaVerify">自己验证</a>
+        <a class="btn light" href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" data-i18n="repo.ctaRepo">查看开源仓库</a>
       </div>
     </div>
     <figure class="ai-morph">
@@ -116,7 +117,7 @@
       <tr><td data-i18n="ai.infoSha">权重 sha256</td><td><code id="pub-sha"></code> <button class="ai-copy" type="button" data-copy-hash="pub-sha" data-i18n="ai.copy">复制</button></td></tr>
       <tr><td data-i18n="ai.infoData">链上模型数据 keccak256</td><td><code id="pub-data"></code> <button class="ai-copy" type="button" data-copy-hash="pub-data" data-i18n="ai.copy">复制</button><br><span class="muted" data-i18n="ai.infoDataNote">合约里存的是打包后的模型数据，不是权重文件，所以哈希和上面不同。</span></td></tr>
       <tr><td data-i18n="ai.infoContract">合约地址</td><td id="ai-contracts"></td></tr>
-      <tr><td data-i18n="ai.infoRepo">开源仓库</td><td><span class="ai-pending" data-i18n="ai.soonRepo">即将公开：模型、训练程序、素材和合约全部开源</span></td></tr>
+      <tr><td data-i18n="ai.infoRepo">开源仓库</td><td><span class="ai-open" data-i18n="repo.open">已公开</span> <span data-i18n="ai.openRepo">模型、训练程序、训练数据和原图、合约、测试、索引器、网站全部开源：</span><br><a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" data-i18n="repo.home">GitHub 公开库 li271498019/hahamemeid</a><ul class="repo-links"><li><a href="https://github.com/li271498019/hahamemeid/tree/main/haha-ai" target="_blank" rel="noopener noreferrer"><code>haha-ai/</code></a> <span data-i18n="repo.dAi">Haha AI 训练程序、训练数据、训练原图、权重、测试向量和训练报告</span></li><li><a href="https://github.com/li271498019/hahamemeid/tree/main/haha-dog" target="_blank" rel="noopener noreferrer"><code>haha-dog/</code></a> <span data-i18n="repo.dDog">Haha Dog 规格与模型发布</span></li><li><a href="https://github.com/li271498019/hahamemeid/tree/main/src/hahadog" target="_blank" rel="noopener noreferrer"><code>src/hahadog/</code></a> <span data-i18n="repo.dSrc">Haha Dog 合约源码</span></li><li><a href="https://github.com/li271498019/hahamemeid/tree/main/test/hahadog" target="_blank" rel="noopener noreferrer"><code>test/hahadog/</code></a> <span data-i18n="repo.dTest">Haha Dog 合约测试</span></li><li><a href="https://github.com/li271498019/hahamemeid/tree/main/indexer" target="_blank" rel="noopener noreferrer"><code>indexer/</code></a> <span data-i18n="repo.dIndexer">索引器源码</span></li><li><a href="https://github.com/li271498019/hahamemeid/tree/main/website" target="_blank" rel="noopener noreferrer"><code>website/</code></a> <span data-i18n="repo.dWeb">网站源码</span></li></ul></td></tr>
     </table>
   </div>
 
@@ -216,7 +217,7 @@ samples 400: unique_shapes 397, min_hamming_to_train_mean 6.95</pre>
 
     <h3 data-i18n="ai.repTitle">4. 自己复现</h3>
     <ol class="ai-steps">
-      <li><span data-i18n="ai.rep1">从开源仓库下载 Haha AI 训练包（仓库即将公开）。</span></li>
+      <li><span data-i18n="ai.rep1">从公开库下载 Haha AI 训练包，在 haha-ai/ 目录：</span> <a href="https://github.com/li271498019/hahamemeid/tree/main/haha-ai" target="_blank" rel="noopener noreferrer">haha-ai/</a></li>
       <li><span data-i18n="ai.rep2">安装 Python 3.10 或更新的版本。Windows 安装时勾选 “Add python.exe to PATH”。</span></li>
       <li><span data-i18n="ai.rep3">在训练包文件夹里打开命令行，安装依赖：</span><pre><code>pip install -r requirements.txt</code></pre></li>
       <li><span data-i18n="ai.rep4">一键训练。普通电脑 CPU 约 8–20 分钟，不需要显卡；加 --fast 可以先一分钟试跑：</span><pre><code>python run_all.py</code></pre></li>
@@ -234,7 +235,8 @@ certutil -hashfile weights-int8.json SHA256</code></pre></li>
 <script src="/js/addresses.js?v=9"></script>
 <script src="/js/rpc.js?v=18"></script>
 <script src="/js/i18n.js?v=72"></script>
-<script src="/js/haha-ai-i18n.js?v=2"></script>
+<script src="/js/haha-ai-i18n.js?v=3"></script>
+<script src="/js/haha-dog-i18n.js?v=3"></script>
 <script src="/js/instructions.js?v=12"></script>
 <script src="/js/session.js?v=8"></script>
 <script src="/js/ui.js?v=9"></script>

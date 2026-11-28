@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS season1_findings (
 -- keccak256(content) must equal report_evidence_hash. Adoption/reason are
 -- reviewer decisions and live elsewhere (findings.json on the website).
 CREATE TABLE IF NOT EXISTS season1_finding_reports (
-    report_evidence_hash BYTEA PRIMARY KEY REFERENCES season1_findings(report_evidence_hash),
+    report_evidence_hash BYTEA PRIMARY KEY,
     report_id            TEXT NOT NULL,
     title                TEXT NOT NULL,
     content              TEXT NOT NULL,
@@ -250,7 +250,8 @@ CREATE TABLE IF NOT EXISTS dogs (
     commit_time   TIMESTAMPTZ NOT NULL,
     rerolls       INT NOT NULL DEFAULT 0,  -- latest Committed.rerolls
     seed          BYTEA,                   -- keccak256(abi.encode(hash(commit+4), tokenId, rerolls)); NULL until known
-    seed_block    BIGINT                   -- block at which the seed became known (informational)
+    seed_block    BIGINT,                  -- block at which the seed became known (informational)
+    stalled       BOOLEAN NOT NULL DEFAULT FALSE -- on-chain status 3: hash unrecoverable, free reroll needed
 );
 CREATE INDEX IF NOT EXISTS dogs_owner ON dogs (owner, token_id);
 CREATE INDEX IF NOT EXISTS dogs_pending_seed ON dogs (commit_block) WHERE seed IS NULL;
@@ -297,3 +298,16 @@ CREATE TABLE IF NOT EXISTS dog_withdrawals (
     log_index    INT NOT NULL,
     PRIMARY KEY (tx_hash, log_index)
 );
+
+-- Haha Dog approvals (2026-11-28): ERC-721 Approval / ApprovalForAll, so
+-- /v1/dog/listings can tell whether a listing is actually buyable.
+CREATE TABLE IF NOT EXISTS dog_approvals (
+    token_id NUMERIC PRIMARY KEY,
+    approved BYTEA NOT NULL
+);
+CREATE TABLE IF NOT EXISTS dog_operators (
+    owner    BYTEA NOT NULL,
+    operator BYTEA NOT NULL,
+    approved BOOLEAN NOT NULL,
+    PRIMARY KEY (owner, operator)
+);;

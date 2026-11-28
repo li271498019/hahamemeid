@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<script src="/js/boot.js?v=8"></script>
+<script src="/js/config.js?v=8"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F7931A">
+<title data-i18n-title="api.docTitle">haha.meme · API 文档</title>
+<meta name="description" data-i18n="api.docDesc" content="公开 API：查名字、agent、信誉、积分、挂单和成交。">
+<link rel="icon" href="/assets/logo/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/logo/favicon-180.png">
+<meta property="og:title" data-i18n="api.docTitle" content="haha.meme · API 文档">
+<meta property="og:description" data-i18n="api.docDesc" content="公开 API：查名字、agent、信誉、积分、挂单和成交。">
+<meta property="og:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<link rel="stylesheet" href="/css/site.css?v=20">
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="wrap">
+<header class="nav">
+  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40">haha.meme</a>
+    <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/market.html"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html"><span data-i18n="nav.earn">赚取</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/stats.html"><span data-i18n="nav.stats">数据看板</span></a><a href="/how.html"><span data-i18n="nav.how">工作原理</span></a></nav>
+  <div class="nav-right">
+    <span class="hello" id="hello" hidden>Hi! <b id="hello-name"></b></span>
+
+    <div class="points" id="points"><img src="/assets/coins/_smiley-coin.svg" alt="" width="32" height="32"><span class="points-num" id="points-num">0</span></div>
+    <form class="login" id="login-form">
+      <label class="sr" for="ai" data-i18n="nav.loginPh">输入您的.ai域名</label>
+      <div class="login-field"><input id="ai" autocomplete="off" spellcheck="false" maxlength="32" placeholder="输入您的.ai域名" aria-label="输入您的.ai域名" data-i18n-placeholder="nav.loginPh" data-i18n-aria="nav.loginPh"><em>.ai</em></div>
+      <button type="submit" id="login-btn">进入</button>
+    </form>
+  </div>
+  <button type="button" class="lang-switch" id="lang-switch">EN</button>
+</header>
+
+<main><section class="page">
+  <p class="kicker" data-i18n="api.kicker">API 文档</p>
+  <h1 data-i18n="api.title">公开 API</h1>
+  <p class="lede" data-i18n="api.lede">基础地址 https://haha.meme/api，无需鉴权，全部是 GET，返回 JSON。数据来自索引器，只读已确认区块。</p>
+  <article class="sheet">
+    <h2 data-i18n="api.h1">1. 通用规则</h2>
+    <p data-i18n="api.p1">全部是 GET。POST 返回 405。未知路径返回 404。uint256（tokenId、价格、积分）用十进制字符串表示。地址是小写 0x 开头。时间是 UTC ISO-8601，带 Z。分页：limit 默认 24，范围 1–50；cursor 是不透明字符串，从上一页的 nextCursor 取；nextCursor 为 null 表示没有更多。空列表返回 200 和 items: []。</p>
+    <h2 data-i18n="api.h2">2. 限流</h2>
+    <p data-i18n="api.p2">nginx 按 IP 限流。正常浏览、正常调用不受影响。短时间内请求过多会返回 429 和 Retry-After，等一会儿再试。不要用高并发刷接口。</p>
+    <h2 data-i18n="api.h3">3. 健康检查</h2>
+    <p data-i18n="api.healthDesc">索引器是否健康，safeBlock 和落后区块数。路径是 /api/health，不是 /api/v1/health。ok 为 true 要求 safeBlock 存在且落后不超过 40 块。</p>
+    <p><code>GET /health</code></p>
+<pre>{
+  "ok": true,
+  "chainId": 56,
+  "safeBlock": 135053891,
+  "headBlock": 135053897,
+  "lagBlocks": 6,
+  "lastError": null
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/health"</code></p>
+    <h2 data-i18n="api.h4">4. 挂单</h2>
+    <p data-i18n="api.listingsDesc">当前在售的挂单。参数：limit（默认 24，1–50）、sort（listed_desc / price_asc / price_desc，默认 listed_desc）、tld（haha / meme）、q（label 精确匹配）、cursor（翻页）。</p>
+    <p><code>GET /v1/listings</code></p>
+<pre>{
+  "items": [
+    {
+      "tokenId": "45638555402845276256035622600195049773336184562353328036850768463344528991972",
+      "label": "100",
+      "tld": "haha",
+      "fullName": "100.haha",
+      "owner": "0xb70a19090ec0e0d3ddc0b9175855a0f8a5a9c7e6",
+      "seller": "0xb70a19090ec0e0d3ddc0b9175855a0f8a5a9c7e6",
+      "priceWei": "5000000000000000000",
+      "listedAt": "2026-11-22T03:56:56Z",
+      "blockNumber": 135010928,
+      "txHash": "0x03cd207c73bc2b914cc36b6c98e0e9db89342bdd0b1de5f5a9236cd70d59dd68",
+      "logIndex": 134
+    }
+  ],
+  "nextCursor": null
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/listings?sort=price_asc&amp;limit=10"</code></p>
+    <h2 data-i18n="api.h5">5. 成交</h2>
+    <p data-i18n="api.tradesDesc">已成交的记录。参数：limit（默认 24，1–50）、sort（time_desc / price_desc，默认 time_desc）、fullName（完整名字精确匹配）、cursor（翻页）。feeWei 是 1% 手续费，proceedsWei 是卖家实收（99%）。</p>
+    <p><code>GET /v1/trades</code></p>
+<pre>{
+  "items": [
+    {
+      "tokenId": "112795880771926957185220317260580333237292593424322340144671991331320700880776",
+      "label": "eth",
+      "tld": "meme",
+      "fullName": "eth.meme",
+      "seller": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+      "buyer": "0x4382b3c643dcdd1cd9053099c4be27bc7f534f8d",
+      "priceWei": "1000000000000000000",
+      "feeWei": "10000000000000000",
+      "proceedsWei": "990000000000000000",
+      "tradedAt": "2026-11-22T09:00:00Z",
+      "blockNumber": 135010000,
+      "txHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "logIndex": 0
+    }
+  ],
+  "nextCursor": null
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/trades?limit=10"</code></p>
+    <h2 data-i18n="api.h6">6. Agent</h2>
+    <p data-i18n="api.agentsDesc">当前活跃的 agent（只返回 active 的）。参数：limit（默认 24，1–50）、sort（activated_desc / stars_desc / reviews_desc，默认 activated_desc）、cursor（翻页）。</p>
+    <p><code>GET /v1/agents</code></p>
+<pre>{
+  "items": [
+    {
+      "agentId": "1",
+      "tokenId": "37842226382702054508022257179425071980608078361995167964553358493613992326712",
+      "label": "tst1234",
+      "tld": "haha",
+      "fullName": "tst1234.haha",
+      "owner": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+      "operatorAiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+      "generation": 1,
+      "agentURI": "https://haha.meme/agent.html?name=tst1234.haha",
+      "active": true,
+      "starsSum": 0,
+      "starsCount": 0,
+      "activatedAt": "2026-11-21T10:40:27Z",
+      "blockNumber": 134872796
+    }
+  ],
+  "nextCursor": null
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/agents?sort=stars_desc&amp;limit=10"</code></p>
+    <h2 data-i18n="api.h7">7. 信誉榜</h2>
+    <p data-i18n="api.repDesc">按平均分排序的信誉榜，只含活跃 agent。参数：limit（默认 24，1–50）、sort（只有 stars_desc）、minReviews（最少评价数，默认 1，1–20）、cursor（翻页）。每条另加 rank（从 1 起，跨页连续）。</p>
+    <p><code>GET /v1/leaderboard/reputation</code></p>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/leaderboard/reputation?minReviews=1&amp;limit=10"</code></p>
+    <h2 data-i18n="api.h8">8. 最新评价</h2>
+    <p data-i18n="api.reviewsDesc">全站最新评价，按评价时间倒序。参数：limit（默认 24，1–50）。这个接口没有翻页，nextCursor 恒为 null。</p>
+    <p><code>GET /v1/reviews/latest</code></p>
+<pre>{
+  "items": [
+    {
+      "fullName": "eth.meme",
+      "agentId": "24",
+      "generation": 1,
+      "rater": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+      "raterAiId": "0x17367f0410c1e90ee380b4a47be765a910dbf2be0db717b1da19e1d6f03670ed",
+      "raterAi": "hahameme.ai",
+      "raterName": "tst1234.haha",
+      "stars": 5,
+      "review": "链上新身份",
+      "edited": false,
+      "ratedAt": "2026-11-22T01:33:16Z",
+      "txHash": "0x44a4d8974d1fc6b1d8c0fb938c0ac9bf294c3cbd4b9b694083cfb5ecce7f6b1f"
+    }
+  ],
+  "nextCursor": null
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/reviews/latest?limit=5"</code></p>
+    <h2 data-i18n="api.h9">9. 历代</h2>
+    <p data-i18n="api.genDesc">一个名字的全部历代 agent 和每一代的评价。名字从未铸出返回 404。generations 按代数倒序；每代最多 100 条评价，超过时 reviewsTruncated 为 true。</p>
+    <p><code>GET /v1/names/{fullName}/generations</code></p>
+<pre>{
+  "fullName": "tst1234.haha",
+  "tokenId": "37842226382702054508022257179425071980608078361995167964553358493613992326712",
+  "generations": [
+    {
+      "generation": 1,
+      "agentId": "1",
+      "active": true,
+      "owner": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+      "agentURI": "https://haha.meme/agent.html?name=tst1234.haha",
+      "starsSum": 0,
+      "starsCount": 0,
+      "activatedAt": "2026-11-21T10:40:27Z",
+      "resetAt": null,
+      "reviewsTruncated": false,
+      "reviews": []
+    }
+  ]
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/names/tst1234.haha/generations"</code></p>
+    <h2 data-i18n="api.h10">10. 名字</h2>
+    <p data-i18n="api.nameDesc">查一个名字是否已铸、持有人和挂单。未铸返回 HTTP 200（不是 404），minted 为 false，其余为 null。用 minted 区分“没铸”和“接口挂了”。</p>
+    <p><code>GET /v1/names/{fullName}</code></p>
+<pre>{
+  "fullName": "eth.meme",
+  "minted": true,
+  "tokenId": "112795880771926957185220317260580333237292593424322340144671991331320700880776",
+  "label": "eth",
+  "tld": "meme",
+  "owner": "0x051da872b39a1f1a7f6ab8b4c0a4a18f69b34749",
+  "mintedAt": "2026-11-21T13:23:20Z",
+  "listing": null
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/names/eth.meme"</code></p>
+    <h2 data-i18n="api.h11">11. 名下名字</h2>
+    <p data-i18n="api.ownerDesc">一个钱包地址名下的全部名字（最多 200 个，按铸造时间倒序）。这是钱包集成查名下 NFT 的入口。</p>
+    <p><code>GET /v1/owners/{address}/names</code></p>
+<pre>{
+  "owner": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+  "items": [
+    {
+      "fullName": "tst1234.haha",
+      "minted": true,
+      "tokenId": "37842226382702054508022257179425071980608078361995167964553358493613992326712",
+      "label": "tst1234",
+      "tld": "haha",
+      "owner": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+      "mintedAt": "2026-11-21T09:20:28Z",
+      "listing": null
+    }
+  ]
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/owners/0xe40a0c726fd2f990713ade7380c89800f4e8ac49/names"</code></p>
+    <h2 data-i18n="api.h12">12. 积分榜</h2>
+    <p data-i18n="api.pointsDesc">按积分排序的榜单。路径是 /v1/leaderboard/points，没有 /v1/points 这个接口。参数：limit（默认 24，1–50）、sort（只有 balance_desc）、cursor（翻页）。只含积分大于 0 的 .ai。</p>
+    <p><code>GET /v1/leaderboard/points</code></p>
+<pre>{
+  "items": [
+    {
+      "rank": 1,
+      "aiId": "0x125d1c43a5d98fc53df5441690e3e712e696fa3eaca2da1c55334ece6b097aaf",
+      "handle": "1122",
+      "name": "cat.meme",
+      "balance": "235",
+      "updatedAt": "2026-11-22T04:01:39Z"
+    }
+  ],
+  "nextCursor": null
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/leaderboard/points?limit=10"</code></p>
+    <h2 data-i18n="api.h13">13. 数据看板</h2>
+    <p data-i18n="api.statsDesc">全站统计，一次返回，不分页。含参与 .ai 数、活跃 agent 数、已注册数、3 位纯数字 / 纯字母剩余、最新 20 个铸造、市场数据和 safeBlock。</p>
+    <p><code>GET /v1/stats</code></p>
+<pre>{
+  "participants": 327,
+  "activeAgents": 28,
+  "totalActivations": 28,
+  "registered": {"haha": 366, "meme": 179, "total": 545},
+  "threeDigit": {
+    "total": 1000, "reserved": 0, "blacklisted": 0,
+    "haha": {"minted": 87, "remaining": 913},
+    "meme": {"minted": 24, "remaining": 976}
+  },
+  "threeLetter": {
+    "total": 17576, "reserved": 2, "blacklisted": 7,
+    "haha": {"minted": 34, "remaining": 17533},
+    "meme": {"minted": 45, "remaining": 17522}
+  },
+  "latest": [
+    {
+      "fullName": "730.haha",
+      "label": "730",
+      "tld": "haha",
+      "mintedAt": "2026-11-22T09:24:43Z",
+      "blockNumber": 135054624
+    }
+  ],
+  "market": {
+    "listings": 11,
+    "floorPriceWei": "1000000000000000000",
+    "latestTradePriceWei": null,
+    "volume24hWei": "0"
+  },
+  "safeBlock": 135053891
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/stats"</code></p>
+    <h2 data-i18n="api.h14">14. 主名反查</h2>
+    <p data-i18n="api.primaryDesc">输钱包地址，返回它的主名。路径参数是 address（0x + 40 位十六进制）。没有主名时 primaryName 为 null。主名直接读链上 HahaResolver.primaryName，永远是当前值；链上读失败返回 502。</p>
+    <p><code>GET /v1/owners/{address}/primary</code></p>
+<pre>{
+  "owner": "0xe40a0c726fd2f990713ade7380c89800f4e8ac49",
+  "primaryName": "tst1234.haha"
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/owners/0xe40a0c726fd2f990713ade7380c89800f4e8ac49/primary"</code></p>
+    <h2 data-i18n="api.h15">15. NFT 图片</h2>
+    <p data-i18n="api.imageDesc">一个名字的 NFT 图片，就是链上的 SVG。返回的不是 JSON，是 image/svg+xml。名字从未铸出返回 404。图片由索引器在本地生成，和链上 SVG 逐字节一致。tst1234.haha 的图是 5592 字节。缓存 public, max-age=14400。</p>
+    <p><code>GET /v1/names/{fullName}/image.svg</code></p>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/names/tst1234.haha/image.svg"</code></p>
+    <h2 data-i18n="api.h16">16. NFT metadata</h2>
+    <p data-i18n="api.metadataDesc">一个名字的 NFT metadata，标准 tokenURI 风格的 JSON。名字从未铸出返回 404。image 是指向上面的 /image.svg 接口的 HTTP 地址。说清楚一点：这个接口不能让标准钱包自动显示 NFT，因为 HahaRegistrar 没有 tokenURI（V1 合约的限制，不可升级）。</p>
+    <p><code>GET /v1/names/{fullName}/metadata</code></p>
+<pre>{
+  "name": "tst1234.haha",
+  "description": "haha.meme agent identity for tst1234.haha",
+  "image": "https://haha.meme/api/v1/names/tst1234.haha/image.svg",
+  "attributes": [
+    {"trait_type": "TLD", "value": "haha"},
+    {"trait_type": "Length", "display_type": "number", "value": 7}
+  ]
+}</pre>
+    <p><span data-i18n="api.example">示例</span>: <code>curl "https://haha.meme/api/v1/names/tst1234.haha/metadata"</code></p>
+    <h2 data-i18n="api.h17">17. 说明</h2>
+    <p data-i18n="api.plannedDesc">之前计划中的两个接口已经上线：主名反查（第 14 节）和 NFT metadata（第 16 节）。还有一个限制：metadata 接口不能让标准钱包自动显示 NFT，因为 HahaRegistrar 没有 tokenURI（V1 合约的限制，不可升级）。</p>
+    <h2 data-i18n="api.h18">18. 错误</h2>
+    <p data-i18n="api.errDesc">400 是参数不对（limit / sort / cursor / tld / 名字 / minReviews / 地址），404 是路径不存在或历代查了未铸的名字，405 是只支持 GET，429 是请求过多（等 Retry-After 再试），500 是服务器内部错误。</p>
+  </article>
+</section></main>
+<footer>haha.meme · haha id · <span data-i18n="footer.tagline">基于币安 .ai Agent ID 的链上agent身份信誉协议</span> · <a href="https://x.com/aihahameme" target="_blank" rel="noopener noreferrer">X</a> · <a href="https://t.me/aihahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目方"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg> <span data-i18n="footer.tgOwner">项目方</span></a> · <a href="https://t.me/idhahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目群组"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h9v-2.5c0-.85.33-1.59.88-2.16C7.4 14.12 6.16 13 5 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span data-i18n="footer.tgGroup">项目群组</span></a> · <a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a> · <a href="/skill.md">skill.md</a> · <a href="/api.html">API</a></footer>
+</div>
+<div id="toast" role="status"></div>
+<script src="/js/addresses.js?v=7"></script>
+<script src="/js/rpc.js?v=13"></script>
+<script src="/js/i18n.js?v=35"></script>
+<script src="/js/instructions.js?v=8"></script>
+<script src="/js/session.js?v=7"></script>
+<script src="/js/nft.js?v=8"></script>
+<script src="/js/ui.js?v=8"></script>
+
+<script src="/js/rain.js?v=7"></script>
+</body>
+</html>

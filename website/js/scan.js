@@ -675,6 +675,9 @@
   function dogDetailHtml(t, acts) {
     var html = "<h3>" + dogTokenLink(t.tokenId).replace(">#", ">Haha Dog #") + "</h3>";
     if (!t.minted) return html + '<p class="note">' + esc(fill("scan.dogNotMinted", {id: t.tokenId})) + "</p>";
+    /* Not drawn yet (generating, or the hash was missed): the Haha AI latent-interpolation placeholder, like everywhere else. */
+    if (t.status !== "ready" && window.HahaDogWait) html += '<div class="dog-art dog-detail-art">' + HahaDogWait.html(t.status === "check") + "</div>";
+    else html += '<p><a href="/mint.html?id=' + esc(t.tokenId) + '#view">' + esc(T("scan.dogViewArt")) + "</a></p>";
     html += "<p>" + esc(T("scan.nameOwner")) + ": " + aiAddrLink(t.owner)
       + "<br>" + esc(T("scan.dogStatus")) + ": " + esc(T("scan.dogS_" + t.status))
       + "<br>" + esc(T("scan.dogRerolls")) + ": " + esc(String(t.rerolls))
@@ -872,7 +875,8 @@
     rows += "<tr><td>" + esc(T("scan.cFee")) + "</td><td>" + addrLink(ADDR.feeReceiver) + "</td><td></td></tr>";
     rows += "<tr><td>" + esc(T("scan.cSeason1") + " " + T("scan.cnSeason1")) + "</td><td>" + addrLink(SEASON1) + "</td><td>" + esc(T("scan.season1Note")) + "</td></tr>";
     el.innerHTML = '<div class="lb-scroll"><table><thead><tr><th>' + esc(T("scan.colContractName")) + "</th><th>" + esc(T("scan.colAddress")) + "</th><th>" + esc(T("scan.colNote")) + "</th></tr></thead><tbody>" + rows + "</tbody></table></div>"
-      + '<p class="note">' + esc(T("scan.contractsNote")) + "</p>";
+      + '<p class="note">' + esc(T("scan.contractsNote")) + "</p>"
+      + '<p class="note">' + esc(T("repo.scanSrc")) + ' <a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer">github.com/li271498019/hahamemeid</a></p>';
   }
 
   /* ---------------- 搜索 ---------------- */

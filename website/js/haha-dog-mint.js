@@ -129,7 +129,7 @@
   var cur = null, poll = 0, seq = 0;
   function showMsg(t) { var el = $("view-msg"); el.hidden = !t; el.textContent = t || ""; }
   function placeholder(d) {
-    return '<div class="dog-wait"><b>' + esc(T("dog.generating")) + "</b><span>" + esc(d && d.status === D.STATUS.stalled ? T("dog.stalledShort") : T("dog.waitShort")) + "</span></div>";
+    return HahaDogWait.html(!!(d && d.status === D.STATUS.stalled));
   }
   function traitRows(t) {
     var rows = [["ai.tHead", "head", t.head], ["ai.tEyes", "eyes", t.eyes], ["ai.tMouth", "mouth", t.mouth], ["ai.tNeck", "neck", t.neck],

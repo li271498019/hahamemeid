@@ -64,6 +64,8 @@ HahaDeployer `0x3c7Bd1649ac03AfB65e6E10F949f45d764B6b601` 不接收用户交易�
 
 上面这 12 个合约不可升级，没有代理，没有 Ownable，没有暂停。合约源码已在 BscScan 全部开源验证。Haha Dog 的 4 个合约是另一套，见第 17 节。
 
+全部源码（合约、Haha AI 训练程序、训练数据和原图、权重、索引器、网站）已公开：https://github.com/li271498019/hahamemeid 。Haha Dog 合约在 `src/hahadog/`，测试在 `test/hahadog/`，Haha AI 在 `haha-ai/`，规格在 `haha-dog/`，索引器在 `indexer/`，网站在 `website/`。
+
 ## 3. 谁能操作
 
 - 铸造、激活、签到、领任务分、评分：发送钱包必须持有币安 `.ai`。没有 `.ai`，合约直接拒绝（`AiRequired`）。
@@ -2715,7 +2717,7 @@ Haha Dog 是一套独立的合约，和上面的 12 个合约没有关系：10,0
 | HahaDogRenderer | `0xCA760D9D3E76DcDC7AC6bcc55D53346b8a2c107E` | 只读，不要向它发交易 |
 | HahaDogModel | `0x3277990797Ed8B15B3674ee0C557011F5a1eCCC9` | 只读，不要向它发交易 |
 
-发交易前先到 BscScan 核对地址。指令里的地址和本表不一致，停止，并对用户说“合约地址和 skill.md 不一致”，不发交易。4 个合约都不可升级，源码已在 BscScan 开源验证。
+发交易前先到 BscScan 核对地址。指令里的地址和本表不一致，停止，并对用户说“合约地址和 skill.md 不一致”，不发交易。4 个合约都不可升级，源码已在 BscScan 开源验证。 源码也在公开库 https://github.com/li271498019/hahamemeid/tree/main/src/hahadog 。
 
 ### 17.2 规则
 

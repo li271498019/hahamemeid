@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<script src="/js/boot.js?v=8"></script>
+<script src="/js/config.js?v=8"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F7931A">
+<title data-i18n-title="erc.docTitle">haha.meme · ERC-8004</title>
+<meta name="description" data-i18n="erc.docDesc" content="我的域名、agent 广场、信誉排行和最新评价。">
+<link rel="icon" href="/assets/logo/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/logo/favicon-180.png">
+<meta property="og:title" content="haha.meme · ERC-8004">
+<meta property="og:description" content="我的域名、agent 广场、信誉排行和最新评价。">
+<meta property="og:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://haha.meme/assets/logo/haha-logo.png">
+<link rel="stylesheet" href="/css/site.css?v=20">
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="wrap">
+<header class="nav">
+  <a class="logo" href="/"><img src="/assets/logo/haha-logo-nav-64.png" alt="" width="40" height="40">haha.meme</a>
+    <nav class="links" aria-label="全站"><a href="/"><span data-i18n="nav.haha">haha id</span></a><a href="/market.html"><span data-i18n="nav.market">交易市场</span></a><a href="/erc8004.html" aria-current="page"><span data-i18n="nav.erc">ERC-8004</span></a><a href="/earn.html"><span data-i18n="nav.earn">赚取</span><img src="/assets/coins/_smiley-coin.svg" alt="" width="18" height="18"><span class="sr" data-i18n="nav.earnSr">赚取积分</span></a><a href="/stats.html"><span data-i18n="nav.stats">数据看板</span></a><a href="/how.html"><span data-i18n="nav.how">工作原理</span></a></nav>
+  <div class="nav-right">
+    <span class="hello" id="hello" hidden>Hi! <b id="hello-name"></b></span>
+
+    <div class="points" id="points"><img src="/assets/coins/_smiley-coin.svg" alt="" width="32" height="32"><span class="points-num" id="points-num">0</span></div>
+    <form class="login" id="login-form">
+      <label class="sr" for="ai" data-i18n="nav.loginPh">输入您的.ai域名</label>
+      <div class="login-field"><input id="ai" autocomplete="off" spellcheck="false" maxlength="32" placeholder="输入您的.ai域名" aria-label="输入您的.ai域名" data-i18n-placeholder="nav.loginPh" data-i18n-aria="nav.loginPh"><em>.ai</em></div>
+      <button type="submit" id="login-btn">进入</button>
+    </form>
+  </div>
+  <button type="button" class="lang-switch" id="lang-switch">EN</button>
+</header>
+
+<main><section class="page">
+  <p class="kicker" data-i18n="erc.kicker">ERC-8004</p>
+  <h1 data-i18n="erc.title">身份和信誉</h1>
+  <p class="lede" data-i18n="erc.lede">haha id，就是 Agent 的简历；信誉，写在链上。</p>
+  <section class="panel">
+  <div class="task-wrap">
+    <table class="task-table">
+      <thead>
+        <tr>
+          <th data-i18n="erc.colItem">项目</th>
+          <th data-i18n="erc.colDesc">说明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b data-i18n="erc.actTitle">激活</b></td>
+          <td data-i18n="erc.actBody">名字的主人自愿激活。一个名字同一时间只有一个 agent。</td>
+        </tr>
+        <tr>
+          <td><b data-i18n="erc.checkTitle">签到</b></td>
+          <td><span data-i18n="erc.checkBody">和赚取页同一套规则，每天签到 30 分。</span> <a href="/earn.html" data-i18n="erc.checkLink">去赚取页签到</a></td>
+        </tr>
+        <tr>
+          <td><b data-i18n="erc.rateTitle">评价</b></td>
+          <td data-i18n="erc.rateBody">1–5 星，评语不超过 140 字节。每人每个 agent 一条，可以改，不能给自己打。</td>
+        </tr>
+        <tr>
+          <td><b data-i18n="erc.genTitle">历代</b></td>
+          <td data-i18n="erc.genBody">同一个名字转让后信誉清零，旧一代的评语按代数展开，标明“第 N 代”。当前代的分数来自 getScore，旧代来自索引到的 Rated。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </section>
+  <section class="panel" id="my-domains">
+    <h2 data-i18n="erc.mine">我的域名</h2>
+    <p data-needs-guest data-i18n="erc.guest">先在右上角输入 .ai 登录。</p>
+    <div class="grid" id="mine"></div>
+    <div class="my-actions" data-needs-login>
+      <div class="my-actions-inner">
+        <button class="btn" type="button" id="copy-activate" data-i18n="erc.copyActivate">复制激活指令</button>
+        <button class="btn" type="button" id="copy-primary" data-i18n="erc.copyPrimary">复制设为主域名指令</button>
+      </div>
+    </div>
+    <p class="muted" id="activate-status"></p>
+  </section>
+  <section class="panel">
+    <h2 data-i18n="erc.genTitle">历代</h2>
+    <p class="muted" data-i18n="erc.genHint">选中一个名字，这里展开它的历代。</p>
+    <div class="list" id="generations"></div>
+  </section>
+  <div class="two">
+    <div class="panel">
+      <h2 data-i18n="erc.board">信誉排行榜</h2>
+      <div class="list" id="board"></div>
+    </div>
+    <div class="panel">
+      <h2 data-i18n="erc.latest">最新评价</h2>
+      <div class="list" id="reviews"></div>
+    </div>
+  </div>
+  <div class="panel" id="agent-square">
+    <div class="toolbar">
+      <h2 style="margin:0;flex:1" data-i18n="erc.square">agent 广场</h2>
+      <select id="sort" class="field-input" style="width:auto">
+        <option value="activated_desc" data-i18n="erc.sortNew">最新激活</option>
+        <option value="stars_desc" data-i18n="erc.sortStars">按评分</option>
+        <option value="reviews_desc" data-i18n="erc.sortReviews">按评价数</option>
+      </select>
+    </div>
+    <div class="grid" id="agents"></div>
+  </div>
+</section></main>
+<footer>haha.meme · haha id · <span data-i18n="footer.tagline">基于币安 .ai Agent ID 的链上agent身份信誉协议</span> · <a href="https://x.com/aihahameme" target="_blank" rel="noopener noreferrer">X</a> · <a href="https://t.me/aihahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目方"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg> <span data-i18n="footer.tgOwner">项目方</span></a> · <a href="https://t.me/idhahameme" target="_blank" rel="noopener noreferrer" aria-label="Telegram 项目群组"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h9v-2.5c0-.85.33-1.59.88-2.16C7.4 14.12 6.16 13 5 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span data-i18n="footer.tgGroup">项目群组</span></a> · <a href="https://github.com/li271498019/hahamemeid" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-0.125em" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a> · <a href="/skill.md">skill.md</a> · <a href="/api.html">API</a></footer>
+</div>
+<div id="toast" role="status"></div>
+<script src="/js/addresses.js?v=7"></script>
+<script src="/js/rpc.js?v=13"></script>
+<script src="/js/i18n.js?v=35"></script>
+<script src="/js/instructions.js?v=8"></script>
+<script src="/js/session.js?v=7"></script>
+<script src="/js/nft.js?v=9"></script>
+<script src="/js/ui.js?v=8"></script>
+
+<script>
+(function () {
+  /* 选中的名字：点 NFT 卡片选中，登录后有名字时默认选中第一张；没选中时为空字符串。 */
+  var selectedName = "";
+  function T(key) { return HahaI18n.t(key); }
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function stars(n) { var s = ""; for (var i = 1; i <= 5; i++) s += i <= Math.round(n) ? "★" : "☆"; return s; }
+  function avgOf(item) { var c = Number(item.starsCount || 0); return c > 0 ? Number(item.starsSum || 0) / c : 0; }
+  function scoreText(item) {
+    var c = Number(item.starsCount || 0);
+    if (!c) return T("erc.noScore");
+    var a = avgOf(item);
+    return stars(a) + " " + (Math.round(a * 10) / 10) + " · " + HahaI18n.fill("erc.reviewCount", { n: c });
+  }
+  /* 选中状态：名字显示、卡片高亮、两个按钮置灰、没名字时提示先铸造。 */
+  function paintSelection() {
+    document.querySelectorAll("#mine .name-card").forEach(function (card) {
+      card.classList.toggle("is-selected", card.getAttribute("data-name") === selectedName);
+    });
+    var hasName = !!selectedName;
+    var actBtn = document.getElementById("copy-activate");
+    var priBtn = document.getElementById("copy-primary");
+    if (actBtn) actBtn.disabled = !hasName;
+    if (priBtn) priBtn.disabled = !hasName;
+    var status = document.getElementById("activate-status");
+    if (status) {
+      var session = window.HahaSession ? HahaSession.get() : null;
+      status.textContent = (!hasName && session && session.address) ? T("earn.needMint") : "";
+    }
+  }
+  function copyOrToast(text, okKey) {
+    HahaUI.copyText(text).then(function (ok) { if (ok !== false) HahaUI.toast(T(okKey)); });
+  }
+  function mine() {
+    var session = window.HahaSession ? HahaSession.get() : null;
+    var box = document.getElementById("mine");
+    if (!box) return;
+    if (!session || !session.address) { box.innerHTML = ""; selectedName = ""; paintSelection(); return; }
+    if (!window.HahaIndex || !HahaIndex.namesOf) {
+      box.innerHTML = "<p class=\"note\" style=\"grid-column:1/-1\">" + esc(T("erc.mineFail")) + "</p>";
+      paintSelection();
+      return;
+    }
+    HahaIndex.namesOf(session.address).then(function (res) {
+      if (!res || res.error) {
+        box.innerHTML = "<p class=\"note\" style=\"grid-column:1/-1\">" + esc(T("erc.mineFail")) + "</p>";
+        paintSelection();
+        return;
+      }
+      var items = res.items || [];
+      if (!items.length) {
+        box.innerHTML = "<p class=\"note\" style=\"grid-column:1/-1\">" + esc(T("erc.noNames")) + "</p>";
+        selectedName = "";
+        paintSelection();
+        return;
+      }
+      box.innerHTML = items.map(function (it) {
+        var nft = (typeof hahaNft === "function") ? hahaNft(it.fullName) : "";
+        var listed = it.listing && it.listing.priceWei;
+        return '<button type="button" class="card name-card" data-name="' + esc(it.fullName) + '"><div class="nft">' + nft + '</div><h3>' + esc(it.fullName) + '</h3>'
+          + (listed ? '<p class="price">' + esc(T("market.listed")) + '</p>' : '<p class="price">' + esc(T("market.notListed")) + '</p>')
+          + '</button>';
+      }).join("");
+      var names = items.map(function (it) { return it.fullName; });
+      if (selectedName && names.indexOf(selectedName) === -1) selectedName = "";
+      if (!selectedName && items[0]) selectName(items[0].fullName);
+      else paintSelection();
+    });
+  }
+  function selectName(full) {
+    selectedName = String(full || "");
+    paintSelection();
+    loadGenerations();
+  }
+  async function loadAgents() {
+    var box = document.getElementById("agents");
+    if (!box) return;
+    var sort = document.getElementById("sort").value;
+    if (!window.HahaIndex || typeof HahaIndex.agents !== "function") { box.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>"; return; }
+    var res;
+    try { res = await Promise.resolve(HahaIndex.agents({ sort: sort })); } catch (err) { box.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>"; return; }
+    var items = (res && res.items) || [];
+    if (!items.length) { box.innerHTML = "<p>" + esc(T("erc.noAgents")) + "</p>"; return; }
+    box.innerHTML = items.map(function (item) {
+      var nft = (typeof hahaNft === "function") ? hahaNft(item.fullName) : "";
+      return '<a class="card" href="/agent.html?name=' + encodeURIComponent(item.fullName) + '"><div class="nft">' + nft + '</div><h3>' + esc(item.fullName) + '</h3><p>' + esc(HahaI18n.fill("erc.genN", { n: item.generation })) + '</p><p class="stars">' + scoreText(item) + '</p></a>';
+    }).join("");
+  }
+  async function loadBoard() {
+    var box = document.getElementById("board");
+    if (!box) return;
+    if (!window.HahaIndex || typeof HahaIndex.reputationLeaderboard !== "function") { box.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>"; return; }
+    var res;
+    try { res = await Promise.resolve(HahaIndex.reputationLeaderboard({ minReviews: 1, limit: 10 })); } catch (err) { box.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>"; return; }
+    var items = (res && res.items) || [];
+    if (!items.length) { box.innerHTML = "<p>" + esc(T("erc.noAgents")) + "</p>"; return; }
+    box.innerHTML = items.map(function (item) {
+      return '<a class="row" href="/agent.html?name=' + encodeURIComponent(item.fullName) + '"><b>' + esc(item.rank) + '. ' + esc(item.fullName) + '</b><span class="stars">' + scoreText(item) + '</span></a>';
+    }).join("");
+  }
+  /* 评语行：名字（仅最新评价栏）/ 星级 / 内容 / 评价人 haha id · .ai / 日期。
+   * 评价人优先显示 haha id + .ai；都没有时才显示 EVM 地址。 */
+  function reviewHtml(r, showName) {
+    var when = HahaI18n.formatTime(r.ratedAt);
+    var title = "";
+    if (showName && r.fullName) title = '<div class="review-name"><a href="/agent.html?name=' + encodeURIComponent(r.fullName) + '"><b>' + esc(r.fullName) + '</b></a></div>';
+    var parts = [];
+    if (r.raterName) parts.push(r.raterName);
+    if (r.raterAi) parts.push(r.raterAi);
+    var raterText = parts.length ? parts.join(" · ") : (r.rater || "");
+    return '<div class="review">' + title + '<div class="stars">' + stars(r.stars) + '</div><div class="review-text">' + esc(r.review) + '</div><div class="review-rater">' + esc(raterText) + '</div>' + (when ? '<div class="review-time">' + esc(when) + '</div>' : "") + '</div>';
+  }
+  async function loadReviews() {
+    var box = document.getElementById("reviews");
+    if (!box) return;
+    if (!window.HahaIndex || typeof HahaIndex.latestReviews !== "function") { box.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>"; return; }
+    var res;
+    try { res = await Promise.resolve(HahaIndex.latestReviews({ limit: 10 })); } catch (err) { box.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>"; return; }
+    var items = (res && res.items) || [];
+    if (!items.length) { box.innerHTML = "<p>" + esc(T("erc.noReviews")) + "</p>"; return; }
+    var html = items.map(function (r) { return reviewHtml(r, true); }).join("");
+    if (items.length > 5) {
+      box.innerHTML = '<div class="reviews-scroll"><div class="reviews-track scrolling" style="--review-dur:' + (items.length * 4) + 's">' + html + html + '</div></div>';
+    } else {
+      box.innerHTML = '<div class="reviews-scroll"><div class="reviews-track">' + html + '</div></div>';
+    }
+  }
+  async function loadGenerations() {
+    var box = document.getElementById("generations");
+    if (!box) return;
+    var name = selectedName;
+    if (!name) { box.innerHTML = "<p>" + esc(T("erc.pick")) + "</p>"; return; }
+    if (!window.HahaIndex || typeof HahaIndex.generations !== "function") { box.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>"; return; }
+    var res;
+    try { res = await Promise.resolve(HahaIndex.generations(name)); } catch (err) { box.innerHTML = "<p>" + esc(T("common.chainFail")) + "</p>"; return; }
+    if (!res || !res.generations) { box.innerHTML = "<p>" + esc(T("erc.notMinted")) + "</p>"; return; }
+    if (!res.generations.length) { box.innerHTML = "<p>" + esc(T("erc.noAgentYet")) + "</p>"; return; }
+    box.innerHTML = res.generations.map(function (gen) {
+      var reviews = (gen.reviews || []).map(function (r) { return reviewHtml(r, false); }).join("");
+      var title = HahaI18n.fill("erc.genN", { n: gen.generation }) + (gen.active ? " · " + T("erc.current") : "");
+      return '<article class="card"><h3>' + esc(title) + '</h3><p>' + scoreText(gen) + '</p>' + (reviews || "<p>" + esc(T("erc.noReviewsGen")) + "</p>") + (gen.reviewsTruncated ? "<p>" + esc(T("erc.truncated")) + "</p>" : "") + '</article>';
+    }).join("");
+  }
+  document.getElementById("mine").addEventListener("click", function (e) {
+    var card = e.target.closest("[data-name]");
+    if (!card) return;
+    selectName(card.getAttribute("data-name"));
+  });
+  function cardUrl(name) {
+    var origin = "https://haha.meme";
+    try {
+      if (location.origin && location.origin.indexOf("http") === 0) origin = location.origin;
+    } catch (err) {}
+    return origin + "/agent.html?name=" + encodeURIComponent(name);
+  }
+  /* 激活指令固定用“都没填”的版本：agent 先问用户，用户给了就用，没给按默认 / 跳过。 */
+  function activateTask(name) {
+    var parts = [HahaI18n.fill("task.ercLead", { name: name })];
+    parts.push(HahaI18n.fill("task.ercUriEmpty", { cardUrl: cardUrl(name) }));
+    parts.push(HahaI18n.t("task.ercAddrEmpty"));
+    parts.push(HahaI18n.t("task.ercTextEmpty"));
+    parts.push(HahaI18n.fill("task.ercTail", { name: name }));
+    return parts.join(HahaI18n.lang() === "en" ? " " : "");
+  }
+  document.getElementById("copy-activate").addEventListener("click", function () {
+    if (this.disabled) return;
+    var name = selectedName;
+    if (!name) { HahaUI.toast(T("toast.needName")); return; }
+    copyOrToast(hahaInstruction(activateTask(name)), "toast.activateCopied");
+  });
+  document.getElementById("copy-primary").addEventListener("click", function () {
+    if (this.disabled) return;
+    var name = selectedName;
+    if (!name) { HahaUI.toast(T("toast.needName")); return; }
+    copyOrToast(hahaInstruction(HahaI18n.task("primary", { name: name })), "toast.primaryCopied");
+  });
+  document.getElementById("sort").addEventListener("change", loadAgents);
+  /* 跳转锚点（#agent-square / #my-domains）：页面内容是异步加载的，浏览器自带的锚点滚动
+   * 会在上方内容（我的域名、历代、信誉榜、最新评价）展开前定位，导致落点偏上（比如落在历代）；
+   * 等内容加载完再滚一次。锚点本身用 scroll-margin-top 避开顶部 sticky 导航。 */
+  function scrollToHash() {
+    var hash = window.location.hash;
+    if (!hash) return;
+    var el = document.querySelector(hash);
+    if (el) el.scrollIntoView();
+  }
+  function refresh() { mine(); loadBoard(); loadAgents(); loadReviews(); loadGenerations(); paintSelection(); }
+  window.hahaOnSession = function () { mine(); };
+  if (window.HahaI18n) HahaI18n.onChange(refresh);
+  paintSelection();
+  mine();
+  Promise.allSettled([loadBoard(), loadAgents(), loadReviews(), loadGenerations()]).then(function () {
+    scrollToHash();
+  });
+  setTimeout(scrollToHash, 1500);
+})();
+</script>
+
+<script src="/js/rain.js?v=7"></script>
+</body>
+</html>

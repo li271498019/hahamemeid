@@ -1,0 +1,25 @@
+{
+  "ok": false,
+  "dayIndex": 20780,
+  "boundaryTs": 1795392000,
+  "snapshotBlock": 135171296,
+  "snapshotBlockHash": "0xa28bbb3f52e08efa374979310f08bc0a9c256dce497e2f31b3e56bfed0ea25c9",
+  "snapshotTimestamp": 1795392000,
+  "head": 135272427,
+  "confirmations": 15,
+  "precheck": {
+    "ok": false,
+    "reason": "blockhash-expired",
+    "remainingBlocks": -100875,
+    "confirmationsReady": true
+  },
+  "root": "0x3bbde2f6e4a69e6c78741ef0f78f71ca5b8355753111e0d5897c94319a18c957",
+  "manifestHash": "0xc3ea89cfe592ed3b5a957454e761b325e0c05f4ff2130008a96feac1bb4c60de",
+  "reservedCount": 7,
+  "remainingSlots": 0,
+  "entryCount": 7,
+  "pointsLogsReplayed": 996,
+  "ordersExcluded": 0,
+  "generatedAt": "2026-11-23T12:39:07.844980+00:00",
+  "outdir": "/opt/haha-season1/day-snapshots/rehearsal-20780"
+}

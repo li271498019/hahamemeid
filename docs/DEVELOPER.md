@@ -1,5 +1,10 @@
 > 这是私有开发库里的开发索引，方便对照规格和测试。产品说明以仓库根目录的 README.md 为准。
 > 文中「DEPLOYED.md 尚未创建」是 2026-11-20 的旧状态；主网回执现已写在 `docs/contracts/DEPLOYED.md`。
+>
+> 公开库是完整镜像，只排除密钥、密码和服务器 IP。第二轮补上的目录：
+> - `ops/`：systemd、nginx 样例、环境变量名、第一季和验证者的运行记录
+> - `docs/ops/`：索引器已知问题和 Haha Dog 网站三轮说明
+> - `legacy/`：根目录旧版页面（`legacy/root-site/`）和 2026-11-27 网站备份
 
 # haha.meme
 

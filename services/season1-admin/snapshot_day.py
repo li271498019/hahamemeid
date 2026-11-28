@@ -108,6 +108,22 @@ def fetch_orders(conn):
     return [{"aiId": "0x" + row[0].hex(), "status": row[1]} for row in cur.fetchall()]
 
 
+def fetch_previously_qualified(conn, day_index):
+    """aiIds that were in a previous day's snapshot entries (day_index < today).
+
+    These are the "expired" aiIds: they qualified on an earlier day but have
+    no order (they did not apply). They are excluded from primary selection
+    on this day; they only fill randomly when the fresh pool is short of
+    DAILY_MAX. The caller (eligible_entries) still drops anyone with a
+    blocking order, so this set is intersected with the live pool there.
+    """
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT DISTINCT ai_id FROM season1_entries WHERE day_index < %s",
+        (int(day_index),))
+    return ["0x" + row[0].hex() for row in cur.fetchall()]
+
+
 def store_entries(conn, day_index, entries, proofs):
     """Insert/update the eligible entries + Merkle proofs for one day.
 
@@ -156,13 +172,21 @@ def run_snapshot(day_index, boundary_ts, outdir=None):
                     "snapshotBlock": snapshot["number"], "head": head}
         points_logs = fetch_points_logs(conn, snapshot["number"])
         orders = fetch_orders(conn)
+        previously_qualified = fetch_previously_qualified(conn, day_index)
         balances = replay_balances(points_logs, snapshot["number"])
-        entries, reserved, remaining = eligible_entries(balances, orders)
+        # v2 rotation rule: the random fill is seeded by the snapshot block
+        # hash (public, on-chain), so anyone can reproduce the draw.
+        random_seed = snapshot["hash"]
+        entries, reserved, remaining, stats = eligible_entries(
+            balances, orders,
+            previously_qualified=previously_qualified,
+            random_seed=random_seed)
         root, proofs = merkle_root_and_proofs(entries)
         headers = [{"number": snapshot["number"], "timestamp": snapshot["timestamp"], "hash": snapshot["hash"]}]
         locked = lock_snapshot_block(headers, boundary_ts)
         body, _raw, digest = canonical_manifest(
-            day_index, boundary_ts, locked, MODULE, entries, root, reserved, remaining)
+            day_index, boundary_ts, locked, MODULE, entries, root, reserved, remaining,
+            stats=stats, random_seed=random_seed)
         body["manifestHash"] = digest
         precheck = root_publish_precheck(head, snapshot["number"], CONFIRMATIONS)
         os.makedirs(outdir, exist_ok=True)
@@ -189,6 +213,11 @@ def run_snapshot(day_index, boundary_ts, outdir=None):
             "reservedCount": reserved,
             "remainingSlots": remaining,
             "entryCount": len(entries),
+            "freshCount": stats["freshCount"],
+            "expiredCount": stats["expiredCount"],
+            "randomFilled": stats["randomFilled"],
+            "randomSeed": random_seed,
+            "previouslyQualified": len(previously_qualified),
             "pointsLogsReplayed": len(points_logs),
             "ordersExcluded": len(orders),
             "generatedAt": datetime.now(timezone.utc).isoformat(),

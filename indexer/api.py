@@ -1864,9 +1864,11 @@ def h_validations_upload(body):
 # /v1/dog/*: HahaDog NFT + HahaDogMarket, read from the dog_* tables that
 # dog_store.py fills. Same conventions as above: uint256 as decimal strings,
 # lowercase addresses, ISO times, opaque cursors, limit default 24 / max 50.
-# `status` is derived: "ready" (seed known), "generating" (target block not yet
-# confirmed), "check" (target is behind us but the indexer has no hash: ask the
-# chain, dogOf(tokenId); the contract may still have it via EIP-2935).
+# `status` is derived: "ready" (seed known), "stalled" (on-chain status 3:
+# the seed hash is permanently unrecoverable, owner can reroll for free),
+# "generating" (target block not yet confirmed), "check" (target is behind us
+# but the indexer has no hash: ask the chain, dogOf(tokenId); the contract
+# may still have it via EIP-2935).
 
 DOG_SUPPLY_CAP = 10000
 DOG_START_TIME = "2026-11-28T02:47:48Z"   # block 136153154 (HahaDog deployment)
@@ -1882,23 +1884,25 @@ def _safe_block():
     return row[0] if row else 0
 
 
-def _dog_status(seed, commit_block, safe):
+def _dog_status(seed, commit_block, safe, stalled=False):
     if seed is not None:
         return "ready"
+    if stalled:
+        return "stalled"
     if safe + CONFIRMATIONS <= commit_block + DOG_SEED_DELAY:
         return "generating"
     return "check"
 
 
 _DOG_COLS = ("d.token_id, d.owner, d.mint_block, d.mint_time, d.mint_tx,"
-             " d.commit_block, d.rerolls, d.seed")
+             " d.commit_block, d.rerolls, d.seed, d.stalled")
 
 
 def _dog_item(r, safe):
     return {
         "tokenId": dec(r["token_id"]),
         "owner": hexb(r["owner"]),
-        "status": _dog_status(r["seed"], r["commit_block"], safe),
+        "status": _dog_status(r["seed"], r["commit_block"], safe, bool(r["stalled"])),
         "commitBlock": r["commit_block"],
         "targetBlock": r["commit_block"] + DOG_SEED_DELAY,
         "rerolls": r["rerolls"],
@@ -1926,11 +1930,17 @@ def h_dog_stats():
         cur.execute("SELECT COUNT(*), COALESCE(SUM(rerolls), 0), COUNT(DISTINCT owner),"
                     " COUNT(*) FILTER (WHERE seed IS NOT NULL) FROM dogs")
         minted, rerolls, holders, with_seed = cur.fetchone()
-        # Active listings only: a listing whose seller no longer holds the dog, or whose dog was
-        # rerolled, cannot be bought (clearStale accepts it), so it is not part of the floor.
+        # Active listings only: a listing whose seller no longer holds the dog,
+        # whose dog was rerolled, or whose market approval was revoked cannot
+        # be bought (clearStale accepts it), so it is not part of the floor.
+        mkt = bytes.fromhex(CONTRACTS["dogmarket"][2:])
         cur.execute("SELECT COUNT(*), MIN(l.price_wei) FROM dog_listings l"
                     " JOIN dogs d ON d.token_id = l.token_id"
-                    " WHERE l.seller = d.owner AND l.rerolls = d.rerolls")
+                    " LEFT JOIN dog_approvals a ON a.token_id = l.token_id"
+                    " LEFT JOIN dog_operators o ON o.owner = l.seller AND o.operator = %s"
+                    " WHERE l.seller = d.owner AND l.rerolls = d.rerolls"
+                    " AND (a.approved = %s OR o.approved IS TRUE)",
+                    (mkt, mkt))
         listings, floor_wei = cur.fetchone()
         cur.execute("SELECT price_wei FROM dog_trades"
                     " ORDER BY block_number DESC, log_index DESC LIMIT 1")
@@ -2048,7 +2058,9 @@ def h_dog_listings(q):
     limit = parse_limit(q)
     sort = parse_sort(q, ("price_asc", "price_desc", "id_asc", "listed_desc"), "price_asc")
     cursor = q.get("cursor", [None])[0]
-    where, args = [], []
+    mkt = bytes.fromhex(CONTRACTS["dogmarket"][2:])
+    # First arg: the operator in the LEFT JOIN below (before any WHERE args).
+    where, args = [], [mkt]
     if sort == "price_asc":
         order = "l.price_wei ASC, l.token_id ASC"
         if cursor:
@@ -2079,8 +2091,11 @@ def h_dog_listings(q):
         mk = lambda r: [r["l_block"], dec(r["token_id"])]
     sql = ("SELECT " + _DOG_COLS + ", l.seller AS l_seller, l.price_wei AS l_price,"
            " l.rerolls AS l_rerolls, l.listed_time AS l_time, l.listed_block AS l_block,"
-           " l.tx_hash AS l_tx, l.log_index AS l_log"
+           " l.tx_hash AS l_tx, l.log_index AS l_log,"
+           " a.approved AS l_approved, o.approved AS l_op_approved"
            " FROM dog_listings l JOIN dogs d ON d.token_id = l.token_id"
+           " LEFT JOIN dog_approvals a ON a.token_id = l.token_id"
+           " LEFT JOIN dog_operators o ON o.owner = l.seller AND o.operator = %s"
            + (" WHERE " + " AND ".join(where) if where else "")
            + " ORDER BY " + order + " LIMIT %s")
     args.append(limit + 1)
@@ -2092,14 +2107,20 @@ def h_dog_listings(q):
     out = []
     for r in items:
         it = _dog_item(r, safe)
+        # Same test as HahaDogMarket.clearStale.
+        stale = bool(r["owner"] is None or bytes(r["owner"]) != bytes(r["l_seller"])
+                     or r["rerolls"] != r["l_rerolls"])
         it.update({
             "seller": hexb(r["l_seller"]), "priceWei": dec(r["l_price"]),
             "listedAt": iso(r["l_time"]), "listedBlock": r["l_block"],
             "txHash": hexb(r["l_tx"]), "logIndex": r["l_log"],
-            # Same test as HahaDogMarket.clearStale. Approval is not indexed: the
-            # buy button still calls isValid() on chain before it enables.
-            "stale": bool(r["owner"] is None or bytes(r["owner"]) != bytes(r["l_seller"])
-                          or r["rerolls"] != r["l_rerolls"]),
+            "stale": stale,
+            # Buyable only if the market is still approved for this token
+            # (per-token Approval) or for the seller (ApprovalForAll). A
+            # listing whose approval was revoked looks valid but is not.
+            "buyable": bool(not stale and (
+                (r["l_approved"] is not None and bytes(r["l_approved"]) == mkt)
+                or r["l_op_approved"] is True)),
         })
         out.append(it)
     return {"items": out, "nextCursor": nxt}
